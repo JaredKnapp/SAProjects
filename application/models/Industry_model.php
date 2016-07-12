@@ -13,9 +13,10 @@ class Industry_model extends CI_Model{
     public function get_list(){
         $data = array();
 
+        $this->db->order_by('name', 'ASC');
         $query = $this->db->get($this->table);
         foreach($query->result_array() as $row){
-            $data[''.$row['id']]=$row['name'];
+            $data[$row['id']]=$row['name'];
         }
 
         return $data;

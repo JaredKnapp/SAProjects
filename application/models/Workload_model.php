@@ -13,6 +13,7 @@ class Workload_model extends CI_Model{
     public function get_list($industries_id = NULL){
         $data = array();
 
+        $this->db->order_by('name', 'ASC');
         $query = $this->db->get_where($this->table, array('industries_id' => $industries_id));
         foreach($query->result_array() as $row){
             $data[$row['id']]=$row['name'];

@@ -1,14 +1,6 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-/**
- * Project short summary.
- *
- * Project description.
- *
- * @version 1.0
- * @author knappj1
- */
 class Project_model extends CI_Model{
 
     protected $table = 'projects';
