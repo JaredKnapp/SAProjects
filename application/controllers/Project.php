@@ -62,21 +62,21 @@ class Project extends CI_Controller {
         {
             $author_email = $this->input->cookie('author_email');
 
-            $data['author_email'] = (isset($_POST['author_email']) ? $_POST['author_email'] : $author_email);
-            $data['industries_id'] = (isset($_POST['industries_id']) ? $_POST['industries_id'] : '');
-            $data['workloads_id'] = (isset($_POST['workloads_id']) ? $_POST['workloads_id'] : '');
-            $data['platforms_id'] = (isset($_POST['platforms_id']) ? $_POST['platforms_id'] : '');
-            $data['effort_target'] = (isset($_POST['effort_target']) ? $_POST['effort_target'] : '');
-            $data['efforttypes_id'] = (isset($_POST['efforttypes_id']) ? $_POST['efforttypes_id'] : '');
-            $data['effortoutputs_id'] = (isset($_POST['effortoutputs_id']) ? $_POST['effortoutputs_id'] : '');
-            $data['desired_completion_date'] = (isset($_POST['desired_completion_date']) ? $_POST['desired_completion_date'] : $today->add(new DateInterval('P3M'))->format('m/d/Y'));
-            $data['effort_justification'] = (isset($_POST['effort_justification']) ? $_POST['effort_justification'] : '');
-            $data['notes'] = (isset($_POST['notes']) ? $_POST['notes'] : '');
+            $data['author_email']               = (isset($_POST['author_email']) ? $this->input->post('author_email') : $author_email);
+            $data['industries_id']              = $this->input->post('industries_id');
+            $data['workloads_id']               = $this->input->post('workloads_id');
+            $data['platforms_id']               = $this->input->post('platforms_id');
+            $data['effort_target']              = $this->input->post('effort_target');
+            $data['efforttypes_id']             = $this->input->post('efforttypes_id');
+            $data['effortoutputs_id']           = $this->input->post('effortoutputs_id');
+            $data['desired_completion_date']    = (isset($_POST['desired_completion_date']) ? $this->input->post('desired_completion_date') : $today->add(new DateInterval('P3M'))->format('m/d/Y'));
+            $data['effort_justification']       = $this->input->post('effort_justification');
+            $data['notes']                      = $this->input->post('notes');
 
-            $data['choicesEffortType'] = array(NULL => 'Select One...') + $this->EffortType_model->get_list();
-            $data['choicesIndustry'] = array(NULL => 'Select One...') + $this->Industry_model->get_list();
-            $data['choicesWorkload'] = array(NULL => 'Select One...');
-            $data['choicesPlatform'] = array(NULL => 'Select One...') + $this->Platform_model->get_list();
+            $data['choicesEffortType']          = array('' => 'Select One...') + $this->EffortType_model->get_list();
+            $data['choicesIndustry']            = array('' => 'Select One...') + $this->Industry_model->get_list();
+            $data['choicesWorkload']            = array('' => 'Select One...');
+            $data['choicesPlatform']            = array('' => 'Select One...') + $this->Platform_model->get_list();
 
             $this->load->view('templates/header', $data);
             $this->load->view('project/create');
@@ -85,15 +85,25 @@ class Project extends CI_Controller {
         }
         else
         {
-            $this->Project_model->set_project();
+            $project = array(
+                'author_email'              => $this->input->post('author_email'),
+                'workloads_id'              => $this->input->post('workloads_id'),
+                'platforms_id'              => $this->input->post('platforms_id'),
+                'effort_target'             => $this->input->post('effort_target'),
+                'efforttypes_id'            => $this->input->post('efforttypes_id'),
+                'desired_completion_date'   => $this->input->post('desired_completion_date'),
+                'effort_justification'      => $this->input->post('effort_justification'),
+                'notes'                     => $this->input->post('notes'),
+                'status'                    => 'draft',
+                'priority'                  => 'after'
+            );
+            $this->Project_model->set_project($project);
 
             $cookie = array(
-                'name'=>'author_email',
-                'value'=>$this->input->post('author_email'),
-                'expire'=> time()+86500
+                'name'=>        'author_email',
+                'value'=>       $this->input->post('author_email'),
+                'expire'=>      time()+86500
             );
-
-
             $this->input->set_cookie($cookie);
 
             $data['title'] = 'Thank You';

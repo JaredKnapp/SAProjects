@@ -19,25 +19,13 @@ class Project_model extends CI_Model{
         return $query->row_array();
     }
 
-    public function set_project()
+    public function set_project($data)
     {
         $this->load->helper('url');
         $this->load->model('ProjectTask_model');
 
-        $data = array(
-            'author_email' => $this->input->post('author_email'),
-            'workloads_id' => $this->input->post('workloads_id'),
-            'platforms_id' => $this->input->post('platforms_id'),
-            'effort_target' => $this->input->post('effort_target'),
-            'efforttypes_id' => $this->input->post('efforttypes_id'),
-            'desired_completion_date' => $this->input->post('desired_completion_date'),
-            'effort_justification' => $this->input->post('effort_justification'),
-            'notes' => $this->input->post('notes'),
-            'status' => 'draft',
-            'priority' => 'after',
-            'created' => date("Y-m-d H:i:s"),
-            'modified' => date("Y-m-d H:i:s")
-        );
+        $data['created'] = date("Y-m-d H:i:s");
+        $data['modified'] = date("Y-m-d H:i:s");
 
         $result = $this->db->insert($this->table, $data);
         $id = $this->db->insert_id();
