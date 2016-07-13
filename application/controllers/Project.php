@@ -7,6 +7,7 @@ class Project extends CI_Controller {
     {
         parent::__construct();
         $this->load->model('Project_model');
+        $this->load->helper('cookie');
         $this->load->helper('url_helper');
     }
 
@@ -52,13 +53,16 @@ class Project extends CI_Controller {
         $this->form_validation->set_rules('platforms_id', 'Product', 'required');
         $this->form_validation->set_rules('effort_target', 'Effort Target', 'required');
         $this->form_validation->set_rules('efforttypes_id', 'Effort Type', 'required');
-        $this->form_validation->set_rules('desired_completion_date', 'Desired Completion Date', 'required|regex_match[/[0-31]{2}\/[0-12]{2}\/[0-9]{4}/]');
+        $this->form_validation->set_rules('desired_completion_date', 'Desired Completion Date', 'callback_checkDateFormat');
         $this->form_validation->set_rules('effort_justification', 'Effort Justification', 'required');
+
         $today = new DateTime();
 
         if ($this->form_validation->run() === FALSE)
         {
-            $data['author_email'] = (isset($_POST['author_email']) ? $_POST['author_email'] : '');
+            $author_email = $this->input->cookie('author_email');
+
+            $data['author_email'] = (isset($_POST['author_email']) ? $_POST['author_email'] : $author_email);
             $data['industries_id'] = (isset($_POST['industries_id']) ? $_POST['industries_id'] : '');
             $data['workloads_id'] = (isset($_POST['workloads_id']) ? $_POST['workloads_id'] : '');
             $data['platforms_id'] = (isset($_POST['platforms_id']) ? $_POST['platforms_id'] : '');
@@ -83,11 +87,30 @@ class Project extends CI_Controller {
         {
             $this->Project_model->set_project();
 
+            $cookie = array(
+                'name'=>'author_email',
+                'value'=>$this->input->post('author_email'),
+                'expire'=> time()+86500
+            );
+
+
+            $this->input->set_cookie($cookie);
+
             $data['title'] = 'Thank You';
 
             $this->load->view('templates/header', $data);
             $this->load->view('project/create_success');
             $this->load->view('templates/footer');
         }
+    }
+
+    function checkDateFormat($date) {
+        $dateArray = explode('/', $date);
+        if(sizeof($dateArray)==3){
+            if(checkdate($dateArray[0], $dateArray[1], $dateArray[2])){
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -41,7 +41,7 @@
 <br />
 <?php echo form_label('Desired Completion Date *', 'desired_completion_date'); ?>
 <br />
-<?php echo form_input(array('name'=>'desired_completion_date', 'placeholder'=>'Due Date...', 'class'=>'required'), $desired_completion_date, array('id'=>'desired_completion_date', 'style'=>'width:150px;')); ?>
+<?php echo form_input(array('name'=>'desired_completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'required'), $desired_completion_date, array('id'=>'desired_completion_date', 'style'=>'width:150px;')); ?>
 <script>$(function () { $('#desired_completion_date').datepicker(); });</script>
 <br />
 <br />
