@@ -52,8 +52,9 @@ class Project extends CI_Controller {
         $this->form_validation->set_rules('platforms_id', 'Product', 'required');
         $this->form_validation->set_rules('effort_target', 'Effort Target', 'required');
         $this->form_validation->set_rules('efforttypes_id', 'Effort Type', 'required');
+        $this->form_validation->set_rules('desired_completion_date', 'Desired Completion Date', 'required|regex_match[/[0-31]{2}\/[0-12]{2}\/[0-9]{4}/]');
         $this->form_validation->set_rules('effort_justification', 'Effort Justification', 'required');
-
+        $today = new DateTime();
 
         if ($this->form_validation->run() === FALSE)
         {
@@ -64,6 +65,7 @@ class Project extends CI_Controller {
             $data['effort_target'] = (isset($_POST['effort_target']) ? $_POST['effort_target'] : '');
             $data['efforttypes_id'] = (isset($_POST['efforttypes_id']) ? $_POST['efforttypes_id'] : '');
             $data['effortoutputs_id'] = (isset($_POST['effortoutputs_id']) ? $_POST['effortoutputs_id'] : '');
+            $data['desired_completion_date'] = (isset($_POST['desired_completion_date']) ? $_POST['desired_completion_date'] : $today->add(new DateInterval('P3M'))->format('m/d/Y'));
             $data['effort_justification'] = (isset($_POST['effort_justification']) ? $_POST['effort_justification'] : '');
             $data['notes'] = (isset($_POST['notes']) ? $_POST['notes'] : '');
 

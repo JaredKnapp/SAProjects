@@ -20,10 +20,14 @@ class ListFactory extends CI_Controller {
         $output = '';
         foreach ($data as $key=>$value)
         {
-            $completionDate = "<label>Desired Completion Date: </label>&nbsp;<input type='text' name='".$key."_date' id='".$key."_date' value=''/>";
-            $script = '<script>$(function(){$("#'.$key.'_date").datepicker();});</script>';
+            //$completionDate = "<label>Desired Completion Date: </label>&nbsp;<input type='text' name='".$key."_date' id='".$key."_date' value=''/>";
+            //$script = '<script>$(function(){$("#'.$key.'_date").datepicker();});</script>';
             $checkbox = "<input type='checkbox' name='effortoutputs_id[]' value='$key'>";
-            $output .= "$checkbox &nbsp".$value."&nbsp&nbsp $completionDate $script<br /><br />";
+            $output .= "$checkbox &nbsp".$value. "<br /><br />";
+        }
+
+        if(empty($output)){
+            $output = 'Select an Effort Type...<br />';
         }
 
         echo $output;

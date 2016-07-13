@@ -30,6 +30,7 @@ class Project_model extends CI_Model{
             'platforms_id' => $this->input->post('platforms_id'),
             'effort_target' => $this->input->post('effort_target'),
             'efforttypes_id' => $this->input->post('efforttypes_id'),
+            'desired_completion_date' => $this->input->post('desired_completion_date'),
             'effort_justification' => $this->input->post('effort_justification'),
             'notes' => $this->input->post('notes'),
             'status' => 'draft',
@@ -41,11 +42,11 @@ class Project_model extends CI_Model{
         $result = $this->db->insert($this->table, $data);
         $id = $this->db->insert_id();
         $efforttypes_id = $this->input->post('efforttypes_id');
+        $desiredDate = $this->input->post('desired_completion_date');
 
         $effortoutputs = $this->input->post('effortoutputs_id');
         foreach($effortoutputs as $key=>$value){
-            $desiredDate = $this->input->post($value.'_date');
-            $childResult = $this->projecttask_model->set_projecttask(NULL, $id, $efforttypes_id, 'necessary??', $desiredDate);
+            $childResult = $this->ProjectTask_model->set_projecttask(NULL, $id, $efforttypes_id, 'necessary??', $desiredDate);
         }
 
         return $result;

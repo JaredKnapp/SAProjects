@@ -7,7 +7,7 @@
 <br />
 <?php echo form_label('Email Address *', 'author_email'); ?>
 <br />
-<?php echo form_input(array('name'=>'author_email', 'placeholder'=>'Enter your email address', 'class'=>'required'), $author_email, array('id'=>'author_email', 'style'=>'width:500px;')); ?>
+<?php echo form_input(array('name'=>'author_email', 'placeholder'=>'Enter your email address...', 'class'=>'required'), $author_email, array('id'=>'author_email', 'style'=>'width:500px;')); ?>
 <br />
 <br />
 <?php echo form_label('Industry *', 'industries_id'); ?>
@@ -36,7 +36,13 @@
 <br />
 <br />
 <?php echo form_label('Effort Output *', 'effortoutputs_id'); ?>
+<br />
 <div id="effortoutput">Select an Effort Type...</div>
+<br />
+<?php echo form_label('Desired Completion Date *', 'desired_completion_date'); ?>
+<br />
+<?php echo form_input(array('name'=>'desired_completion_date', 'placeholder'=>'Due Date...', 'class'=>'required'), $desired_completion_date, array('id'=>'desired_completion_date', 'style'=>'width:150px;')); ?>
+<script>$(function () { $('#desired_completion_date').datepicker(); });</script>
 <br />
 <br />
 <?php echo form_label('Effort Justification *', 'effort_justification'); ?>
@@ -54,30 +60,50 @@ echo form_submit(array('type'=>'submit', 'class'=>'submit', 'value'=>'Submit Req
 echo form_close();
 ?>
 <script type="text/javascript">
-    $(document).ready(function () {
-        $("#efforttype").on('change load', function () {
-            $.ajax({
-                url: "<?php echo base_url();?>index.php/ListFactory/GetEffortOutputsCheckbox",
-                data: { id: $(this).val() },
-                type: "POST",
-                success: function (data) {
-                    $("#effortoutput").html(data);
+
+    function getEffortOutput(val) {
+        $.ajax({
+            url: "<?php echo base_url();?>index.php/ListFactory/GetEffortOutputsCheckbox",
+            data: { id: $('#efforttype').val() },
+            type: "POST",
+            success: function (data) {
+                $("#effortoutput").html(data);
+                if (val) {
+                    $.each($("input[name='effortoutputs_id[]']"), function () {
+                        $(this).prop("checked", ($.inArray($(this).val(), val) != -1));
+                    });
                 }
-            }).fail(function () {
-                alert("ERROR: problem populating Effort Output checkboxes.");
-            });
+            }
+        }).fail(function () {
+            alert("ERROR: problem populating Effort Output checkboxes.");
+        });
+    }
+
+    function getWorkload(val) {
+        $.ajax({
+            url: "<?php echo base_url();?>index.php/ListFactory/GetWorkloadDropdown",
+            data: { id: $('#industry').val() },
+            type: "POST",
+            success: function (data) {
+                $("#workload").html(data);
+                if (val) {
+                    $("#workload").val(val);
+                }
+            }
+        }).fail(function () {
+            alert("ERROR: problem populating Workload dropdown.");
+        });
+    }
+
+    $(document).ready(function () {
+        $("#efforttype").on('ready change', function () {
+            getEffortOutput('');
         });
         $("#industry").on('change load', function () {
-            $.ajax({
-                url: "<?php echo base_url();?>index.php/ListFactory/GetWorkloadDropdown",
-                data: { id: $(this).val() },
-                type: "POST",
-                success: function (data) {
-                    $("#workload").html(data);
-                }
-            }).fail(function () {
-                alert("ERROR: problem populating Workload dropdown.");
-            });
+            getWorkload('');
         });
+
+        getEffortOutput(['<?php echo is_array($effortoutputs_id)? implode("','", $effortoutputs_id) : ''; ?>']);
+        getWorkload('<?php echo $workloads_id; ?>');
     });
 </script>
