@@ -4,9 +4,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Project_model extends CI_Model{
 
     protected $table = 'projects';
-    var $column_order = array();
-    var $column_search = array();
-    var $order = array( 'projects.id' => 'desc' );
 
     public function __construct(){
         parent::__construct();
@@ -37,16 +34,20 @@ class Project_model extends CI_Model{
         return $id;
     }
 
-    public function get_datatables()
+    public function get_datatables($sort = array(), $columnOrder = array(), $searchColumns = array(), $where = array())
     {
-        $this->_get_datatables_query();
+        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $where);
         if(array_key_exists('length', $_POST) && $_POST['length'] != -1) $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
         return $query->result();
     }
 
-    private function _get_datatables_query()
+    private function _get_datatables_query($sort, $columnOrder, $searchColumns, $where)
     {
+        //$column_order     = $columnOrder
+        //$column_search    = $searchColumns
+        //$order            = $sort
+
 
         $this->db->select($this->table.'.*', FALSE);
         $this->db->select('workloads.name AS workload', FALSE);
@@ -64,7 +65,7 @@ class Project_model extends CI_Model{
         $this->db->join( 'vflatprojecttasks', 'vflatprojecttasks.projects_id = '.$this->table.'.id', 'left');
         $index = 0;
 
-        foreach ($this->column_search as $item) // loop column
+        foreach ($this->searchColumns as $item) // loop column
         {
             if($_POST['search']['value']) // if datatable send POST for search
             {
@@ -79,15 +80,21 @@ class Project_model extends CI_Model{
                     $this->db->or_like($item, $_POST['search']['value']);
                 }
 
-                if(count($this->column_search) - 1 == $index) //last loop
+                if(count($this->searchColumns) - 1 == $index) //last loop
                     $this->db->group_end(); //close bracket
             }
             $index++;
         }
 
+        if($where){
+            foreach($where as $key=>$name){
+                $this->db->where($key, $name);
+            }
+        }
+
         if(isset($_POST['order'])) // here order processing
         {
-            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+            $this->db->order_by($this->columnOrder[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
         }
         else if(isset($this->order))
         {
@@ -96,9 +103,9 @@ class Project_model extends CI_Model{
         }
     }
 
-    public function count_filtered()
+    public function count_filtered($sort = array(), $columnOrder = array(), $searchColumns = array(), $where = array())
     {
-        $this->_get_datatables_query();
+        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $where);
         $query = $this->db->get();
         return $query->num_rows();
     }

@@ -2,6 +2,10 @@
 
 class SAView extends CI_Controller {
 
+    var $columnOrder    = array('industry','priority','workload','sa','effort_target', 'effort_type', 'effort_output', 'notes', 'estimated_completion_date', 'status',null);
+    var $searchColumns  = array('industries.name', 'projects.priority', 'workloads.name', 'users.firstname', 'users.lastname', 'projects.effort_target', 'vflatprojecttasks.effortoutput', 'efforttypes.name', 'projects.notes');
+    var $sort           = array('industry'=>'asc');
+
     public function __construct()
     {
         parent::__construct();
@@ -19,7 +23,7 @@ class SAView extends CI_Controller {
     }
 
     public function ajax_list(){
-        $list = $this->project->get_datatables();
+        $list = $this->project->get_datatables($this->sort, $this->columnOrder, $this->searchColumns);
 
         $priorityList = unserialize(SAP_PRIORITYLIST);
         $statusList = unserialize(SAP_STATUSLIST);
@@ -50,7 +54,7 @@ class SAView extends CI_Controller {
         $output = array(
                 "draw" => $this->input->post('draw'),
                 "recordsTotal" => $this->project->count_all(),
-                "recordsFiltered" => $this->project->count_filtered(),
+                "recordsFiltered" => $this->project->count_filtered($this->sort, $this->columnOrder, $this->searchColumns),
                 "data" => $data
         );
 
