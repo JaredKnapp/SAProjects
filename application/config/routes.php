@@ -50,6 +50,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |		my-controller/my-method	-> my_controller/my_method
  */
 
+$route['reports/nna'] = 'NowNextAfter';
 $route['project/create'] = 'project/create';
 $route['project/(:any)'] = 'project/view/$1';
 $route['project'] = 'project';

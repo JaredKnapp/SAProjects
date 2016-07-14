@@ -10,10 +10,10 @@ class ProjectTask_model extends CI_Model{
         $this->load->database();
     }
 
-    public function set_projecttask($id = NULL, $projectsID = null, $effortTypesID = NULL, $name = NULL, $desiredCompletionDate = NULL, $estimatedDueDate = NULL, $completionDate = NULL){
+    public function set_projecttask($id = NULL, $projectsID = null, $effortOutputsID = NULL, $name = NULL, $desiredCompletionDate = NULL, $estimatedDueDate = NULL, $completionDate = NULL){
         $data = array(
             'projects_id' => $projectsID,
-            'efforttypes_id' => $effortTypesID,
+            'effortoutputs_id' => $effortOutputsID,
             'name' => $name,
             'desired_completion_date' => is_null($desiredCompletionDate)?NULL:date('Y-m-d', strtotime($desiredCompletionDate)),
             'estimated_due_date' => is_null($estimatedDueDate)?NULL:(date('Y-m-d', strtotime($estimatedDueDate))),

@@ -32,6 +32,7 @@
     <Compile Include="application\config\smileys.php" />
     <Compile Include="application\config\user_agents.php" />
     <Compile Include="application\controllers\ListFactory.php" />
+    <Compile Include="application\controllers\NowNextAfter.php" />
     <Compile Include="application\controllers\Pages.php" />
     <Compile Include="application\controllers\Project.php" />
     <Compile Include="application\controllers\Welcome.php" />

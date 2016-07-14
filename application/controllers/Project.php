@@ -7,6 +7,8 @@ class Project extends CI_Controller {
     {
         parent::__construct();
         $this->load->model('Project_model');
+        $this->load->model('ProjectTask_model');
+
         $this->load->helper('cookie');
         $this->load->helper('url_helper');
     }
@@ -97,14 +99,24 @@ class Project extends CI_Controller {
                 'status'                    => 'draft',
                 'priority'                  => 'after'
             );
-            $this->Project_model->set_project($project);
+            $projectId = $this->Project_model->set_project($project);
+            if($projectId){
+                $cookie = array(
+                    'name'=>        'author_email',
+                    'value'=>       $this->input->post('author_email'),
+                    'expire'=>      time()+86500
+                );
+                $this->input->set_cookie($cookie);
 
-            $cookie = array(
-                'name'=>        'author_email',
-                'value'=>       $this->input->post('author_email'),
-                'expire'=>      time()+86500
-            );
-            $this->input->set_cookie($cookie);
+                $efforttypes_id = $this->input->post('efforttypes_id');
+                $desiredDate = $this->input->post('desired_completion_date');
+                $effortoutputs = $this->input->post('effortoutputs_id');
+
+                foreach($effortoutputs as $key=>$value){
+                    $childResult = $this->ProjectTask_model->set_projecttask(NULL, $projectId, $value, 'necessary??', $desiredDate);
+                }
+            }
+
 
             $data['title'] = 'Thank You';
 
@@ -114,7 +126,10 @@ class Project extends CI_Controller {
         }
     }
 
-    function checkDateFormat($date) {
+    /*********************************************************************************
+     * Utilities and Callbacks
+     *********************************************************************************/
+    public function checkDateFormat($date) {
         $dateArray = explode('/', $date);
         if(sizeof($dateArray)==3){
             if(checkdate($dateArray[0], $dateArray[1], $dateArray[2])){
