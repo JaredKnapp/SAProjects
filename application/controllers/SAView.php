@@ -1,6 +1,6 @@
 <?php
 
-class NowNextAfter extends CI_Controller {
+class SAView extends CI_Controller {
 
     public function __construct()
     {
@@ -11,10 +11,10 @@ class NowNextAfter extends CI_Controller {
     public function index(){
         $this->load->helper('url');
 
-        $data['title'] = 'Now Next After Report';
+        $data['title'] = 'SA Project View';
 
         $this->load->view('templates/header', $data);
-        $this->load->view('project/nownextafter');
+        $this->load->view('project/saview');
         $this->load->view('templates/footer');
     }
 

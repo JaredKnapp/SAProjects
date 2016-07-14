@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -7,16 +8,17 @@
     <title>ETD SA Projects</title>
 
     <?php 
-        echo '<link href="' . $this->config->base_url(). 'Content/themes/base/all.css" rel="stylesheet" type="text/css" />';
-        echo '<link href="' . $this->config->base_url(). 'Content/themes/base/all.css" rel="stylesheet" type="text/css" />';
-        echo '<link href="' . $this->config->base_url(). 'Content/bootstrap.min.css" rel="stylesheet" type="text/css" />';
-        echo '<link href="' . $this->config->base_url(). 'assets/css/theme.css" rel="stylesheet" type="text/css" />';
+    echo '<link href="' . $this->config->base_url(). 'Content/themes/base/all.css" rel="stylesheet" type="text/css" />';
+    //echo '<link href="' . $this->config->base_url(). 'Content/Content/DataTables-1.10.12/media/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />';
+    echo '<link href="' . $this->config->base_url(). 'Content/bootstrap.min.css" rel="stylesheet" type="text/css" />';
+    echo '<link href="' . $this->config->base_url(). 'assets/css/theme.css" rel="stylesheet" type="text/css" />';
+    echo '<link href="' . $this->config->base_url(). 'assets/css/datatable1.css" rel="stylesheet" type="text/css" />';
 
-        echo '<script src="'. $this->config->base_url(). 'Scripts/jquery-3.0.0.min.js" type="text/javascript"></script>';
-        echo '<script src="'. $this->config->base_url(). 'Scripts/jquery-ui-1.11.4.min.js" type="text/javascript"></script>';
-        echo '<script src="'. $this->config->base_url(). 'Scripts/bootstrap.min.js" type="text/javascript"></script>';
-        echo '<script src="'. $this->config->base_url(). 'Scripts/DataTables-1.10.12/media/js/jquery.dataTables.min.js" type="text/javascript"></script>';
-        echo '<script src="'. $this->config->base_url(). 'Scripts/DataTables-1.10.12/media/js/dataTables.bootstrap.js" type="text/javascript"></script>'; 
+    echo '<script src="'. $this->config->base_url(). 'Scripts/jquery-3.0.0.min.js" type="text/javascript"></script>';
+    echo '<script src="'. $this->config->base_url(). 'Scripts/jquery-ui-1.11.4.min.js" type="text/javascript"></script>';
+    echo '<script src="'. $this->config->base_url(). 'Scripts/bootstrap.min.js" type="text/javascript"></script>';
+    echo '<script src="'. $this->config->base_url(). 'Scripts/DataTables-1.10.12/media/js/jquery.dataTables.min.js" type="text/javascript"></script>';
+    echo '<script src="'. $this->config->base_url(). 'Scripts/DataTables-1.10.12/media/js/dataTables.bootstrap.js" type="text/javascript"></script>'; 
     ?>
 
 

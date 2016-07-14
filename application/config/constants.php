@@ -83,3 +83,13 @@ defined('EXIT_USER_INPUT')     OR define('EXIT_USER_INPUT', 7); // invalid user 
 defined('EXIT_DATABASE')       OR define('EXIT_DATABASE', 8); // database error
 defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
+
+
+/*-------------------------------
+| APPLICATION CONSTANTS
+|
+*/
+defined('SAP_STATUSLIST')       or define('SAP_STATUSLIST', serialize(array('draft'=>'Draft', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled', 'complete'=>'Complete')));
+defined('SAP_PRIORITYLIST')       or define('SAP_PRIORITYLIST', serialize(array('now'=>"Now", 'next'=>"Next", 'after'=>'After', 'beyond'=>"Beyond")));
+
+

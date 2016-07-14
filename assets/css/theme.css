@@ -105,6 +105,9 @@ p {
         border: 1px solid #FF2B06;
     }
 
+
+
+
 /** Layout **/
 #container {
     text-align: left;
@@ -191,7 +194,7 @@ p {
 #primary_nav_wrap {
     margin: 10px -10px -10px -10px;
     position: relative;
-    z-index: 9999;
+    /*z-index: 9999;*/
 }
 
     #primary_nav_wrap ul {
