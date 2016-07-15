@@ -39,6 +39,7 @@
     <Compile Include="application\controllers\Welcome.php" />
     <Compile Include="application\models\ProjectTask_model.php" />
     <Compile Include="application\models\Platform_model.php" />
+    <Compile Include="application\models\User_model.php" />
     <Compile Include="application\models\Workload_model.php" />
     <Compile Include="application\models\EffortOutput_model.php" />
     <Compile Include="application\models\Industry_model.php" />

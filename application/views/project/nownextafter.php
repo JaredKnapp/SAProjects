@@ -3,12 +3,14 @@
     <thead>
         <tr>
             <th>Industry</th>
-            <th>Priority</th>
-            <th>Workflow</th>
             <th>SA</th>
+            <th>Priority</th>
+            <th>Workload</th>
+            <th>Product</th>
             <th>Effort Target</th>
             <th>Effort Type</th>
             <th>Effort Output</th>
+            <th>Effort Justification</th>
             <th>Notes</th>
             <th>Estimated Complete Date</th>
             <th>Status</th>
@@ -18,12 +20,14 @@
     <tfoot>
         <tr>
             <th>Industry</th>
-            <th>Priority</th>
-            <th>Workflow</th>
             <th>SA</th>
+            <th>Priority</th>
+            <th>Workload</th>
+            <th>Product</th>
             <th>Effort Target</th>
             <th>Effort Type</th>
             <th>Effort Output</th>
+            <th>Effort Justification</th>
             <th>Notes</th>
             <th>Estimated Complete Date</th>
             <th>Status</th>

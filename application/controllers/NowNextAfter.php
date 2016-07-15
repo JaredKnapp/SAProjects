@@ -2,8 +2,8 @@
 
 class NowNextAfter extends CI_Controller {
 
-    var $columnOrder    = array('industry','priority','workload','sa','effort_target', 'effort_type', 'effort_output', 'notes', 'estimated_completion_date', 'status');
-    var $searchColumns  = array('industries.name', 'projects.priority', 'workloads.name', 'users.firstname', 'users.lastname', 'projects.effort_target', 'vflatprojecttasks.effortoutput', 'efforttypes.name', 'projects.notes');
+    var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
+    var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes');
     var $initialSort    = array('industry'=>'asc');
     var $where          = array('projects.status <>'=>'draft');
 
@@ -35,12 +35,14 @@ class NowNextAfter extends CI_Controller {
             $index++;
             $row = array();
             $row[] = $project->industry;
+            $row[] = $project->sa;
             $row[] = array_key_exists($project->priority, $priorityList) ? $priorityList[$project->priority] : '';
             $row[] = $project->workload;
-            $row[] = $project->sa;
+            $row[] = $project->platform;
             $row[] = $project->effort_target;
             $row[] = $project->effort_type;
             $row[] = $project->effort_output;
+            $row[] = $project->effort_justification;
             $row[] = $project->notes;
             $row[] = $project->estimated_completion_date;
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : '';
