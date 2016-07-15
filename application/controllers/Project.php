@@ -93,7 +93,7 @@ class Project extends CI_Controller {
                 'platforms_id'              => $this->input->post('platforms_id'),
                 'effort_target'             => $this->input->post('effort_target'),
                 'efforttypes_id'            => $this->input->post('efforttypes_id'),
-                'desired_completion_date'   => $this->tosqldate($this->input->post('desired_completion_date')),
+                'desired_completion_date'   => $this->_tosqldate($this->input->post('desired_completion_date')),
                 'effort_justification'      => $this->input->post('effort_justification'),
                 'notes'                     => $this->input->post('notes'),
                 'status'                    => 'draft',
@@ -108,7 +108,6 @@ class Project extends CI_Controller {
                 );
                 $this->input->set_cookie($cookie);
 
-                $efforttypes_id = $this->input->post('efforttypes_id');
                 $desiredDate = $this->input->post('desired_completion_date');
                 $effortoutputs = $this->input->post('effortoutputs_id');
 
@@ -139,7 +138,7 @@ class Project extends CI_Controller {
         return false;
     }
 
-    public function tosqldate($date){
+    private function _tosqldate($date){
         if($date){
             $datearray = explode('/', $date);
             if(count($datearray)==3){

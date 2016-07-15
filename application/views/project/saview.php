@@ -109,9 +109,12 @@
 
         $.ajax({
             url: "<?php echo site_url('SAView/ajax_edit/')?>/" + id,
+            cache: false,
             type: "GET",
             dataType: "JSON",
             success: function (data) {
+
+                $("#effortoutput").html('Select an effort type...');
 
                 $('[name="id"]').val(data.id);
                 $('[name="status"]').val(data.status);
@@ -139,6 +142,73 @@
             }
         });
     }
+
+    function save() {
+        var url;
+
+        $('#btnSave').text('saving...');
+        $('#btnSave').attr('disabled', true);
+
+        if (save_method == 'add') {
+            url = "<?php echo site_url('SAView/ajax_add')?>";
+        } else {
+            url = "<?php echo site_url('SAView/ajax_update')?>";
+        }
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: $('#form').serialize(),
+            dataType: "JSON",
+            success: function (data) {
+
+                if (data.status)
+                {
+                    $('#modal_form').modal('hide');
+                    reload_table();
+                }
+                else {
+                    for (var i = 0; i < data.inputerror.length; i++) {
+                        $('[name="' + data.inputerror[i] + '"]').parent().parent().addClass('has-error');
+                        $('[name="' + data.inputerror[i] + '"]').next().text(data.error_string[i]);
+                    }
+                }
+                $('#btnSave').text('save');
+                $('#btnSave').attr('disabled', false);
+
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error adding / update data');
+                $('#btnSave').text('save');
+                $('#btnSave').attr('disabled', false);
+
+            }
+        });
+    }
+
+        function delete_project(id)
+        {
+            if(confirm('Are you sure delete this Project Request?'))
+            {
+                $.ajax({
+                    url : "<?php echo site_url('SAView/ajax_delete')?>/"+id,
+                    type: "POST",
+                    dataType: "JSON",
+                    success: function(data)
+                    {
+                        //if success reload ajax table
+                        $('#modal_form').modal('hide');
+                        reload_table();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                        alert('Error deleting Project Request');
+                    }
+                });
+
+            }
+        }
 
 </script>
 
@@ -201,9 +271,9 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <?php echo form_label('SA *', 'sa_user_id', array('class'=>'control-label col-md-3')); ?>
+                        <?php echo form_label('SA *', 'sa_users_id', array('class'=>'control-label col-md-3')); ?>
                         <div class="col-md-9">
-                            <?php echo form_dropdown('sa_user_id', $choicesSAUser, '', 'class="form-control required" id="platform"'); ?>
+                            <?php echo form_dropdown('sa_users_id', $choicesSAUser, '', 'class="form-control required" id="platform"'); ?>
                             <span class="help-block"></span>
                         </div>
                     </div>

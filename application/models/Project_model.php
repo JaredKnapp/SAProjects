@@ -8,6 +8,7 @@ class Project_model extends CI_Model{
     public function __construct(){
         parent::__construct();
         $this->load->database();
+        $this->load->model('ProjectTask_model', 'projecttask');
     }
 
     public function get_projects($id = NULL){
@@ -36,14 +37,30 @@ class Project_model extends CI_Model{
         $this->load->helper('url');
         $id = null;
 
-        $data['created'] = date("Y-m-d H:i:s");
         $data['modified'] = date("Y-m-d H:i:s");
 
-        if($this->db->insert($this->table, $data)){
-            $id = $this->db->insert_id();
+        if(!array_key_exists('id', $data) || empty($data['id'])){
+            $data['created'] = date("Y-m-d H:i:s");
+            if($this->db->insert($this->table, $data)){
+                $id = $this->db->insert_id();
+            }
+        } else {
+            $this->db->update($this->table, $data, array('id'=>$data['id']));
+            $id = $data['id'];
         }
 
         return $id;
+    }
+
+    public function delete_by_id($id)
+    {
+        $projecttasks = $this->projecttask->get_list(array('projects_id'=>$id));
+        foreach($projecttasks as $projecttask){
+            $this->projecttask->delete_by_id($projecttask['id']);
+        }
+
+        $this->db->where('id', $id);
+        $this->db->delete($this->table);
     }
 
     public function get_datatables($sort = array(), $columnOrder = array(), $searchColumns = array(), $where = array())
@@ -52,6 +69,19 @@ class Project_model extends CI_Model{
         if(array_key_exists('length', $_POST) && $_POST['length'] != -1) $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
         return $query->result();
+    }
+
+    public function count_filtered($sort = array(), $columnOrder = array(), $searchColumns = array(), $where = array())
+    {
+        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $where);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+    public function count_all()
+    {
+        $this->db->from($this->table);
+        return $this->db->count_all_results();
     }
 
     private function _get_datatables_query($sort, $columnOrder, $searchColumns, $where)
@@ -108,18 +138,5 @@ class Project_model extends CI_Model{
             $order = $this->order;
             $this->db->order_by(key($order), $order[key($order)]);
         }
-    }
-
-    public function count_filtered($sort = array(), $columnOrder = array(), $searchColumns = array(), $where = array())
-    {
-        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $where);
-        $query = $this->db->get();
-        return $query->num_rows();
-    }
-
-    public function count_all()
-    {
-        $this->db->from($this->table);
-        return $this->db->count_all_results();
     }
 }
