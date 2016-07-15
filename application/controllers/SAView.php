@@ -51,7 +51,7 @@ class SAView extends CI_Controller {
             $row[] = $project->platform;
             $row[] = $project->effort_target;
             $row[] = $project->effort_type;
-            $row[] = $project->effort_output;
+            $row[] = implode('<br>', explode('||', $project->effort_output));
             $row[] = $project->effort_justification;
             $row[] = $project->notes;
             $row[] = $project->estimated_completion_date;
@@ -74,5 +74,25 @@ class SAView extends CI_Controller {
         );
 
         echo json_encode($output);
+    }
+
+    public function ajax_edit($id)
+    {
+        $data = $this->project->get_by_id($id);
+        $data->desired_completion_date = preg_match('/^0000-00-00/', $data->desired_completion_date) ? '' : $this->toMDY($data->desired_completion_date);
+        $data->estimated_completion_date = preg_match('/^0000-00-00/', $data->estimated_completion_date) ? '' : $this->toMDY($data->estimated_completion_date);
+        $data->completion_date = preg_match('/^0000-00-00/', $data->completion_date) ? '' : $this->toMDY($data->completion_date);
+        echo json_encode($data);
+    }
+
+    public function toMDY($date){
+        if($date){
+            $datetimearray = explode(' ', $date);
+            $datearray = explode('-', $datetimearray[0]);
+            if(count($datearray) == 3){
+                return $datearray[1] . '/' . $datearray[2] . '/' . $datearray[0];
+            }
+        }
+        return $date;
     }
 }

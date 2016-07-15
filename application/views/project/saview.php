@@ -93,8 +93,51 @@
         $('#form')[0].reset();
         $('.form-group').removeClass('has-error');
         $('.help-block').empty();
+
+        $('[name="status"]').val('draft');
+        $('[name="priority"]').val('beyond');
+        $("#effortoutput").html('Select an effort type...');
         $('#modal_form').modal('show');
         $('.modal-title').text('New Project Request');
+    }
+
+    function edit_project(id) {
+        save_method = 'update';
+        $('#form')[0].reset();
+        $('.form-group').removeClass('has-error');
+        $('.help-block').empty();
+
+        $.ajax({
+            url: "<?php echo site_url('SAView/ajax_edit/')?>/" + id,
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+
+                $('[name="id"]').val(data.id);
+                $('[name="status"]').val(data.status);
+                $('[name="priority"]').val(data.priority);
+                $('[name="author_email"]').val(data.author_email);
+                $('[name="industries_id"]').val(data.industries_id);
+                getWorkload(data.workloads_id);
+                $('[name="platforms_id"]').val(data.platforms_id);
+                $('[name="sa_users_id"]').val(data.sa_users_id);
+                $('[name="effort_target"]').val(data.effort_target);
+                $('[name="efforttypes_id"]').val(data.efforttypes_id);
+                getEffortOutput(data.effortoutput_id.split('||'));
+                $('[name="desired_completion_date"]').val(data.desired_completion_date);
+                $('[name="estimated_completion_date"]').val(data.estimated_completion_date);
+                $('[name="completion_date"]').val(data.completion_date);
+                $('[name="effort_justification"]').val(data.effort_justification);
+                $('[name="notes"]').val(data.notes);
+
+                $('#modal_form').modal('show');
+                $('.modal-title').text('Edit Project Request');
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error get data from ajax');
+            }
+        });
     }
 
 </script>
@@ -104,7 +147,9 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
                 <h3 class="modal-title">Project Request Form</h3>
             </div>
             <div class="modal-body form">

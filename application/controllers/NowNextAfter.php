@@ -41,7 +41,7 @@ class NowNextAfter extends CI_Controller {
             $row[] = $project->platform;
             $row[] = $project->effort_target;
             $row[] = $project->effort_type;
-            $row[] = $project->effort_output;
+            $row[] = implode('<br>', explode('||', $project->effort_output));
             $row[] = $project->effort_justification;
             $row[] = $project->notes;
             $row[] = $project->estimated_completion_date;

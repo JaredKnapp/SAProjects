@@ -19,6 +19,18 @@ class Project_model extends CI_Model{
         return $query->row_array();
     }
 
+    public function get_by_id($id)
+    {
+        $this->db->select( $this->table.'.*', FALSE );
+        $this->db->select( 'vflatprojecttasks.effortoutput_id AS effortoutput_id' );
+        $this->db->select( 'workloads.industries_id AS industries_id', FALSE );
+        $this->db->join( 'workloads', 'workloads.id = ' . $this->table . '.workloads_id', 'left' );
+        $this->db->join( 'vflatprojecttasks', 'vflatprojecttasks.projects_id = ' . $this->table . '.id', 'left');
+        $query = $this->db->get_where($this->table, array($this->table . '.id' => $id));
+
+        return $query->row();
+    }
+
     public function set_project($data)
     {
         $this->load->helper('url');
@@ -44,11 +56,6 @@ class Project_model extends CI_Model{
 
     private function _get_datatables_query($sort, $columnOrder, $searchColumns, $where)
     {
-        //$column_order     = $columnOrder
-        //$column_search    = $searchColumns
-        //$order            = $sort
-
-
         $this->db->select($this->table.'.*', FALSE);
         $this->db->select('workloads.name AS workload', FALSE);
         $this->db->select('industries.name AS industry', FALSE);
