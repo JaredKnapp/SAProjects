@@ -97,7 +97,7 @@ class Project extends CI_Controller {
                 'effort_justification'      => $this->input->post('effort_justification'),
                 'notes'                     => $this->input->post('notes'),
                 'status'                    => 'draft',
-                'priority'                  => 'after'
+                'priority'                  => 'beyond'
             );
             $projectId = $this->Project_model->set_project($project);
             if($projectId){
