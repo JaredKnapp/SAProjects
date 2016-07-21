@@ -8,7 +8,8 @@
     <title>ETD SA Projects</title>
 
     <?php 
-    echo '<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />';    echo '<link href="' . $this->config->base_url() . 'Content/themes/base/all.css" rel="stylesheet" type="text/css" />';
+    echo '<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />';
+    echo '<link href="' . $this->config->base_url() . 'Content/themes/base/all.css" rel="stylesheet" type="text/css" />';
     //echo '<link href="' . $this->config->base_url() . 'Content/Content/DataTables-1.10.12/media/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />';
     echo '<link href="' . $this->config->base_url() . 'Content/bootstrap.min.css" rel="stylesheet" type="text/css" />';
     echo '<link href="' . $this->config->base_url() . 'assets/css/theme.css" rel="stylesheet" type="text/css" />';
@@ -43,19 +44,21 @@
                     <nav id="primary_nav_wrap">
                         <ul>
                             <li>
-                                <a href="<?php echo $this->config->site_url('project/create'); ?>" class="<?php echo $topmenu==='project'?'active':'notactive'; ?>">Projects</a>
+                                <a href="<?php echo $this->config->site_url('project/create'); ?>" class="<?php echo ($topmenu && $topmenu==='project')?'active':'notactive'; ?>">Project Requests</a>
                                 <ul>
-                                    <li><a href="<?php echo $this->config->site_url('project/create'); ?>">Create Project Request</a></li>
+                                    <li><a href="<?php echo $this->config->site_url('project/create'); ?>">Create</a></li>
+                                    <li><a href="<?php echo $this->config->site_url('project'); ?>">List</a></li>
                                 </ul>
                             </li>
                             <li>
-                                <a href="<?php echo $this->config->site_url('reports/nna'); ?>" class="<?php echo $topmenu==='report'?'active':'notactive'; ?>">Reports</a>
+                                <a href="<?php echo $this->config->site_url('reports/nna'); ?>" class="<?php echo ($topmenu && $topmenu==='report')?'active':'notactive'; ?>">Reports</a>
                                 <ul>
                                     <li><a href="<?php echo $this->config->site_url('reports/nna'); ?>">Now Next After</a></li>
                                 </ul>
                             </li>
                         </ul>
-                    </nav>            </div>
+                    </nav>
+            </div>
             <div id="content">
                 <h1><?php echo $title; ?></h1>
 

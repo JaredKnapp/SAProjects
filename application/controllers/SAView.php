@@ -22,6 +22,7 @@ class SAView extends CI_Controller {
         $this->load->helper('url');
 
         $data['title'] = 'SA Project View';
+        $data['topmenu'] = 'admin';
 
         $data['choicesEffortType']          = array('' => 'Select One...') + $this->effort_type->get_list();
         $data['choicesIndustry']            = array('' => 'Select One...') + $this->industry->get_list();

@@ -5,7 +5,7 @@ class NowNextAfter extends CI_Controller {
     var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
     var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
     var $initialSort    = array('industry'=>'asc');
-    var $where          = array(); //array('projects.status <>'=>'draft');
+    var $where          = array('projects.status <>'=>'draft');
     var $order          = array('industries.name'=>'ASC', 'platforms.name'=>'ASC');
 
     public function __construct()
