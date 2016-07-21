@@ -34,7 +34,6 @@ class SAView extends CI_Controller {
         $this->load->view('templates/footer');
     }
 
-
     public function ajax_list(){
         $list = $this->project->get_datatables($this->initialSort, $this->columnOrder, $this->searchColumns, $this->where);
 
@@ -77,7 +76,6 @@ class SAView extends CI_Controller {
 
         echo json_encode($output);
     }
-
 
     public function ajax_edit($id)
     {

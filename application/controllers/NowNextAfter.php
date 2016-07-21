@@ -16,9 +16,18 @@ class NowNextAfter extends CI_Controller {
 
     public function index(){
         $this->load->helper('url');
+        $this->load->model('Industry_model', 'industry');
+        $this->load->model('EffortType_model', 'efforttype');
+        $this->load->model('Platform_model', 'platform');
+        $this->load->model('User_model', 'user');
 
-        $data['title'] = 'SA Project Report: Now Next After';
-        $data['topmenu'] = 'report';
+        $data['title']          = 'SA Project Report: Now Next After';
+        $data['topmenu']        = 'report';
+
+        $data['industries']     = $this->industry->get_list();
+        $data['efforttypes']    = $this->efforttype->get_list();
+        $data['platforms']      = $this->platform->get_list();
+        $data['sausers']        = $this->user->get_salist();
 
         $this->load->view('templates/header', $data);
         $this->load->view('project/nownextafter');
@@ -77,7 +86,6 @@ class NowNextAfter extends CI_Controller {
 
         echo json_encode($output);
     }
-
 
     private function _toMDY($date){
         if($date){
