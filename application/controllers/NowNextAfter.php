@@ -5,7 +5,8 @@ class NowNextAfter extends CI_Controller {
     var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
     var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
     var $initialSort    = array('industry'=>'asc');
-    var $where          = array('projects.status <>'=>'draft');
+    var $where          = array(); //array('projects.status <>'=>'draft');
+    var $order          = array('industries.name'=>'ASC', 'platforms.name'=>'ASC');
 
     public function __construct()
     {
@@ -17,6 +18,7 @@ class NowNextAfter extends CI_Controller {
         $this->load->helper('url');
 
         $data['title'] = 'SA Project Report: Now Next After';
+        $data['topmenu'] = 'report';
 
         $this->load->view('templates/header', $data);
         $this->load->view('project/nownextafter');
@@ -24,7 +26,23 @@ class NowNextAfter extends CI_Controller {
     }
 
     public function ajax_list(){
-        $list = $this->project->get_datatables($this->initialSort, $this->columnOrder, $this->searchColumns, $this->where);
+
+        $searchText = $_POST['search']['value'];
+
+        //$this->where = array('projects.status <>'=>'draft');
+        foreach($_POST['columns'] as $column){
+            if($column['search']['value']){
+                $this->where[$column['name']. ' REGEXP'] = $column['search']['value'];
+            }
+        }
+
+        if(isset($_POST['order']))
+        {
+            $this->order = array($this->columnOrder[$_POST['order']['0']['column']] => $_POST['order']['0']['dir']);
+        }
+
+
+        $list = $this->project->get_datatables($this->initialSort, $this->columnOrder, $this->searchColumns, $searchText, $this->where, $this->order);
 
         $priorityList = unserialize(SAP_PRIORITYLIST);
         $statusList = unserialize(SAP_STATUSLIST);
@@ -44,7 +62,7 @@ class NowNextAfter extends CI_Controller {
             $row[] = implode('<br>', explode('||', $project->effort_output));
             $row[] = $project->effort_justification;
             $row[] = $project->notes;
-            $row[] = $project->estimated_completion_date;
+            $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : '';
 
             $data[] = $row;
@@ -53,10 +71,33 @@ class NowNextAfter extends CI_Controller {
         $output = array(
                 "draw" => $this->input->post('draw'),
                 "recordsTotal" => $this->project->count_all(),
-                "recordsFiltered" => $this->project->count_filtered($this->initialSort, $this->columnOrder, $this->searchColumns, $this->where),
+                "recordsFiltered" => $this->project->count_filtered($this->initialSort, $this->columnOrder, $this->searchColumns, $searchText, $this->where, $this->order),
                 "data" => $data
         );
 
         echo json_encode($output);
     }
+
+
+    private function _toMDY($date){
+        if($date){
+            $datetimearray = explode(' ', $date);
+            $datearray = explode('-', $datetimearray[0]);
+            if(count($datearray) == 3){
+                return $datearray[1] . '/' . $datearray[2] . '/' . $datearray[0];
+            }
+        }
+        return $date;
+    }
+
+    private function _tosqldate($date){
+        if($date){
+            $datearray = explode('/', $date);
+            if(count($datearray)==3){
+                return $datearray[2].'-'.$datearray[0].'-'.$datearray[1];
+            }
+        }
+        return $date;
+    }
+
 }

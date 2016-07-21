@@ -63,17 +63,17 @@ class Project_model extends CI_Model{
         $this->db->delete($this->table);
     }
 
-    public function get_datatables($sort = array(), $columnOrder = array(), $searchColumns = array(), $where = array())
+    public function get_datatables($sort = array(), $columnOrder = array(), $searchColumns = array(), $searchText = null, $where = array(), $order = array())
     {
-        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $where);
+        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $searchText, $where, $order);
         if(array_key_exists('length', $_POST) && $_POST['length'] != -1) $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
         return $query->result();
     }
 
-    public function count_filtered($sort = array(), $columnOrder = array(), $searchColumns = array(), $where = array())
+    public function count_filtered($sort = array(), $columnOrder = array(), $searchColumns = array(), $searchText = null, $where = array(), $order = array())
     {
-        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $where);
+        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $searchText, $where, $order);
         $query = $this->db->get();
         return $query->num_rows();
     }
@@ -84,15 +84,15 @@ class Project_model extends CI_Model{
         return $this->db->count_all_results();
     }
 
-    private function _get_datatables_query($sort, $columnOrder, $searchColumns, $where)
+    private function _get_datatables_query($sort, $columnOrder, $searchColumns, $searchText, $where, $order)
     {
-        $this->db->select($this->table.'.*', FALSE);
-        $this->db->select('workloads.name AS workload', FALSE);
-        $this->db->select('industries.name AS industry', FALSE);
-        $this->db->select('platforms.name AS platform', FALSE);
-        $this->db->select('CONCAT(users.firstname, " ", users.lastname) AS sa', FALSE);
-        $this->db->select('efforttypes.name AS effort_type', FALSE);
-        $this->db->select('vflatprojecttasks.effortoutput AS effort_output', FALSE);
+        $this->db->select( $this->table.'.*', FALSE );
+        $this->db->select( 'workloads.name AS workload', FALSE );
+        $this->db->select( 'industries.name AS industry', FALSE );
+        $this->db->select( 'platforms.name AS platform', FALSE );
+        $this->db->select( 'CONCAT(users.firstname, " ", users.lastname ) AS sa', FALSE );
+        $this->db->select( 'efforttypes.name AS effort_type', FALSE );
+        $this->db->select( 'vflatprojecttasks.effortoutput AS effort_output', FALSE );
         $this->db->from( $this->table );
         $this->db->join( 'workloads', 'workloads.id = '.$this->table.'.workloads_id' , 'left' );
         $this->db->join( 'industries', 'industries.id = workloads.industries_id' , 'left' );
@@ -100,43 +100,44 @@ class Project_model extends CI_Model{
         $this->db->join( 'users', 'users.id = '.$this->table.'.sa_users_id' , 'left' );
         $this->db->join( 'efforttypes', 'efforttypes.id = '.$this->table.'.efforttypes_id' , 'left' );
         $this->db->join( 'vflatprojecttasks', 'vflatprojecttasks.projects_id = '.$this->table.'.id', 'left');
-        $index = 0;
 
-        foreach ($this->searchColumns as $item) // loop column
+        $isFirst = TRUE;
+        if( $searchText )
         {
-            if($_POST['search']['value']) // if datatable send POST for search
+            foreach ( $this->searchColumns as $item )
             {
 
-                if($index===0) // first loop
+                if( $isFirst )
                 {
-                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
-                    $this->db->like($item, $_POST['search']['value']);
+                    $this->db->group_start();
+                    $this->db->like( $item, $searchText );
+                    $isFirst = FALSE;
                 }
                 else
                 {
-                    $this->db->or_like($item, $_POST['search']['value']);
+                    $this->db->or_like( $item, $searchText );
                 }
-
-                if(count($this->searchColumns) - 1 == $index) //last loop
-                    $this->db->group_end(); //close bracket
             }
-            $index++;
+            if(! $isFirst) $this->db->group_end();
         }
 
-        if($where){
-            foreach($where as $key=>$name){
-                $this->db->where($key, $name);
+        $isFirst = TRUE;
+        $whereString = "";
+        if($where && count($where>0)){
+            foreach($where as $key=>$value){
+                $whereString .= ($isFirst?'':' AND ').$key. ' "' . $value . '"';
+                $isFirst = FALSE;
+            }
+            $this->db->where($whereString);
+        }
+
+        if( $order && count( $order ) > 0 ){
+            foreach( $order as $key=>$value ){
+                $this->db->order_by( $key, $value );
             }
         }
 
-        if(isset($_POST['order'])) // here order processing
-        {
-            $this->db->order_by($this->columnOrder[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
-        }
-        else if(isset($this->order))
-        {
-            $order = $this->order;
-            $this->db->order_by(key($order), $order[key($order)]);
-        }
+        $sql = $this->db->get_compiled_select(null, FALSE);
+        return $sql;
     }
 }

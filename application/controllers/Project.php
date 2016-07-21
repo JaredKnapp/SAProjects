@@ -48,6 +48,7 @@ class Project extends CI_Controller {
         $this->load->library('form_validation');
 
         $data['title'] = 'Submit a project request';
+        $data['topmenu'] = 'project';
 
         $this->form_validation->set_rules('author_email', 'Email address', 'required|valid_email');
         $this->form_validation->set_rules('industries_id', 'Industry', 'required');

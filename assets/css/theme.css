@@ -241,6 +241,7 @@ p {
             background: #333;
             padding: 0;
             width: 200px;
+            z-index: 5;
         }
 
             #primary_nav_wrap ul ul li {

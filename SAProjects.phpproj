@@ -18,7 +18,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="application\config\autoload.php" />
-    <Compile Include="application\config\config.php" />
+    <Compile Include="application\config\config.php">
+      <Publishable>False</Publishable>
+    </Compile>
     <Compile Include="application\config\constants.php" />
     <Compile Include="application\config\database.php" />
     <Compile Include="application\config\doctypes.php" />

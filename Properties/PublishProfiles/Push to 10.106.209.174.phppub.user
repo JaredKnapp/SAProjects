@@ -17,9 +17,6 @@
     <File Include="application/config/autoload.php">
       <publishTime>07/12/2016 01:50:25</publishTime>
     </File>
-    <File Include="application/config/config.php">
-      <publishTime>07/15/2016 15:57:37</publishTime>
-    </File>
     <File Include="application/config/constants.php">
       <publishTime>07/14/2016 15:23:01</publishTime>
     </File>
@@ -66,13 +63,13 @@
       <publishTime>07/12/2016 20:59:41</publishTime>
     </File>
     <File Include="application/controllers/NowNextAfter.php">
-      <publishTime>07/15/2016 12:25:16</publishTime>
+      <publishTime>07/20/2016 21:45:02</publishTime>
     </File>
     <File Include="application/controllers/Pages.php">
       <publishTime>07/11/2016 19:37:15</publishTime>
     </File>
     <File Include="application/controllers/Project.php">
-      <publishTime>07/18/2016 13:58:43</publishTime>
+      <publishTime>07/20/2016 21:38:08</publishTime>
     </File>
     <File Include="application/controllers/SAView.php">
       <publishTime>07/15/2016 16:38:44</publishTime>
@@ -123,7 +120,7 @@
       <publishTime>07/15/2016 15:12:22</publishTime>
     </File>
     <File Include="application/models/Project_model.php">
-      <publishTime>07/15/2016 15:14:15</publishTime>
+      <publishTime>07/20/2016 21:47:29</publishTime>
     </File>
     <File Include="application/models/User_model.php">
       <publishTime>07/15/2016 02:15:08</publishTime>
@@ -192,7 +189,7 @@
       <publishTime>07/11/2016 22:08:18</publishTime>
     </File>
     <File Include="application/views/project/nownextafter.php">
-      <publishTime>07/14/2016 21:10:17</publishTime>
+      <publishTime>07/20/2016 20:44:14</publishTime>
     </File>
     <File Include="application/views/project/saview.php">
       <publishTime>07/15/2016 16:06:43</publishTime>
@@ -201,10 +198,10 @@
       <publishTime>07/11/2016 22:22:57</publishTime>
     </File>
     <File Include="application/views/templates/footer.php">
-      <publishTime>07/11/2016 19:50:38</publishTime>
+      <publishTime>07/20/2016 21:54:51</publishTime>
     </File>
     <File Include="application/views/templates/header.php">
-      <publishTime>07/14/2016 18:15:51</publishTime>
+      <publishTime>07/20/2016 21:42:36</publishTime>
     </File>
     <File Include="application/views/welcome_message.php">
       <publishTime>03/21/2016 13:26:30</publishTime>
@@ -216,7 +213,7 @@
       <publishTime>07/14/2016 18:15:21</publishTime>
     </File>
     <File Include="assets/css/theme.css">
-      <publishTime>07/14/2016 18:31:03</publishTime>
+      <publishTime>07/20/2016 21:29:28</publishTime>
     </File>
     <File Include="composer.json">
       <publishTime>03/21/2016 13:26:30</publishTime>
