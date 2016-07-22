@@ -63,17 +63,17 @@ class Project_model extends CI_Model{
         $this->db->delete($this->table);
     }
 
-    public function get_datatables($sort = array(), $columnOrder = array(), $searchColumns = array(), $searchText = null, $where = array(), $order = array())
+    public function get_datatables($columnOrder = array(), $searchColumns = array(), $searchText = null, $where = array(), $order = array())
     {
-        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $searchText, $where, $order);
+        $this->_get_datatables_query($columnOrder, $searchColumns, $searchText, $where, $order);
         if(array_key_exists('length', $_POST) && $_POST['length'] != -1) $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
         return $query->result();
     }
 
-    public function count_filtered($sort = array(), $columnOrder = array(), $searchColumns = array(), $searchText = null, $where = array(), $order = array())
+    public function count_filtered($columnOrder = array(), $searchColumns = array(), $searchText = null, $where = array(), $order = array())
     {
-        $this->_get_datatables_query($sort, $columnOrder, $searchColumns, $searchText, $where, $order);
+        $this->_get_datatables_query($columnOrder, $searchColumns, $searchText, $where, $order);
         $query = $this->db->get();
         return $query->num_rows();
     }
@@ -84,7 +84,7 @@ class Project_model extends CI_Model{
         return $this->db->count_all_results();
     }
 
-    private function _get_datatables_query($sort, $columnOrder, $searchColumns, $searchText, $where, $order)
+    private function _get_datatables_query($columnOrder, $searchColumns, $searchText, $where, $order)
     {
         $this->db->select( $this->table.'.*', FALSE );
         $this->db->select( 'workloads.name AS workload', FALSE );

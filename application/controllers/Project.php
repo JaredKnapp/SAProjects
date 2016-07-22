@@ -141,8 +141,7 @@ class Project extends CI_Controller {
     public function ajax_list(){
         $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
         $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
-        $initialSort    = array('industry'=>'asc');
-        $where          = array(); //array('projects.status <>'=>'draft');
+        $where          = array();
         $order          = array('industries.name'=>'ASC', 'platforms.name'=>'ASC');
 
         $searchText = $_POST['search']['value'];
@@ -159,7 +158,7 @@ class Project extends CI_Controller {
         }
 
 
-        $list = $this->project->get_datatables($initialSort, $columnOrder, $searchColumns, $searchText, $where, $order);
+        $list = $this->project->get_datatables($columnOrder, $searchColumns, $searchText, $where, $order);
 
         $priorityList = unserialize(SAP_PRIORITYLIST);
         $statusList = unserialize(SAP_STATUSLIST);
@@ -188,7 +187,7 @@ class Project extends CI_Controller {
         $output = array(
                 "draw" => $this->input->post('draw'),
                 "recordsTotal" => $this->project->count_all(),
-                "recordsFiltered" => $this->project->count_filtered($initialSort, $columnOrder, $searchColumns, $searchText, $where, $order),
+                "recordsFiltered" => $this->project->count_filtered($columnOrder, $searchColumns, $searchText, $where, $order),
                 "data" => $data
         );
 

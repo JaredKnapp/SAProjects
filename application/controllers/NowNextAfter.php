@@ -4,7 +4,6 @@ class NowNextAfter extends CI_Controller {
 
     var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
     var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
-    var $initialSort    = array('industry'=>'asc');
     var $where          = array('projects.status <>'=>'draft');
     var $order          = array('industries.name'=>'ASC', 'platforms.name'=>'ASC');
 
@@ -51,7 +50,7 @@ class NowNextAfter extends CI_Controller {
         }
 
 
-        $list = $this->project->get_datatables($this->initialSort, $this->columnOrder, $this->searchColumns, $searchText, $this->where, $this->order);
+        $list = $this->project->get_datatables($this->columnOrder, $this->searchColumns, $searchText, $this->where, $this->order);
 
         $priorityList = unserialize(SAP_PRIORITYLIST);
         $statusList = unserialize(SAP_STATUSLIST);
@@ -80,7 +79,7 @@ class NowNextAfter extends CI_Controller {
         $output = array(
                 "draw" => $this->input->post('draw'),
                 "recordsTotal" => $this->project->count_all(),
-                "recordsFiltered" => $this->project->count_filtered($this->initialSort, $this->columnOrder, $this->searchColumns, $searchText, $this->where, $this->order),
+                "recordsFiltered" => $this->project->count_filtered($this->columnOrder, $this->searchColumns, $searchText, $this->where, $this->order),
                 "data" => $data
         );
 
