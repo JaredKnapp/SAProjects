@@ -42,7 +42,6 @@ class SAView extends CI_Controller {
 
         $searchText = $_POST['search']['value'];
 
-        //$this->where = array('projects.status <>'=>'draft');
         foreach($_POST['columns'] as $column){
             if($column['search']['value']){
                 $this->where[$column['name']. ' REGEXP'] = $column['search']['value'];
@@ -65,9 +64,11 @@ class SAView extends CI_Controller {
         foreach($list as $project){
             $index++;
             $row = array();
+            $row[] = $project->id;
             $row[] = $project->industry;
             $row[] = $project->sa;
             $row[] = array_key_exists($project->priority, $priorityList) ? $priorityList[$project->priority] : '';
+            $row[] = $project->priority_index;
             $row[] = $project->workload;
             $row[] = $project->platform;
             $row[] = $project->effort_target;
@@ -78,9 +79,7 @@ class SAView extends CI_Controller {
             $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : "";
 
-            $row[] =    '<a class="btn btn-sm btn-primary" title="Move Up"><i class="glyphicon glyphicon-chevron-up"></i></a>
-                        <a class="btn btn-sm btn-primary" title="Move Down"><i class="glyphicon glyphicon-chevron-down"></i></a>
-                        <a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-pencil"></i></a>
+            $row[] =    '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-pencil"></i></a>
                         <a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-trash"></i></a>';
 
             $data[] = $row;

@@ -7,12 +7,14 @@
 </button>
 <br />
 <br />
-<table id="table" class="table table-striped table-bordered" cellspacing="0" width="100%">
+<table id="table" class="table table-striped table-bordered" border="0" cellpadding="0" cellspacing="0" width="100%">
     <thead>
         <tr>
+            <th>id</th>
             <th class="search-industry">Industry</th>
             <th class="search-sauser">SA</th>
             <th class="search-priority">Priority</th>
+            <th>Priority Index</th>
             <th class="search-input">Workload</th>
             <th class="search-platform">Product</th>
             <th class="search-input">Effort Target</th>
@@ -28,9 +30,13 @@
     <tbody></tbody>
     <tfoot>
         <tr>
+            <th>id</th>
             <th>Industry</th>
             <th>SA</th>
             <th>Priority</th>
+            <th>
+                <!--Priority Index-->
+            </th>
             <th>Workload</th>
             <th>Product</th>
             <th>Effort Target</th>
@@ -38,9 +44,13 @@
             <th>Effort Output</th>
             <th>Effort Justification</th>
             <th>Notes</th>
-            <th><!--Estimated Complete Date--></th>
+            <th>
+                <!--Estimated Complete Date-->
+            </th>
             <th>Status</th>
-            <th>Action</th>
+            <th>
+                <!--Action-->
+            </th>
         </tr>
     </tfoot>
 </table>
@@ -48,32 +58,37 @@
 
     var save_method; //for save method string
     var table;
+    var editor;
 
     $(document).ready(function () {
+
         table = $('#table').DataTable({
             "processing": true,
             "serverSide": true,
-            "ordering": true,
+            "ordering": false,
             "searching": true,
             "order": [],
+            "rowReorder": true,
             "ajax": {
                 url: "<?php echo site_url('SAView/ajax_list')?>",
                 type: "POST"
             },
             "columnDefs": [
-                { "name": "industries.name", "targets": 0 },
-                { "name": "sa_users_id", "targets": 1 },
-                { "name": "priority", "targets": 2 },
-                { "name": "workloads.name", "targets": 3 },
-                { "name": "platforms.name", "targets": 4 },
-                { "name": "effort_target", "targets": 5 },
-                { "name": "efforttypes.name", "targets": 6 },
-                { "name": "vflatprojecttasks.effortoutput", "targets": 7 },
-                { "name": "effort_justification", "targets": 8 },
-                { "name": "notes", "targets": 9 },
-                { "name": "estimated_complete_date", "targets": 10 },
-                { "name": "status", "targets": 11 },
-                { "name": "actions", "targets": 12, "orderable": false }
+                { "name": "id", "targets": 0, "visible": false, "searchable": false },
+                { "name": "industries.name", "targets": 1, "orderable": false },
+                { "name": "sa_users_id", "targets": 2, "orderable": false },
+                { "name": "priority", "targets": 3, "orderable": false },
+                { "name": "priority_index", "targets": 4, "orderable": false },
+                { "name": "workloads.name", "targets": 5, "orderable": false },
+                { "name": "platforms.name", "targets": 6, "orderable": false },
+                { "name": "effort_target", "targets": 7, "orderable": false },
+                { "name": "efforttypes.name", "targets": 8, "orderable": false },
+                { "name": "vflatprojecttasks.effortoutput", "targets": 9, "orderable": false },
+                { "name": "effort_justification", "targets": 10, "orderable": false },
+                { "name": "notes", "targets": 11, "orderable": false },
+                { "name": "estimated_complete_date", "targets": 12, "orderable": false },
+                { "name": "status", "targets": 13, "orderable": false },
+                { "name": "actions", "targets": 14, "orderable": false }
             ],
             "initComplete": function () {
                 this.api().columns('.search-select').every(function () {
@@ -197,10 +212,53 @@ foreach($platforms as $key=>$value){
 }
 ?>
                 });
+            }
+        });
 
+        table.on('row-reorder', function (e, diff, edit) {
+
+            var result = 'Reorder started on row: ' + edit.triggerRow.data()[0] + '\n';
+
+            for (var i = 0, ien = diff.length ; i < ien ; i++) {
+                var rowData = table.row(diff[i].node).data();
+
+                result += rowData[0] + ' updated to be in position ' +
+                    diff[i].newData + ' (was ' + diff[i].oldData + ')\n';
             }
 
+            if (confirm('Reorder this Project Requestxx?\n' + result)) {
+                $.ajax({
+                    url: "<?php echo site_url('SAView/ajax_reorder'); ?>/" + id,
+                    type: "POST",
+                    dataType: "JSON",
+                    success: function (data) {
+                        //if success reload ajax table
+                        $('#modal_form').modal('hide');
+                        reload_table();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert('Error reordering Project Request');
+                    }
+                });
 
+            }
+        });
+
+        /************************************************
+        //Disable select until i can get a cleaner interface.
+        *************************************************/
+        //$('#table tbody').on('click', 'tr', function () {
+        //    if ($(this).hasClass('selected')) {
+        //        $(this).removeClass('selected');
+        //    }
+        //    else {
+        //        table.$('tr.selected').removeClass('selected');
+        //        $(this).addClass('selected');
+        //    }
+        //});
+
+        $('#button').click(function () {
+            alert(table.rows('.selected').data().length + ' row(s) selected');
         });
 
         $("input").change(function () {
@@ -321,7 +379,7 @@ foreach($platforms as $key=>$value){
     }
 
     function delete_project(id) {
-        if (confirm('Are you sure delete this Project Request?')) {
+        if (confirm('Are you sure you wish to delete this Project Request?')) {
             $.ajax({
                 url: "<?php echo site_url('SAView/ajax_delete')?>/" + id,
                 type: "POST",

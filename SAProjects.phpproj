@@ -264,6 +264,7 @@
     <Folder Include="application\views\templates\" />
     <Folder Include="application\views\project\" />
     <Folder Include="assets\css\" />
+    <Folder Include="assets\js\" />
     <Folder Include="Content\" />
     <Folder Include="Content\DataTables-1.10.12\" />
     <Folder Include="Content\DataTables-1.10.12\extensions\" />
@@ -388,7 +389,10 @@
     <Content Include="application\views\index.html" />
     <Content Include="assets\css\datatable.css" />
     <Content Include="assets\css\datatable1.css" />
+    <Content Include="assets\css\editor.bootstrap.min.css" />
     <Content Include="assets\css\theme.css" />
+    <Content Include="assets\js\dataTables.editor.min.js" />
+    <Content Include="assets\js\editor.bootstrap.min.js" />
     <Content Include="composer.json" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />

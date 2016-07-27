@@ -7,21 +7,26 @@
 
     <title>ETD SA Projects</title>
 
-    <?php 
-    echo '<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />';
-    echo '<link href="' . $this->config->base_url() . 'Content/themes/base/all.css" rel="stylesheet" type="text/css" />';
-    //echo '<link href="' . $this->config->base_url() . 'Content/Content/DataTables-1.10.12/media/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />';
-    echo '<link href="' . $this->config->base_url() . 'Content/bootstrap.min.css" rel="stylesheet" type="text/css" />';
-    echo '<link href="' . $this->config->base_url() . 'assets/css/theme.css" rel="stylesheet" type="text/css" />';
-    echo '<link href="' . $this->config->base_url() . 'assets/css/datatable1.css" rel="stylesheet" type="text/css" />';
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.1/css/buttons.bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.2.0/css/select.bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.1.2/css/rowReorder.dataTables.min.css" type="text/css" />
+<!--    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" type="text/css" />-->
+    <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/editor.bootstrap.min.css'); ?>" type="text/css" />
+    <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/theme.css'); ?>" type="text/css" />
 
-    echo '<script src="'. $this->config->base_url() . 'Scripts/jquery-3.0.0.min.js" type="text/javascript"></script>';
-    echo '<script src="'. $this->config->base_url() . 'Scripts/jquery-ui-1.11.4.min.js" type="text/javascript"></script>';
-    echo '<script src="'. $this->config->base_url() . 'Scripts/bootstrap.min.js" type="text/javascript"></script>';
-    echo '<script src="'. $this->config->base_url() . 'Scripts/DataTables-1.10.12/media/js/jquery.dataTables.min.js" type="text/javascript"></script>';
-    echo '<script src="'. $this->config->base_url() . 'Scripts/DataTables-1.10.12/media/js/dataTables.bootstrap.js" type="text/javascript"></script>'; 
-    ?>
-
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/rowreorder/1.1.2/js/dataTables.rowReorder.min.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.1/js/buttons.bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js" type="text/javascript"></script>
+    <!--<script src="<?php echo $this->config->base_url('assets/js/dataTables.editor.min.js'); ?>" type="text/javascript"></script>-->
+    <!--<script src="<?php echo $this->config->base_url('assets/js/editor.bootstrap.min.js'); ?>" type="text/javascript"></script>-->
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
