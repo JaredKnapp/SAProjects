@@ -24,7 +24,7 @@
             <th class="search-input">Notes</th>
             <th>Estimated Complete Date</th>
             <th class="search-status">Status</th>
-            <th style="width:125px;">Action</th>
+            <th style="width:125px;">&nbsp;</th>
         </tr>
     </thead>
     <tbody></tbody>
@@ -298,7 +298,7 @@ foreach($platforms as $key=>$value){
         $('.modal-title').text('New Project Request');
     }
 
-    function edit_project(id) {
+    function edit_project(id, newStatus) {
         save_method = 'update';
         $('#form')[0].reset();
         $('.form-group').removeClass('has-error');
@@ -314,7 +314,7 @@ foreach($platforms as $key=>$value){
                 $("#effortoutput").html('Select an effort type...');
 
                 $('[name="id"]').val(data.id);
-                $('[name="status"]').val(data.status);
+                $('[name="status"]').val(newStatus ? newStatus : data.status);
                 $('[name="author_email"]').val(data.author_email);
                 $('[name="industries_id"]').val(data.industries_id);
                 getWorkload(data.workloads_id);
@@ -380,6 +380,25 @@ foreach($platforms as $key=>$value){
 
             }
         });
+    }
+
+    function defer_project(id) {
+        if (confirm('Are you sure you wish to defer this Project Request for later?')) {
+            $.ajax({
+                url: "<?php echo site_url('SAView/ajax_defer')?>/" + id,
+                type: "POST",
+                dataType: "JSON",
+                success: function (data) {
+                    //if success reload ajax table
+                    $('#modal_form').modal('hide');
+                    reload_table();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('Error deferring Project Request');
+                }
+            });
+
+        }
     }
 
     function delete_project(id) {

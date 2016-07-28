@@ -80,7 +80,12 @@ class SAView extends CI_Controller {
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : "";
 
             $row[] =    '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-pencil"></i></a>
-                        <a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-trash"></i></a>';
+                        <a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-trash"></i></a> '
+                        .
+                        ($project->status === SAP_DEFAULTSTATUS ?
+                        '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="edit_project('."'".$project->id."'".', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>
+                        <a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="defer_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-thumbs-down"></i></a> '
+                        : '');
 
             $data[] = $row;
         }
@@ -209,6 +214,22 @@ class SAView extends CI_Controller {
 
             echo json_encode(array("status" => TRUE));
         }
+    }
+
+    public function ajax_defer($id)
+    {
+        $project = array(
+            'id'                        => $id,
+            'status'                    => SAP_DEFERREDSTATUS
+        );
+
+        $projectId = $this->project->set_project($project);
+        if($projectId){
+            $project = $this->project->get_by_id($id);
+            $this->industry->cleanup_priority_index($project->industries_id, $project->platforms_id);
+        }
+
+        echo json_encode(array("status" => TRUE));
     }
 
     public function ajax_delete($id)
