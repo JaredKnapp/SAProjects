@@ -87,9 +87,12 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 
 /*-------------------------------
 | APPLICATION CONSTANTS
-|
-*/
-defined('SAP_STATUSLIST')       or define('SAP_STATUSLIST', serialize(array('draft'=>'Draft', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled', 'complete'=>'Complete')));
-defined('SAP_PRIORITYLIST')       or define('SAP_PRIORITYLIST', serialize(array('now'=>"Now", 'next'=>"Next", 'after'=>'After', 'beyond'=>"Beyond")));
+---------------------------------*/
+defined('SAP_STATUSLIST')           or define('SAP_STATUSLIST', serialize(array('draft'=>'Requested', 'approved'=>'Approved', 'deferred'=>'Deferred', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled', 'complete'=>'Completed')));
+defined('SAP_ACTIVESTATUSLIST')     or define('SAP_ACTIVESTATUSLIST', serialize(array('approved'=>'Approved', 'deferred'=>'Deferred', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled')));
+defined('SAP_PRIORITYLIST')         or define('SAP_PRIORITYLIST', serialize(array('now'=>"Now", 'next'=>"Next", 'after'=>'After', 'beyond'=>"Beyond")));
 
+defined('SAP_DEFAULTSTATUS')        or define('SAP_DEFAULTSTATUS', 'draft');
+defined('SAP_DEFAULTPRIORITY')      or define('SAP_DEFAULTPRIORITY', 'beyond');
+defined('SAP_DEFAULTPRIORITYINDEX') or define('SAP_DEFAULTPRIORITYINDEX', '2147483647');
 

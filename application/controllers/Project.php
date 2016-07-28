@@ -109,8 +109,9 @@ class Project extends CI_Controller {
                 'desired_completion_date'   => $this->_tosqldate($this->input->post('desired_completion_date')),
                 'effort_justification'      => $this->input->post('effort_justification'),
                 'notes'                     => $this->input->post('notes'),
-                'status'                    => 'draft',
-                'priority'                  => 'beyond'
+                'status'                    => SAP_DEFAULTSTATUS,
+                'priority'                  => SAP_DEFAULTPRIORITY,
+                'priority_index'            => SAP_DEFAULTPRIORITYINDEX
             );
             $projectId = $this->project->set_project($project);
             if($projectId){
@@ -142,7 +143,7 @@ class Project extends CI_Controller {
         $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
         $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
         $where          = array();
-        $order          = array('industries.name'=>'ASC', 'platforms.name'=>'ASC');
+        $order          = array('industries.name'=>'ASC', 'platforms.sortorder'=>'ASC', 'priority_index'=>'ASC');
 
         $searchText = $_POST['search']['value'];
 

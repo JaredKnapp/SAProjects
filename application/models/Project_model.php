@@ -11,11 +11,45 @@ class Project_model extends CI_Model{
         $this->load->model('ProjectTask_model', 'projecttask');
     }
 
-    public function get_projects($id = NULL){
+    public function get_projects($id = NULL, $where = array(), $order = array()){
         if($id === NULL){
-            $query = $this->db->get($this->table);
+            $this->db->select( $this->table.'.*', FALSE );
+
+            $this->db->from( $this->table );
+
+            $this->db->join( 'workloads', 'workloads.id = '.$this->table.'.workloads_id' , 'left' );
+            $this->db->join( 'industries', 'industries.id = workloads.industries_id' , 'left' );
+            $this->db->join( 'platforms', 'platforms.id = '.$this->table.'.platforms_id' , 'left' );
+            $this->db->join( 'users', 'users.id = '.$this->table.'.sa_users_id' , 'left' );
+            $this->db->join( 'efforttypes', 'efforttypes.id = '.$this->table.'.efforttypes_id' , 'left' );
+            $this->db->join( 'vflatprojecttasks', 'vflatprojecttasks.projects_id = '.$this->table.'.id', 'left');
+
+            $isFirst = TRUE;
+            $whereString = "";
+            if($where && count($where>0)){
+                foreach($where as $key=>$value){
+                    if(is_array($value)){
+                        $whereString .= ($isFirst ? '' : ' AND ') . $key . ' ("' . implode('","', $value) . '")';
+                    } else {
+                        $whereString .= ($isFirst ? '' : ' AND ') . $key . ' "' . $value . '"';
+                    }
+                    $isFirst = FALSE;
+                }
+                $this->db->where($whereString);
+            }
+
+            if( $order && count( $order ) > 0 ){
+                foreach( $order as $key=>$value ){
+                    $this->db->order_by( $key, $value );
+                }
+            }
+
+            $sql = $this->db->get_compiled_select(null, FALSE);
+
+            $query = $this->db->get();
             return $query->result_array();
         }
+
         $query = $this->db->get_where($this->table, array('id' => $id));
         return $query->row_array();
     }

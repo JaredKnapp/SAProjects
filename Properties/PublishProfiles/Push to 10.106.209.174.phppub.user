@@ -18,7 +18,7 @@
       <publishTime>07/12/2016 01:50:25</publishTime>
     </File>
     <File Include="application/config/constants.php">
-      <publishTime>07/14/2016 15:23:01</publishTime>
+      <publishTime>07/28/2016 13:25:01</publishTime>
     </File>
     <File Include="application/config/database.php">
       <publishTime>07/11/2016 19:11:11</publishTime>
@@ -63,16 +63,16 @@
       <publishTime>07/12/2016 20:59:41</publishTime>
     </File>
     <File Include="application/controllers/NowNextAfter.php">
-      <publishTime>07/21/2016 22:24:02</publishTime>
+      <publishTime>07/27/2016 21:21:35</publishTime>
     </File>
     <File Include="application/controllers/Pages.php">
       <publishTime>07/11/2016 19:37:15</publishTime>
     </File>
     <File Include="application/controllers/Project.php">
-      <publishTime>07/21/2016 22:25:20</publishTime>
+      <publishTime>07/28/2016 13:25:27</publishTime>
     </File>
     <File Include="application/controllers/SAView.php">
-      <publishTime>07/22/2016 02:05:08</publishTime>
+      <publishTime>07/28/2016 14:30:39</publishTime>
     </File>
     <File Include="application/controllers/Welcome.php">
       <publishTime>03/21/2016 13:26:30</publishTime>
@@ -111,7 +111,7 @@
       <publishTime>03/21/2016 13:26:30</publishTime>
     </File>
     <File Include="application/models/Industry_model.php">
-      <publishTime>07/21/2016 02:29:21</publishTime>
+      <publishTime>07/28/2016 13:08:00</publishTime>
     </File>
     <File Include="application/models/Platform_model.php">
       <publishTime>07/12/2016 20:43:53</publishTime>
@@ -120,7 +120,7 @@
       <publishTime>07/15/2016 15:12:22</publishTime>
     </File>
     <File Include="application/models/Project_model.php">
-      <publishTime>07/21/2016 22:22:38</publishTime>
+      <publishTime>07/28/2016 13:06:11</publishTime>
     </File>
     <File Include="application/models/User_model.php">
       <publishTime>07/15/2016 02:15:08</publishTime>
@@ -192,16 +192,16 @@
       <publishTime>07/21/2016 03:19:36</publishTime>
     </File>
     <File Include="application/views/project/saview.php">
-      <publishTime>07/22/2016 02:00:03</publishTime>
+      <publishTime>07/28/2016 14:36:21</publishTime>
     </File>
     <File Include="application/views/project/view.php">
       <publishTime>07/11/2016 22:22:57</publishTime>
     </File>
     <File Include="application/views/templates/footer.php">
-      <publishTime>07/22/2016 02:06:23</publishTime>
+      <publishTime>07/28/2016 14:18:25</publishTime>
     </File>
     <File Include="application/views/templates/header.php">
-      <publishTime>07/21/2016 19:54:28</publishTime>
+      <publishTime>07/27/2016 21:17:13</publishTime>
     </File>
     <File Include="application/views/welcome_message.php">
       <publishTime>03/21/2016 13:26:30</publishTime>
@@ -212,8 +212,17 @@
     <File Include="assets/css/datatable1.css">
       <publishTime>07/14/2016 18:15:21</publishTime>
     </File>
+    <File Include="assets/css/editor.bootstrap.min.css">
+      <publishTime>07/27/2016 01:52:20</publishTime>
+    </File>
     <File Include="assets/css/theme.css">
       <publishTime>07/20/2016 21:29:28</publishTime>
+    </File>
+    <File Include="assets/js/dataTables.editor.min.js">
+      <publishTime>07/27/2016 02:41:32</publishTime>
+    </File>
+    <File Include="assets/js/editor.bootstrap.min.js">
+      <publishTime>07/27/2016 02:42:05</publishTime>
     </File>
     <File Include="composer.json">
       <publishTime>03/21/2016 13:26:30</publishTime>

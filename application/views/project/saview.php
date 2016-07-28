@@ -78,7 +78,7 @@
                 { "name": "industries.name", "targets": 1, "orderable": false },
                 { "name": "sa_users_id", "targets": 2, "orderable": false },
                 { "name": "priority", "targets": 3, "orderable": false },
-                { "name": "priority_index", "targets": 4, "orderable": false },
+                { "name": "priority_index", "visible": false, "targets": 4, "orderable": false },
                 { "name": "workloads.name", "targets": 5, "orderable": false },
                 { "name": "platforms.name", "targets": 6, "orderable": false },
                 { "name": "effort_target", "targets": 7, "orderable": false },
@@ -217,30 +217,36 @@ foreach($platforms as $key=>$value){
 
         table.on('row-reorder', function (e, diff, edit) {
 
-            var result = 'Reorder started on row: ' + edit.triggerRow.data()[0] + '\n';
+            if (diff.length > 0) {
+                var result = 'Reorder started on row: ' + edit.triggerRow.data()[0] + ' Status: ' + edit.triggerRow.data()[13] + '\n';
 
-            for (var i = 0, ien = diff.length ; i < ien ; i++) {
-                var rowData = table.row(diff[i].node).data();
+                var triggerId = edit.triggerRow.data()[0];
+                var status = edit.triggerRow.data()[13];
 
-                result += rowData[0] + ' updated to be in position ' +
-                    diff[i].newData + ' (was ' + diff[i].oldData + ')\n';
-            }
+                var data = 'key=' + edit.triggerRow.data()[0];
 
-            if (confirm('Reorder this Project Requestxx?\n' + result)) {
-                $.ajax({
-                    url: "<?php echo site_url('SAView/ajax_reorder'); ?>/" + id,
-                    type: "POST",
-                    dataType: "JSON",
-                    success: function (data) {
-                        //if success reload ajax table
-                        $('#modal_form').modal('hide');
-                        reload_table();
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        alert('Error reordering Project Request');
-                    }
-                });
+                for (var i = 0, ien = diff.length ; i < ien ; i++) {
+                    var rowData = table.row(diff[i].node).data();
 
+                    result += rowData[0] + ' updated to be in position ' + diff[i].newData + ' (was ' + diff[i].oldData + ')\n';
+                    data += ('&' + rowData[0] + '=' + diff[i].newData);
+                }
+
+                if (confirm('Reorder this Project Request?\n' + result)) {
+                    $.ajax({
+                        url: "<?php echo site_url('SAView/ajax_reorder')?>",
+                        type: "POST",
+                        data: data,
+                        dataType: "JSON",
+                        success: function (data) {
+                            if (data.status) reload_table();
+                            else alert(data.errorText);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('Error reordering project. ' + textStatus);
+                        }
+                    });
+                }
             }
         });
 
@@ -286,8 +292,7 @@ foreach($platforms as $key=>$value){
         $('.form-group').removeClass('has-error');
         $('.help-block').empty();
 
-        $('[name="status"]').val('draft');
-        $('[name="priority"]').val('beyond');
+        $('[name="status"]').val('<?php echo SAP_DEFAULTSTATUS; ?>');
         $("#effortoutput").html('Select an effort type...');
         $('#modal_form').modal('show');
         $('.modal-title').text('New Project Request');
@@ -310,7 +315,6 @@ foreach($platforms as $key=>$value){
 
                 $('[name="id"]').val(data.id);
                 $('[name="status"]').val(data.status);
-                $('[name="priority"]').val(data.priority);
                 $('[name="author_email"]').val(data.author_email);
                 $('[name="industries_id"]').val(data.industries_id);
                 getWorkload(data.workloads_id);
@@ -419,13 +423,6 @@ foreach($platforms as $key=>$value){
                         <?php echo form_label('Status *', 'status', array('class'=>'control-label col-md-3')); ?>
                         <div class="col-md-9">
                             <?php echo form_dropdown('status', unserialize(SAP_STATUSLIST), '', 'class="form-control required" id="status"'); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Priority *', 'priority', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_dropdown('priority', unserialize(SAP_PRIORITYLIST), '', 'class="form-control required" id="priority"'); ?>
                             <span class="help-block"></span>
                         </div>
                     </div>

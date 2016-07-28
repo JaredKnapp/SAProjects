@@ -5,7 +5,7 @@ class SAView extends CI_Controller {
     var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status', null);
     var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
     var $where          = array();
-    var $order          = array('industries.name'=>'ASC', 'platforms.name'=>'ASC');
+    var $order          = array('industries.name'=>'ASC', 'platforms.sortorder'=>'ASC', 'priority_index'=>'ASC');
 
     public function __construct()
     {
@@ -123,11 +123,15 @@ class SAView extends CI_Controller {
                 'effort_justification'      => $this->input->post('effort_justification'),
                 'notes'                     => $this->input->post('notes'),
                 'status'                    => $this->input->post('status'),
-                'priority'                  => $this->input->post('priority')
+                'priority'                  => SAP_DEFAULTPRIORITY,
+                'priority_index'            => SAP_DEFAULTPRIORITYINDEX
             );
 
             $projectId = $this->project->set_project($project);
             if($projectId){
+
+                $this->industry->cleanup_priority_index($this->input->post('industries_id'), $this->input->post('platforms_id'));
+
                 $cookie = array(
                     'name'=>        'author_email',
                     'value'=>       $this->input->post('author_email'),
@@ -163,12 +167,19 @@ class SAView extends CI_Controller {
                 'completion_date'           => $this->_tosqldate($this->input->post('completion_date') == '' ? NULL : $this->input->post('completion_date')),
                 'effort_justification'      => $this->input->post('effort_justification') == '' ? NULL : $this->input->post('effort_justification'),
                 'notes'                     => $this->input->post('notes') == '' ? NULL : $this->input->post('notes'),
-                'status'                    => $this->input->post('status') == '' ? NULL : $this->input->post('status'),
-                'priority'                  => $this->input->post('priority') == '' ? NULL : $this->input->post('priority')
+                'status'                    => $this->input->post('status') == '' ? NULL : $this->input->post('status')
             );
+
+            if(!array_key_exists($this->input->post('status'), unserialize(SAP_ACTIVESTATUSLIST))){
+                $project['priority'] = SAP_DEFAULTPRIORITY;
+                $project['priority_index'] = SAP_DEFAULTPRIORITYINDEX;
+            }
+
+            $original = $this->project->get_by_id($this->input->post('id'));
 
             $projectId = $this->project->set_project($project);
             if($projectId){
+
                 $desiredDate = $this->input->post('desired_completion_date');
                 $effortoutputs = $this->input->post('effortoutputs_id');
 
@@ -187,6 +198,13 @@ class SAView extends CI_Controller {
                         $this->projecttask->delete_by_id($projecttask['id']);
                     }
                 }
+
+                //Cleanup priorities of original record if they are leaving to new industry or platform
+                if($original->industries_id != $this->input->post('industries_id') || $original->platforms_id != $this->input->post('platforms_id')) {
+                    $this->industry->cleanup_priority_index($original->industries_id, $original->platforms_id);
+                }
+
+                $this->industry->cleanup_priority_index($this->input->post('industries_id'), $this->input->post('platforms_id'));
             }
 
             echo json_encode(array("status" => TRUE));
@@ -197,6 +215,76 @@ class SAView extends CI_Controller {
     {
         $this->project->delete_by_id($id);
         echo json_encode(array("status" => TRUE));
+    }
+
+    public function ajax_reorder(){
+        $diff = $_POST;
+
+        $errorText = NULL;
+        $activeStatusList = unserialize(SAP_ACTIVESTATUSLIST);
+        $statusList = unserialize(SAP_STATUSLIST);
+
+        if(count($diff) > 1){
+            $movedRecord = $this->project->get_by_id($diff['key']);
+            if(array_key_exists($movedRecord->status, $activeStatusList)){
+
+                //1 - verify that they are all in the same group, and that all status are active
+                foreach($diff as $targetId=>$sourceId){
+                    if($targetId != 'key'){
+                        $target = $this->project->get_by_id($targetId);
+                        $source = $this->project->get_by_id($sourceId);
+
+                        if($source->platforms_id != $movedRecord->platforms_id || $source->industries_id != $movedRecord->industries_id) {
+                            $errorText = "You may only reorder projects within their own Industry / Product. ";
+                            break;
+                        }
+
+                        if(!array_key_exists($target->status, $activeStatusList) || !array_key_exists($source->status, $activeStatusList)){
+                            $errorText = "You may only reorder within active projects.";
+                            break;
+                        }
+                    }
+                }
+
+                //2 - Make sure priority index is unique and in the appropriate order
+                if(!$errorText){
+                    //Tighten up Priority_Index
+                    $this->industry->cleanup_priority_index($movedRecord->industries_id, $movedRecord->platforms_id);
+                    $newPriorities = array();
+
+                    //3 - Move Priority_Indexes
+                    foreach($diff as $targetId=>$sourceId){
+                        if($targetId != 'key'){
+
+                            $target = $this->project->get_projects($targetId);
+                            $source = $this->project->get_projects($sourceId);
+
+                            //Save the original Priority Index
+                            if(!array_key_exists($targetId, $newPriorities)) $newPriorities[$targetId] = $target['priority_index'];
+                            if(!array_key_exists($sourceId, $newPriorities)) $newPriorities[$sourceId] = $source['priority_index'];
+
+                            //Use the original Priority Index
+                            $target['priority_index'] = $newPriorities[$sourceId];
+                            $this->project->set_project($target);
+                        }
+                    }
+
+                    //4 - Make sure priority (now, next, after, beyond) is set
+                    if(!$errorText){
+                        //Tighten up Priority_Index
+                        $this->industry->cleanup_priority_index($movedRecord->industries_id, $movedRecord->platforms_id);
+                    }
+                }
+            } else {
+                $errorText = "You may only reorder projects with an active status. (". (array_key_exists($movedRecord->status, $statusList) ? $statusList[$movedRecord->status] : $movedRecord->status) . ")";
+            }
+        }
+
+        if($errorText){
+            echo json_encode(array("errorText" => $errorText));
+        } else {
+            echo json_encode(array("status" => TRUE, 'count'=>count($diff)));
+        }
     }
 
     private function _validate()
