@@ -120,7 +120,7 @@
       <publishTime>07/15/2016 15:12:22</publishTime>
     </File>
     <File Include="application/models/Project_model.php">
-      <publishTime>07/28/2016 13:06:11</publishTime>
+      <publishTime>07/29/2016 17:33:14</publishTime>
     </File>
     <File Include="application/models/User_model.php">
       <publishTime>07/15/2016 02:15:08</publishTime>
@@ -192,16 +192,16 @@
       <publishTime>07/21/2016 03:19:36</publishTime>
     </File>
     <File Include="application/views/project/saview.php">
-      <publishTime>07/28/2016 19:00:42</publishTime>
+      <publishTime>07/28/2016 21:15:21</publishTime>
     </File>
     <File Include="application/views/project/view.php">
       <publishTime>07/11/2016 22:22:57</publishTime>
     </File>
     <File Include="application/views/templates/footer.php">
-      <publishTime>07/28/2016 18:53:38</publishTime>
+      <publishTime>07/28/2016 21:20:06</publishTime>
     </File>
     <File Include="application/views/templates/header.php">
-      <publishTime>07/27/2016 21:17:13</publishTime>
+      <publishTime>07/28/2016 21:00:02</publishTime>
     </File>
     <File Include="application/views/welcome_message.php">
       <publishTime>03/21/2016 13:26:30</publishTime>
@@ -216,7 +216,7 @@
       <publishTime>07/27/2016 01:52:20</publishTime>
     </File>
     <File Include="assets/css/theme.css">
-      <publishTime>07/20/2016 21:29:28</publishTime>
+      <publishTime>07/28/2016 21:19:00</publishTime>
     </File>
     <File Include="assets/js/dataTables.editor.min.js">
       <publishTime>07/27/2016 02:41:32</publishTime>

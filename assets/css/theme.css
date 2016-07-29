@@ -421,3 +421,20 @@ a.subnavlinkactive {
     font-weight: bold;
     color: red;
 }
+
+
+table.dataTable.display tbody tr.odd>.dragable, table.dataTable.order-column.stripe tbody tr.odd>.dragable {
+    background-color: #f1f1f1;
+}
+
+table.dataTable.display tbody tr.even>.dragable, table.dataTable.order-column.stripe tbody tr.even>.dragable {
+    background-color: #fafafa;
+}
+
+table.dataTable td.center-horizontal{
+    text-align: center;
+}
+
+table.dataTable td.center-vertical{
+    vertical-align: central;
+}

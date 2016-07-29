@@ -6,8 +6,23 @@
     <i class="glyphicon glyphicon-refresh"></i>Reload
 </button>
 <br />
-<br />
-<table id="table" class="table table-striped table-bordered" border="0" cellpadding="0" cellspacing="0" width="100%">
+
+<div id="filters">
+    <div id="accordion">
+        <span>
+            <span>
+                <strong>Additional&nbsp;Filters</strong>
+            </span>
+        </span>
+        <div style="background-color: #f1f1f1; ">
+            more content here
+        </div>
+    </div>
+</div>
+
+
+<br /><!--table hover table-striped table-bordered-->
+<table id="table" class="display table table-bordered table-hover table-striped table-condensed" border="0" cellpadding="0" cellspacing="0" width="100%">
     <thead>
         <tr>
             <th>id</th>
@@ -21,7 +36,7 @@
             <th class="search-efforttype">Effort Type</th>
             <th class="search-input">Effort Output</th>
             <th class="search-input">Effort Justification</th>
-            <th class="search-input">Notes</th>
+            <th>Notes</th>
             <th>Estimated Complete Date</th>
             <th class="search-status">Status</th>
             <th style="width:125px;">&nbsp;</th>
@@ -61,13 +76,23 @@
     var editor;
 
     $(document).ready(function () {
+        $(function () {
+            $("#accordion").accordion({
+                active: false,
+                activate: function (event, ui) {
+                    $('#FilterCollapsed').val(ui.newHeader.text() ? false : true);
+                },
+                heightStyle: "content",
+                collapsible: true,
+                create: function (event, ui) { $("#accordion").show(); }
+            });
+        });
 
         table = $('#table').DataTable({
             "processing": true,
             "serverSide": true,
             "ordering": false,
             "searching": true,
-            "order": [],
             "rowReorder": true,
             "ajax": {
                 url: "<?php echo site_url('SAView/ajax_list')?>",
@@ -75,7 +100,7 @@
             },
             "columnDefs": [
                 { "name": "id", "targets": 0, "visible": false, "searchable": false },
-                { "name": "industries.name", "targets": 1, "orderable": false },
+                { "name": "industries.name", "targets": 1, "orderable": true, "className": "reorder dragable" },
                 { "name": "sa_users_id", "targets": 2, "orderable": false },
                 { "name": "priority", "targets": 3, "orderable": false },
                 { "name": "priority_index", "visible": false, "targets": 4, "orderable": false },
@@ -83,12 +108,36 @@
                 { "name": "platforms.name", "targets": 6, "orderable": false },
                 { "name": "effort_target", "targets": 7, "orderable": false },
                 { "name": "efforttypes.name", "targets": 8, "orderable": false },
-                { "name": "vflatprojecttasks.effortoutput", "targets": 9, "orderable": false },
+                { "name": "vflatprojecttasks.effortoutput", "visible": false, "targets": 9, "orderable": false },
                 { "name": "effort_justification", "targets": 10, "orderable": false },
-                { "name": "notes", "targets": 11, "orderable": false },
+                { "name": "notes", "targets": 11, "visible": false, "orderable": false },
                 { "name": "estimated_complete_date", "targets": 12, "orderable": false },
-                { "name": "status", "targets": 13, "orderable": false },
-                { "name": "actions", "targets": 14, "orderable": false }
+                {
+                    "name": "status", "targets": 13, "orderable": false, "className": "center-vertical center-horizontal",
+                    "render": function (data, type, row) {
+                        labelStyle = 'label-default';
+
+                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['draft']; ?>') labelStyle = 'label-default';
+                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['approved']; ?>') labelStyle = 'label-info';
+                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['deferred']; ?>') labelStyle = 'label-danger';
+                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['inprocess']; ?>') labelStyle = 'label-success';
+                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['scheduled']; ?>') labelStyle = 'label-primary';
+                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['complete']; ?>') labelStyle = '';
+                        return '<h5><span class="label ' + labelStyle + '">' + data + '</span></h5>';
+                    }
+                },
+                {
+                    "name": "actions", "targets": 14, "orderable": false,
+                    "render": function (data, type, row) {
+                        editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project(\'' + row[0] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
+                        deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project(\'' + row[0] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
+                        approveButton = (row[13] === '<?php SAP_DEFAULTSTATUS ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="edit_project(\'' + row[0] + '\', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>' : '';
+                        deferButton = (row[13] === '<?php SAP_DEFAULTSTATUS ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="defer_project(\'' + row[0] + '\')"><i class="glyphicon glyphicon-thumbs-down"></i></a>' : '';
+                        notesButton = (row[11]) ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="' + row[11] + '" onclick="BootstrapDialog.show({title:\'Project Notes\', animate: \'false\', message: unescape(\'' + escape(row[11]) + '\')})"><i class="glyphicon glyphicon-info-sign"></i></a>' : '';
+
+                        return editButton + ' ' + deleteButton + ' ' + notesButton + ' ' + approveButton + ' ' + deferButton
+                    }
+                }
             ],
             "initComplete": function () {
                 this.api().columns('.search-select').every(function () {
@@ -263,18 +312,16 @@ foreach($platforms as $key=>$value){
         //    }
         //});
 
-        $('#button').click(function () {
-            alert(table.rows('.selected').data().length + ' row(s) selected');
-        });
-
         $("input").change(function () {
             $(this).parent().parent().removeClass('has-error');
             $(this).next().empty();
         });
+
         $("textarea").change(function () {
             $(this).parent().parent().removeClass('has-error');
             $(this).next().empty();
         });
+
         $("select").change(function () {
             $(this).parent().parent().removeClass('has-error');
             $(this).next().empty();
@@ -294,8 +341,8 @@ foreach($platforms as $key=>$value){
 
         $('[name="status"]').val('<?php echo SAP_DEFAULTSTATUS; ?>');
         $("#effortoutput").html('Select an effort type...');
-        $('#modal_form').modal('show');
         $('.modal-title').text('New Project Request');
+        $('#modal_form').modal('show');
     }
 
     function edit_project(id, newStatus) {
@@ -322,7 +369,7 @@ foreach($platforms as $key=>$value){
                 $('[name="sa_users_id"]').val(data.sa_users_id);
                 $('[name="effort_target"]').val(data.effort_target);
                 $('[name="efforttypes_id"]').val(data.efforttypes_id);
-                getEffortOutput(data.effortoutput_id.split('||'));
+                getEffortOutput(data.effortoutput_id ? data.effortoutput_id.split('||') : null);
                 $('[name="desired_completion_date"]').val(data.desired_completion_date);
                 $('[name="estimated_completion_date"]').val(data.estimated_completion_date);
                 $('[name="completion_date"]').val(data.completion_date);
@@ -419,10 +466,9 @@ foreach($platforms as $key=>$value){
 
         }
     }
-
 </script>
 
-<!-- Bootstrap modal -->
+<!-- Bootstrap modal Project edit form -->
 <div class="modal fade" id="modal_form" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -549,9 +595,7 @@ foreach($platforms as $key=>$value){
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<!-- End Bootstrap modal -->
-
-
+<!-- End Bootstrap modal Project edit form-->
 
 <script type="text/javascript">
 

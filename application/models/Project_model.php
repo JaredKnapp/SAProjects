@@ -138,7 +138,7 @@ class Project_model extends CI_Model{
         $isFirst = TRUE;
         if( $searchText )
         {
-            foreach ( $this->searchColumns as $item )
+            foreach ( $searchColumns as $item )
             {
 
                 if( $isFirst )

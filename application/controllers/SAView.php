@@ -71,21 +71,15 @@ class SAView extends CI_Controller {
             $row[] = $project->priority_index;
             $row[] = $project->workload;
             $row[] = $project->platform;
-            $row[] = $project->effort_target;
+            $row[] = html_escape($project->effort_target);
             $row[] = $project->effort_type;
             $row[] = implode('<br>', explode('||', $project->effort_output));
-            $row[] = $project->effort_justification;
-            $row[] = $project->notes;
+            $row[] = html_escape($project->effort_justification);
+            $row[] = html_escape($project->notes);
             $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : "";
 
-            $row[] =    '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-pencil"></i></a>
-                        <a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-trash"></i></a> '
-                        .
-                        ($project->status === SAP_DEFAULTSTATUS ?
-                        '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="edit_project('."'".$project->id."'".', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>
-                        <a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="defer_project('."'".$project->id."'".')"><i class="glyphicon glyphicon-thumbs-down"></i></a> '
-                        : '');
+            $row[] = '';
 
             $data[] = $row;
         }
