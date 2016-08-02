@@ -1,4 +1,14 @@
+<?php
+$password = '1@mRemote';
+$salt = '$2a$10$AqAoA.Q3ZueWb5olMcQ6fuv.n8ZOsfoUOQdmYxfMFp3Y3SaLr.FkK';
+echo '<br>';
 
+echo "Crypt Testing:<br>";
+echo "Password: $password<br>";
+echo "Salt: $salt<br>";
+echo "Crypt: " . crypt($password, $salt)."<br>";
+
+?>
 <br />
 <div id="validationerrors">
     <?php echo validation_errors(); ?>

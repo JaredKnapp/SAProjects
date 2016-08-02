@@ -13,7 +13,7 @@
     display:inline-block;
     float:right;
     background:#333333;  /*url(../images/buttonbg.png) repeat-x;*/ 
-    border:1px solid #ffffff; 
+    border:1px solid #899caa; 
     border-radius:3px;
     -moz-border-radius:3px;
     position:relative;
@@ -27,8 +27,8 @@
     font-size:12px; 
     /*font-weight:bold;*/ 
     /*text-shadow:1px 1px #fff;*/ 
-    padding:2px 29px 4px 10px;
-    background:url(../images/loginArrow.png) no-repeat 53px 2px;
+    padding:2px 12px 4px 10px;
+    /*background:url(../images/loginArrow.png) no-repeat 53px 2px;*/
     display:block
 }
 
@@ -39,7 +39,7 @@
 /* Login Box */
 #loginBox {
     position:absolute;
-    top:25px;
+    top:24px;
     right:0;
     display:none;
     z-index:29;
@@ -48,6 +48,7 @@
 /* If the Login Button has been clicked */    
 #loginButton.active {
     border-radius:3px 3px 0 0;
+    border-bottom: none;
 }
 
 #loginButton.active span {
@@ -81,7 +82,7 @@
     padding:0;
 }
 
-fieldset#body {
+div#body {
     background:#fff;
     border-radius:3px;
     -moz-border-radius:3px;

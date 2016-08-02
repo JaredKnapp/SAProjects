@@ -33,6 +33,7 @@
     <Compile Include="application\config\routes.php" />
     <Compile Include="application\config\smileys.php" />
     <Compile Include="application\config\user_agents.php" />
+    <Compile Include="application\controllers\Auth.php" />
     <Compile Include="application\controllers\ListFactory.php" />
     <Compile Include="application\controllers\SAView.php" />
     <Compile Include="application\controllers\NowNextAfter.php" />
@@ -47,6 +48,7 @@
     <Compile Include="application\models\Industry_model.php" />
     <Compile Include="application\models\EffortType_model.php" />
     <Compile Include="application\models\Project_model.php" />
+    <Compile Include="application\views\auth.php" />
     <Compile Include="application\views\errors\cli\error_404.php" />
     <Compile Include="application\views\errors\cli\error_db.php" />
     <Compile Include="application\views\errors\cli\error_exception.php" />
@@ -57,6 +59,7 @@
     <Compile Include="application\views\errors\html\error_exception.php" />
     <Compile Include="application\views\errors\html\error_general.php" />
     <Compile Include="application\views\errors\html\error_php.php" />
+    <Compile Include="application\views\login.php" />
     <Compile Include="application\views\pages\about.php" />
     <Compile Include="application\views\pages\home.php" />
     <Compile Include="application\views\project\create.php" />

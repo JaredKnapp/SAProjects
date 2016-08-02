@@ -88,6 +88,8 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 /*-------------------------------
 | APPLICATION CONSTANTS
 ---------------------------------*/
+defined('SAP_PASSWORDSALT')         or define('SAP_PASSWORDSALT', ':LKJ89w9 @#$je$jf@#987pjh @#$as9fa sdfas%$#97 08yasdh');
+
 defined('SAP_APPLICATIONTITLE')     or define('SAP_APPLICATIONTITLE', 'ETD SA Projects');
 defined('SAP_STATUSLIST')           or define('SAP_STATUSLIST', serialize(array('draft'=>'Requested', 'approved'=>'Approved', 'deferred'=>'Deferred', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled', 'complete'=>'Completed')));
 defined('SAP_ACTIVESTATUSLIST')     or define('SAP_ACTIVESTATUSLIST', serialize(array('approved'=>'Approved', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled')));
@@ -99,3 +101,6 @@ defined('SAP_DEFAULTSTATUS')        or define('SAP_DEFAULTSTATUS', 'draft');
 defined('SAP_DEFAULTPRIORITY')      or define('SAP_DEFAULTPRIORITY', 'beyond');
 defined('SAP_DEFAULTPRIORITYINDEX') or define('SAP_DEFAULTPRIORITYINDEX', '2147483647');
 
+define('ERR_NONE', 0);
+define('ERR_INVALID_USERNAME', 1);
+define('ERR_INVALID_PASSWORD', 2);

@@ -58,22 +58,26 @@
                 <div id="accountinfo" class="nav topcorner">
                     <ul>
                         <li>
-                            <a href="#" id="loginButton"><span>Log in</span></a>
+                            <a href="#" id="loginButton"><span>Login <i class="glyphicon glyphicon-collapse-down"></i></span></a>
                             <div style="clear:both"></div>
                             <div id="loginBox">
-                                <form id="loginForm">
-                                    <fieldset id="body">
-                                        <fieldset>
-                                            <label for="email">Email Address</label>
-                                            <input type="text" name="email" id="email" />
-                                        </fieldset>
-                                        <fieldset>
-                                            <label for="password">Password</label>
-                                            <input type="password" name="password" id="password" />
-                                        </fieldset>
-                                        <input type="submit" id="login" value="Sign in" />
-                                    </fieldset>
-                                </form>
+                                <!--<form id="loginForm" role="form">-->
+                                <?php echo form_open('auth', array('id'=>'loginForm', 'role'=>'form')); ?>
+                                    <?php $error = form_error("email", "<p class='text-danger'>", '</p>'); ?>
+                                <div id="body">
+                                    <div class="form-group <?php echo $error ? 'has-error' : '' ?>">
+                                        <label for="email">Email Address:</label>
+                                        <div class="input_group">
+                                            <input type="email" class="form-control" name="email" id="email" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password">Password:</label>
+                                        <input type="password" class="form-control" name="password" id="password" />
+                                    </div>
+                                    <a href="javascript:document.getElementById('loginForm').submit();" class="btn btn-info"><i class="glyphicon glyphicon-log-in"></i>&nbsp;&nbsp;Sign&nbsp;In</a>
+                                </div>
+                                <?php echo form_close(); ?>
                             </div>
                         </li>
                     </ul>

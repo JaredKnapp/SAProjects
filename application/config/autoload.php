@@ -58,7 +58,7 @@ $autoload['packages'] = array(); //array(APPPATH . 'third_party/community_auth/'
 |
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
-$autoload['libraries'] = array('database', 'session'); //array('database','session','tokens','Authentication');
+$autoload['libraries'] = array('database', 'session'); //array('tokens','Authentication');
 
 
 /*
@@ -90,7 +90,7 @@ $autoload['drivers'] = array();
 |
 |	$autoload['helper'] = array('url', 'file');
 */
-$autoload['helper'] = array('form'); //array('form', 'serialization','cookie');
+$autoload['helper'] = array('url', 'form'); //array('form', 'serialization','cookie');
 
 
 /*
