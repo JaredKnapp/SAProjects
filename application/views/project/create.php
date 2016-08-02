@@ -81,7 +81,7 @@ echo form_close();
 
     function getWorkload(val) {
         $.ajax({
-            url: "<?php echo base_url();?>index.php/ListFactory/GetWorkloadDropdown",
+            url: "<?php echo $this->config->site_url('/ListFactory/GetWorkloadDropdown'); ?>",
             data: { id: $('#industry').val() },
             type: "POST",
             success: function (data) {
@@ -91,7 +91,7 @@ echo form_close();
                 }
             }
         }).fail(function () {
-            alert("ERROR: problem populating Workload dropdown.");
+            alert("ERROR: Problem populating Workload dropdown.");
         });
     }
 

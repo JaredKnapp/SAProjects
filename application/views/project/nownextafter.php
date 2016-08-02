@@ -1,4 +1,59 @@
+<?php
+$statusList = unserialize(SAP_ACTIVESTATUSLIST);
+$priorityList = unserialize(SAP_PRIORITYLIST);
+?>
+<br />
+<div id="filters">
+    <div id="accordion">
+        <span>
+            <span>
+                <strong>Additional&nbsp;Filters</strong>
+            </span>
+        </span>
+        <div id="accordion-body">
+            <form class="form-horizontal">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td width="200" valign="top">
+                                <strong>Industries:</strong>
+                                <?php
+                                foreach($industries as $key=>$value){
+                                    echo "<div class='checkbox center-vertical'><label for='industries_$key' class='selected'><input type='checkbox' name='industries[]' id='industries_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                }
+                                ?>
+                            </td>
+                            <td width="200" valign="top">
+                                <strong>Priorities:</strong>
+                                <?php
+                                foreach($priorityList as $key=>$value){
+                                    echo "<div class='checkbox'><label for='priorities_$key' class='selected'><input type='checkbox' name='priorities[]' id='priorities_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                }
+                                ?>
+                                <br />
+                                <strong>Statuses:</strong>
+                                <?php
+                                foreach($statusList as $key=>$value){
+                                    echo "<div class='checkbox'><label for='statuses_$key' class='selected'><input type='checkbox' name='statuses[]' id='statuses_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                }
+                                ?>
 
+                            </td>
+                            <td width="200" valign="top">
+                                <strong>Platforms</strong>
+                                <?php
+                                foreach($platforms as $key=>$value){
+                                    echo "<div class='checkbox'><label for='platforms_$key' class='selected'><input type='checkbox' name='platforms[]' id='platforms_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
 <br />
 <table id="table" class="table table-hover table-striped table-bordered" cellspacing="0" width="100%">
     <thead>
@@ -29,30 +84,81 @@
             <th>Effort Output</th>
             <th>Effort Justification</th>
             <th>Notes</th>
-            <th>
-                <!--Estimated Complete Date-->
-            </th>
+            <th></th>
             <th>Status</th>
         </tr>
     </tfoot>
     <tbody></tbody>
 </table>
 <script type="text/javascript">
+    var accordion;
     var table;
+    var timeoutHandle;
+
+    function QueryStringToHash(query) {
+
+        if (query == '') return null;
+
+        var hash = {};
+
+        var vars = query.split("&");
+
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            var k = decodeURIComponent(pair[0]);
+            var v = decodeURIComponent(pair[1]);
+
+            // If it is the first entry with this name
+            if (typeof hash[k] === "undefined") {
+
+                if (k.substr(k.length - 2) != '[]')  // not end with []. cannot use negative index as IE doesn't understand it
+                    hash[k] = v;
+                else
+                    hash[k] = [v];
+
+                // If subsequent entry with this name and not array
+            } else if (typeof hash[k] === "string") {
+                hash[k] = v;  // replace it
+
+                // If subsequent entry with this name and is array
+            } else {
+                hash[k].push(v);
+            }
+        }
+        return hash;
+    };
 
     $(document).ready(function () {
+
+        accordion = $("#accordion").accordion({
+            active: false,
+            activate: function (event, ui) {
+                $('#FilterCollapsed').val(ui.newHeader.text() ? false : true);
+            },
+            heightStyle: "content",
+            collapsible: true,
+            create: function (event, ui) { $("#accordion").show(); }
+        });
+
+        var test = QueryStringToHash(window.location.href.slice(window.location.href.indexOf('?') + 1));
+
         table = $('#table').DataTable({
             "processing": true,
             "serverSide": true,
             "ordering": true,
             "searching": true,
-            "order": [],
             "ajax": {
                 url: "<?php echo site_url('NowNextAfter/ajax_list')?>",
+                data: function (data) {
+                    data.searchIndustries = $("input[name='industries[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
+                    data.searchPriorities = $("input[name='priorities[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
+                    data.searchStatuses = $("input[name='statuses[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
+                    data.searchPlatforms = $("input[name='platforms[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
+                },
                 type: "POST"
             },
             "columnDefs": [
-                { "name": "industries.name", "targets": 0 },
+                { "name": "industries.name", "targets": 0, "visible": false },
                 { "name": "sa_users_id", "targets": 1 },
                 { "name": "priority", "targets": 2 },
                 { "name": "workloads.name", "targets": 3 },
@@ -61,10 +167,44 @@
                 { "name": "efforttypes.name", "targets": 6 },
                 { "name": "vflatprojecttasks.effortoutput", "targets": 7 },
                 { "name": "effort_justification", "targets": 8 },
-                { "name": "notes", "targets": 9 },
+                {
+                    "name": "notes", "targets": 9,
+                    "render": function (data, type, row) {
+                        return data ? data.replace(/(\r\n|\n|\r)/g, "<br />") : '';
+                    }
+                },
                 { "name": "estimated_complete_date", "targets": 10 },
-                { "name": "status", "targets": 11 }
+                {
+                    "name": "status", "targets": 11,
+                    "render": function (data, type, row) {
+                        labelStyle = 'label-default';
+
+                        if (data === '<?php echo array_key_exists('draft', $statusList) ? $statusList['draft'] : 'draft'; ?>') labelStyle = 'label-default';
+                        if (data === '<?php echo array_key_exists('approved', $statusList) ? $statusList['approved'] : 'approved'; ?>') labelStyle = 'label-info';
+                        if (data === '<?php echo array_key_exists('deferred', $statusList) ? $statusList['deferred'] : 'deferred'; ?>') labelStyle = 'label-danger';
+                        if (data === '<?php echo array_key_exists('inprocess', $statusList) ? $statusList['inprocess'] : 'inprocess'; ?>') labelStyle = 'label-success';
+                        if (data === '<?php echo array_key_exists('scheduled', $statusList) ? $statusList['scheduled'] : 'scheduled'; ?>') labelStyle = 'label-primary';
+                        if (data === '<?php echo array_key_exists('complete', $statusList) ? $statusList['complete'] : 'complete'; ?>') labelStyle = '';
+
+                        return '<h5><span class="label ' + labelStyle + '">' + data + '</span></h5>';
+                    }
+                }
             ],
+            "drawCallback": function () {
+                var api = this.api();
+                var rows = api.rows({ page: 'current' }).nodes();
+                var last = null;
+
+                api.column(0, { page: 'current' }).data().each(function (group, i) {
+                    if (last !== group) {
+                        $(rows).eq(i).before(
+                            '<tr class="group"><td colspan="11"><p class="lead">' + group + '</p></td></tr>'
+                        );
+
+                        last = group;
+                    }
+                });
+            },
             "initComplete": function () {
                 this.api().columns('.search-select').every(function () {
                     var column = this;
@@ -150,7 +290,6 @@ foreach($efforttypes as $key=>$value){
                         });
                     var options = [];
 <?php
-$statusList = unserialize(SAP_STATUSLIST);
 foreach($statusList as $key=>$value){
     echo "select.append('<option value=\"$key\">$value</option>');";
 }
@@ -166,8 +305,7 @@ foreach($statusList as $key=>$value){
                         });
                     var options = [];
 <?php
-$statusList = unserialize(SAP_PRIORITYLIST);
-foreach($statusList as $key=>$value){
+foreach($priorityList as $key=>$value){
     echo "select.append('<option value=\"$key\">$value</option>');";
 }
 ?>
@@ -207,4 +345,13 @@ foreach($platforms as $key=>$value){
         });
 
     });
+
+    function search_changed() {
+        window.clearTimeout(timeoutHandle);
+        timeoutHandle = window.setTimeout(reload_table, 2000);
+    }
+
+    function reload_table() {
+        table.ajax.reload(null, false);
+    }
 </script>

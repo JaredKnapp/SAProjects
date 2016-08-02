@@ -1,3 +1,7 @@
+<?php
+$statusList = unserialize(SAP_STATUSLIST);
+$priorityList = unserialize(SAP_PRIORITYLIST);
+?>
 
 <button class="btn btn-success" onclick="add_project_request()">
     <i class="glyphicon glyphicon-plus"></i>Add Project Request
@@ -6,7 +10,7 @@
     <i class="glyphicon glyphicon-refresh"></i>Reload
 </button>
 <br />
-
+<br />
 <div id="filters">
     <div id="accordion">
         <span>
@@ -15,16 +19,55 @@
             </span>
         </span>
         <div style="background-color: #f1f1f1; ">
-            more content here
+            <form class="form-horizontal">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td width="200" valign="top">
+                                <strong>Industries:</strong>
+                                <?php
+                                foreach($industries as $key=>$value){
+                                    echo "<div class='checkbox center-vertical'><label for='industries_$key' class='selected'><input type='checkbox' name='industries[]' id='industries_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                }
+                                ?>
+                            </td>
+                            <td width="200" valign="top">
+                                <strong>Priorities:</strong>
+                                <?php
+                                foreach($priorityList as $key=>$value){
+                                    echo "<div class='checkbox'><label for='priorities_$key' class='selected'><input type='checkbox' name='priorities[]' id='priorities_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                }
+                                ?>
+                                <br />
+                                <strong>Statuses:</strong>
+                                <?php
+                                foreach($statusList as $key=>$value){
+                                    echo "<div class='checkbox'><label for='statuses_$key' class='selected'><input type='checkbox' name='statuses[]' id='statuses_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                }
+                                ?>
+
+                            </td>
+                            <td width="200" valign="top">
+                                <strong>Platforms</strong>
+                                <?php
+                                foreach($platforms as $key=>$value){
+                                    echo "<div class='checkbox'><label for='platforms_$key' class='selected'><input type='checkbox' name='platforms[]' id='platforms_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
         </div>
     </div>
 </div>
-
 
 <br /><!--table hover table-striped table-bordered-->
 <table id="table" class="display table table-bordered table-hover table-striped table-condensed" border="0" cellpadding="0" cellspacing="0" width="100%">
     <thead>
         <tr>
+            <th></th>
             <th>id</th>
             <th class="search-industry">Industry</th>
             <th class="search-sauser">SA</th>
@@ -39,19 +82,18 @@
             <th>Notes</th>
             <th>Estimated Complete Date</th>
             <th class="search-status">Status</th>
-            <th style="width:125px;">&nbsp;</th>
+            <th></th>
         </tr>
     </thead>
     <tbody></tbody>
     <tfoot>
         <tr>
+            <td></td>
             <th>id</th>
             <th>Industry</th>
             <th>SA</th>
             <th>Priority</th>
-            <th>
-                <!--Priority Index-->
-            </th>
+            <th></th>
             <th>Workload</th>
             <th>Product</th>
             <th>Effort Target</th>
@@ -59,13 +101,9 @@
             <th>Effort Output</th>
             <th>Effort Justification</th>
             <th>Notes</th>
-            <th>
-                <!--Estimated Complete Date-->
-            </th>
+            <th></th>
             <th>Status</th>
-            <th>
-                <!--Action-->
-            </th>
+            <th></th>
         </tr>
     </tfoot>
 </table>
@@ -74,18 +112,17 @@
     var save_method; //for save method string
     var table;
     var editor;
+    var timeoutHandle;
 
     $(document).ready(function () {
-        $(function () {
-            $("#accordion").accordion({
-                active: false,
-                activate: function (event, ui) {
-                    $('#FilterCollapsed').val(ui.newHeader.text() ? false : true);
-                },
-                heightStyle: "content",
-                collapsible: true,
-                create: function (event, ui) { $("#accordion").show(); }
-            });
+        $("#accordion").accordion({
+            active: false,
+            activate: function (event, ui) {
+                $('#FilterCollapsed').val(ui.newHeader.text() ? false : true);
+            },
+            heightStyle: "content",
+            collapsible: true,
+            create: function (event, ui) { $("#accordion").show(); }
         });
 
         table = $('#table').DataTable({
@@ -93,53 +130,68 @@
             "serverSide": true,
             "ordering": false,
             "searching": true,
-            "rowReorder": true,
+            "rowReorder": {
+                selector: 'td:nth-child(2)'
+            },
             "ajax": {
                 url: "<?php echo site_url('SAView/ajax_list')?>",
+                data: function (data) {
+                    data.searchIndustries = $("input[name='industries[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
+                    data.searchPriorities = $("input[name='priorities[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
+                    data.searchStatuses = $("input[name='statuses[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
+                    data.searchPlatforms = $("input[name='platforms[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
+                },
                 type: "POST"
             },
             "columnDefs": [
-                { "name": "id", "targets": 0, "visible": false, "searchable": false },
-                { "name": "industries.name", "targets": 1, "orderable": true, "className": "reorder dragable" },
-                { "name": "sa_users_id", "targets": 2, "orderable": false },
-                { "name": "priority", "targets": 3, "orderable": false },
-                { "name": "priority_index", "visible": false, "targets": 4, "orderable": false },
-                { "name": "workloads.name", "targets": 5, "orderable": false },
-                { "name": "platforms.name", "targets": 6, "orderable": false },
-                { "name": "effort_target", "targets": 7, "orderable": false },
-                { "name": "efforttypes.name", "targets": 8, "orderable": false },
-                { "name": "vflatprojecttasks.effortoutput", "visible": false, "targets": 9, "orderable": false },
-                { "name": "effort_justification", "targets": 10, "orderable": false },
-                { "name": "notes", "targets": 11, "visible": false, "orderable": false },
-                { "name": "estimated_complete_date", "targets": 12, "orderable": false },
                 {
-                    "name": "status", "targets": 13, "orderable": false, "className": "center-vertical center-horizontal",
+                    "name": "details", "targets": 0, "orderable": false, "className": 'details-control center-vertical center-horizontal', "width": '20px',
+                    "render": function (data, type, row) {
+                        return '<i id="details-twisty" class="details-control-icon glyphicon glyphicon-triangle-right" data-toggle="tooltip" title="Show Project Tasks" placement="bottom"></i>';
+                    }
+                },
+                { "name": "id", "targets": 1, "visible": false, "searchable": false },
+                { "name": "industries.name", "targets": 2, "orderable": true, "className": "reorder dragable" },
+                { "name": "sa_users_id", "targets": 3, "orderable": false },
+                { "name": "priority", "targets": 4, "orderable": false },
+                { "name": "priority_index", "visible": false, "targets": 5, "orderable": false },
+                { "name": "workloads.name", "targets": 6, "orderable": false },
+                { "name": "platforms.name", "targets": 7, "orderable": false },
+                { "name": "effort_target", "targets": 8, "orderable": false },
+                { "name": "efforttypes.name", "targets": 9, "orderable": false },
+                { "name": "vflatprojecttasks.effortoutput", "targets": 10, "visible": false, "orderable": false },
+                { "name": "effort_justification", "targets": 11, "orderable": false },
+                { "name": "notes", "targets": 12, "visible": false, "orderable": false },
+                { "name": "estimated_complete_date", "targets": 13, "orderable": false },
+                {
+                    "name": "status", "targets": 14, "orderable": false, "className": "center-vertical center-horizontal",
                     "render": function (data, type, row) {
                         labelStyle = 'label-default';
 
-                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['draft']; ?>') labelStyle = 'label-default';
-                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['approved']; ?>') labelStyle = 'label-info';
-                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['deferred']; ?>') labelStyle = 'label-danger';
-                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['inprocess']; ?>') labelStyle = 'label-success';
-                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['scheduled']; ?>') labelStyle = 'label-primary';
-                        if (data === '<?php echo unserialize(SAP_STATUSLIST)['complete']; ?>') labelStyle = '';
+                        if (data === '<?php echo $statusList['draft']; ?>') labelStyle = 'label-default';
+                        if (data === '<?php echo $statusList['approved']; ?>') labelStyle = 'label-info';
+                        if (data === '<?php echo $statusList['deferred']; ?>') labelStyle = 'label-danger';
+                        if (data === '<?php echo $statusList['inprocess']; ?>') labelStyle = 'label-success';
+                        if (data === '<?php echo $statusList['scheduled']; ?>') labelStyle = 'label-primary';
+                        if (data === '<?php echo $statusList['complete']; ?>') labelStyle = '';
+
                         return '<h5><span class="label ' + labelStyle + '">' + data + '</span></h5>';
                     }
                 },
                 {
-                    "name": "actions", "targets": 14, "orderable": false,
+                    "name": "actions", "targets": 15, "orderable": false,
                     "render": function (data, type, row) {
-                        editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project(\'' + row[0] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
-                        deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project(\'' + row[0] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
-                        approveButton = (row[13] === '<?php SAP_DEFAULTSTATUS ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="edit_project(\'' + row[0] + '\', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>' : '';
-                        deferButton = (row[13] === '<?php SAP_DEFAULTSTATUS ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="defer_project(\'' + row[0] + '\')"><i class="glyphicon glyphicon-thumbs-down"></i></a>' : '';
-                        notesButton = (row[11]) ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="' + row[11] + '" onclick="BootstrapDialog.show({title:\'Project Notes\', animate: \'false\', message: unescape(\'' + escape(row[11]) + '\')})"><i class="glyphicon glyphicon-info-sign"></i></a>' : '';
-
-                        return editButton + ' ' + deleteButton + ' ' + notesButton + ' ' + approveButton + ' ' + deferButton
+                        editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
+                        deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
+                        approveButton = (row[14] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="edit_project(\'' + row[1] + '\', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>' : false;
+                        deferButton = (row[14] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="defer_project(\'' + row[2] + '\')"><i class="glyphicon glyphicon-thumbs-down"></i></a>' : false;
+                        notesButton = (row[12]) ? '<a href="#" class="btn btn-sm btn-info" href="javascript:void(0)" data-toggle="popover" data-html="true" data-trigger="focus" title="Project Notes" data-content="' + (row[12]).replace(/(\r\n|\n|\r)/g, "<br />") + '"><i class="glyphicon glyphicon-info-sign"></i></a>' : false;
+                        return editButton + '&nbsp;' + deleteButton + (approveButton ? (' ' + approveButton) : '') + (deferButton ? (' ' + deferButton) : '') + (notesButton ? (' ' + notesButton) : '');
                     }
                 }
             ],
             "initComplete": function () {
+
                 this.api().columns('.search-select').every(function () {
                     var column = this;
                     var select = $('<select><option value="">Search...</option></select>')
@@ -152,6 +204,7 @@
                         select.append('<option value="' + d + '">' + d + '</option>')
                     });
                 });
+
                 this.api().columns('.search-input').every(function () {
                     var column = this;
                     $('<input type="text" value="" placeholder="Search...">')
@@ -169,6 +222,7 @@
                             }, 1000));
                         });
                 });
+
                 this.api().columns('.search-industry').every(function () {
                     var column = this;
                     var select = $('<select><option value="">Search...</option></select>')
@@ -184,6 +238,7 @@ foreach($industries as $key=>$value){
 }
 ?>
                 });
+
                 this.api().columns('.search-sauser').every(function () {
                     var column = this;
                     var select = $('<select><option value="">Search...</option></select>')
@@ -199,6 +254,7 @@ foreach($sausers as $key=>$value){
 }
 ?>
                 });
+
                 this.api().columns('.search-efforttype').every(function () {
                     var column = this;
                     var select = $('<select><option value="">Search...</option></select>')
@@ -214,6 +270,7 @@ foreach($efforttypes as $key=>$value){
 }
 ?>
                 });
+
                 this.api().columns('.search-status').every(function () {
                     var column = this;
                     var select = $('<select><option value="">Search...</option></select>')
@@ -224,12 +281,12 @@ foreach($efforttypes as $key=>$value){
                         });
                     var options = [];
 <?php
-$statusList = unserialize(SAP_STATUSLIST);
 foreach($statusList as $key=>$value){
     echo "select.append('<option value=\"$key\">$value</option>');";
 }
 ?>
                 });
+
                 this.api().columns('.search-priority').every(function () {
                     var column = this;
                     var select = $('<select><option value="">Search...</option></select>')
@@ -240,12 +297,12 @@ foreach($statusList as $key=>$value){
                         });
                     var options = [];
 <?php
-$statusList = unserialize(SAP_PRIORITYLIST);
-foreach($statusList as $key=>$value){
+foreach($priorityList as $key=>$value){
     echo "select.append('<option value=\"$key\">$value</option>');";
 }
 ?>
                 });
+
                 this.api().columns('.search-platform').every(function () {
                     var column = this;
                     var select = $('<select><option value="">Search...</option></select>')
@@ -267,21 +324,22 @@ foreach($platforms as $key=>$value){
         table.on('row-reorder', function (e, diff, edit) {
 
             if (diff.length > 0) {
-                var result = 'Reorder started on row: ' + edit.triggerRow.data()[0] + ' Status: ' + edit.triggerRow.data()[13] + '\n';
+                var result = 'Reorder started on row: ' + edit.triggerRow.data()[1] + ' Status: ' + edit.triggerRow.data()[14] + '\n';
 
-                var triggerId = edit.triggerRow.data()[0];
-                var status = edit.triggerRow.data()[13];
+                var triggerId = edit.triggerRow.data()[1];
+                var status = edit.triggerRow.data()[14];
 
-                var data = 'key=' + edit.triggerRow.data()[0];
+                var data = 'key=' + edit.triggerRow.data()[1];
 
                 for (var i = 0, ien = diff.length ; i < ien ; i++) {
                     var rowData = table.row(diff[i].node).data();
 
-                    result += rowData[0] + ' updated to be in position ' + diff[i].newData + ' (was ' + diff[i].oldData + ')\n';
-                    data += ('&' + rowData[0] + '=' + diff[i].newData);
+                    result += rowData[1] + ' updated to be in position ' + diff[i].newData + ' (was ' + diff[i].oldData + ')\n';
+                    data += ('&' + rowData[1] + '=' + diff[i].newData);
                 }
 
                 if (confirm('Reorder this Project Request?\n' + result)) {
+
                     $.ajax({
                         url: "<?php echo site_url('SAView/ajax_reorder')?>",
                         type: "POST",
@@ -311,6 +369,70 @@ foreach($platforms as $key=>$value){
         //        $(this).addClass('selected');
         //    }
         //});
+        // Add event listener for opening and closing details
+
+        $('#table').on('draw.dt', function () {
+
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                placement: 'left',
+            });
+
+            $(document).on("click", ".popover-footer .btn", function () {
+                $(this).parents(".popover").popover('hide');
+            });
+
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+        });
+
+        $('#table tbody').on('click', 'td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var icon = $(this).find('i');
+            var row = table.row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                //tr.removeClass('shown');
+                icon.removeClass('glyphicon-triangle-bottom');
+                icon.addClass('glyphicon-triangle-right');
+            }
+            else {
+                // Open this row
+                row.child(format_row_details(row.data())).show();
+                //tr.addClass('shown');
+                icon.removeClass('glyphicon-triangle-right');
+                icon.addClass('glyphicon-triangle-bottom');
+            }
+        });
+
+        $('#table tbody').on('click', 'td.reorder', function () {
+            var tr = $(this).closest('tr');
+            var icon = $(this).find('i');
+            var row = table.row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                //tr.removeClass('shown');
+                icon.removeClass('glyphicon-triangle-bottom');
+                icon.addClass('glyphicon-triangle-right');
+            }
+            else {
+                // Open this row
+                row.child(format_row_details(row.data())).show();
+                //tr.addClass('shown');
+                icon.removeClass('glyphicon-triangle-right');
+                icon.addClass('glyphicon-triangle-bottom');
+            }
+        });
+
+        $('[data-toggle="popover"]').popover({
+            placement: 'top'
+        });
 
         $("input").change(function () {
             $(this).parent().parent().removeClass('has-error');
@@ -328,6 +450,22 @@ foreach($platforms as $key=>$value){
         });
 
     });
+
+    /* Formatting function for row details - modify as you need */
+    function format_row_details(d) {
+        // `d` is the original data object for the row
+        return '<div style="padding-left: 50px;">' +
+            '<strong>Selected Project Tasks:</strong><br>' +
+            '<div style="padding-left: 20px;">' +
+            d[10] +
+            '</div>' +
+            '</div>';
+    }
+
+    function search_changed() {
+        window.clearTimeout(timeoutHandle);
+        timeoutHandle = window.setTimeout(reload_table, 2000);
+    }
 
     function reload_table() {
         table.ajax.reload(null, false);

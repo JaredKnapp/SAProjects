@@ -58,7 +58,7 @@ $autoload['packages'] = array(); //array(APPPATH . 'third_party/community_auth/'
 |
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
-$autoload['libraries'] = array(); //array('database','session','tokens','Authentication');
+$autoload['libraries'] = array('database', 'session'); //array('database','session','tokens','Authentication');
 
 
 /*

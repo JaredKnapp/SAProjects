@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | error_reporting is disabled, the backtrace will not display, regardless
 | of this setting
 |
-*/
+ */
 defined('SHOW_DEBUG_BACKTRACE') OR define('SHOW_DEBUG_BACKTRACE', TRUE);
 
 /*
@@ -25,7 +25,7 @@ defined('SHOW_DEBUG_BACKTRACE') OR define('SHOW_DEBUG_BACKTRACE', TRUE);
 | user, PHP under CGI with Apache suEXEC, etc.).  Octal values should
 | always be used to set the mode correctly.
 |
-*/
+ */
 defined('FILE_READ_MODE')  OR define('FILE_READ_MODE', 0644);
 defined('FILE_WRITE_MODE') OR define('FILE_WRITE_MODE', 0666);
 defined('DIR_READ_MODE')   OR define('DIR_READ_MODE', 0755);
@@ -38,7 +38,7 @@ defined('DIR_WRITE_MODE')  OR define('DIR_WRITE_MODE', 0755);
 |
 | These modes are used when working with fopen()/popen()
 |
-*/
+ */
 defined('FOPEN_READ')                           OR define('FOPEN_READ', 'rb');
 defined('FOPEN_READ_WRITE')                     OR define('FOPEN_READ_WRITE', 'r+b');
 defined('FOPEN_WRITE_CREATE_DESTRUCTIVE')       OR define('FOPEN_WRITE_CREATE_DESTRUCTIVE', 'wb'); // truncates existing file data, use with care
@@ -72,7 +72,7 @@ defined('FOPEN_READ_WRITE_CREATE_STRICT')       OR define('FOPEN_READ_WRITE_CREA
 |    Bash scripting:
 |       http://tldp.org/LDP/abs/html/exitcodes.html
 |
-*/
+ */
 defined('EXIT_SUCCESS')        OR define('EXIT_SUCCESS', 0); // no errors
 defined('EXIT_ERROR')          OR define('EXIT_ERROR', 1); // generic error
 defined('EXIT_CONFIG')         OR define('EXIT_CONFIG', 3); // configuration error
@@ -88,11 +88,12 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 /*-------------------------------
 | APPLICATION CONSTANTS
 ---------------------------------*/
+defined('SAP_APPLICATIONTITLE')     or define('SAP_APPLICATIONTITLE', 'ETD SA Projects');
 defined('SAP_STATUSLIST')           or define('SAP_STATUSLIST', serialize(array('draft'=>'Requested', 'approved'=>'Approved', 'deferred'=>'Deferred', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled', 'complete'=>'Completed')));
 defined('SAP_ACTIVESTATUSLIST')     or define('SAP_ACTIVESTATUSLIST', serialize(array('approved'=>'Approved', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled')));
 defined('SAP_PRIORITYLIST')         or define('SAP_PRIORITYLIST', serialize(array('now'=>"Now", 'next'=>"Next", 'after'=>'After', 'beyond'=>"Beyond")));
 
-defined('SAP_DEFERREDSTATUS')        or define('SAP_DEFERREDSTATUS', 'deferred');
+defined('SAP_DEFERREDSTATUS')       or define('SAP_DEFERREDSTATUS', 'deferred');
 
 defined('SAP_DEFAULTSTATUS')        or define('SAP_DEFAULTSTATUS', 'draft');
 defined('SAP_DEFAULTPRIORITY')      or define('SAP_DEFAULTPRIORITY', 'beyond');

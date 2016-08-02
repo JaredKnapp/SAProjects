@@ -40,6 +40,11 @@ class SAView extends CI_Controller {
 
     public function ajax_list(){
 
+        $this->where['industries.id IN'] = array_key_exists('searchIndustries', $_POST) ? $_POST['searchIndustries'] : array();
+        $this->where['projects.priority IN'] = array_key_exists('searchPriorities', $_POST) ? $_POST['searchPriorities'] : array();
+        $this->where['projects.status IN'] = array_key_exists('searchStatuses', $_POST) ? $_POST['searchStatuses'] : array();
+        $this->where['projects.platforms_id IN'] = array_key_exists('searchPlatforms', $_POST) ? $_POST['searchPlatforms'] : array();
+
         $searchText = $_POST['search']['value'];
 
         foreach($_POST['columns'] as $column){
@@ -65,6 +70,7 @@ class SAView extends CI_Controller {
             $index++;
             $row = array();
             $row[] = $project->id;
+            $row[] = $project->id;
             $row[] = $project->industry;
             $row[] = $project->sa;
             $row[] = array_key_exists($project->priority, $priorityList) ? $priorityList[$project->priority] : '';
@@ -78,7 +84,6 @@ class SAView extends CI_Controller {
             $row[] = html_escape($project->notes);
             $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : "";
-
             $row[] = '';
 
             $data[] = $row;

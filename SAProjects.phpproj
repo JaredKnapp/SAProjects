@@ -265,6 +265,7 @@
     <Folder Include="application\views\project\" />
     <Folder Include="assets\css\" />
     <Folder Include="assets\js\" />
+    <Folder Include="assets\images\" />
     <Folder Include="Content\" />
     <Folder Include="Content\DataTables-1.10.12\" />
     <Folder Include="Content\DataTables-1.10.12\extensions\" />
@@ -390,9 +391,16 @@
     <Content Include="assets\css\datatable.css" />
     <Content Include="assets\css\datatable1.css" />
     <Content Include="assets\css\editor.bootstrap.min.css" />
+    <Content Include="assets\css\login_theme.css" />
     <Content Include="assets\css\theme.css" />
+    <Content Include="assets\images\bar.png" />
+    <Content Include="assets\images\buttonbg.png" />
+    <Content Include="assets\images\buttonbgHover.png" />
+    <Content Include="assets\images\loginArrow.png" />
+    <Content Include="assets\images\loginbuttonbg.png" />
     <Content Include="assets\js\dataTables.editor.min.js" />
     <Content Include="assets\js\editor.bootstrap.min.js" />
+    <Content Include="assets\js\login.js" />
     <Content Include="composer.json" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />

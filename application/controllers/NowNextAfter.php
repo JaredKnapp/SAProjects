@@ -4,7 +4,7 @@ class NowNextAfter extends CI_Controller {
 
     var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
     var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
-    var $where          = array('projects.status <>'=>'draft');
+    var $where          = array();
     var $order          = array('industries.name'=>'ASC', 'platforms.sortorder'=>'ASC', 'priority_index'=>'ASC');
 
     public function __construct()
@@ -34,19 +34,26 @@ class NowNextAfter extends CI_Controller {
     }
 
     public function ajax_list(){
+        //$activeStatusList = unserialize(SAP_ACTIVESTATUSLIST);
+        //$this->where['projects.status IN'] = array_keys($activeStatusList);
+
+        $this->where['industries.id IN'] = array_key_exists('searchIndustries', $_POST) ? $_POST['searchIndustries'] : array();
+        $this->where['projects.priority IN'] = array_key_exists('searchPriorities', $_POST) ? $_POST['searchPriorities'] : array();
+        $this->where['projects.status IN'] = array_key_exists('searchStatuses', $_POST) ? $_POST['searchStatuses'] : array();
+        $this->where['projects.platforms_id IN'] = array_key_exists('searchPlatforms', $_POST) ? $_POST['searchPlatforms'] : array();
 
         $searchText = $_POST['search']['value'];
-
-        //$this->where = array('projects.status <>'=>'draft');
         foreach($_POST['columns'] as $column){
             if($column['search']['value']){
                 $this->where[$column['name']. ' REGEXP'] = $column['search']['value'];
             }
         }
 
+
         if(isset($_POST['order']))
         {
-            $this->order = array($this->columnOrder[$_POST['order']['0']['column']] => $_POST['order']['0']['dir']);
+            $this->order = array_merge(array($this->columnOrder[$_POST['order']['0']['column']] => $_POST['order']['0']['dir']),
+                array('industries.name'=>'ASC', 'platforms.sortorder'=>'ASC', 'priority_index'=>'ASC'));
         }
 
 

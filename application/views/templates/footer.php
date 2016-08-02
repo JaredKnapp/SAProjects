@@ -3,7 +3,7 @@
             <div id="footer">
             <div id="copyright">
                 <p>
-                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.2.08f)
+                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.3.11c)
                 </p>
             </div>
             <div id="contactlink">

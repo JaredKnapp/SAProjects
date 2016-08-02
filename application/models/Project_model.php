@@ -159,7 +159,11 @@ class Project_model extends CI_Model{
         $whereString = "";
         if($where && count($where>0)){
             foreach($where as $key=>$value){
-                $whereString .= ($isFirst?'':' AND ').$key. ' "' . $value . '"';
+                if(is_array($value)){
+                    $whereString .= ($isFirst?'':' AND ').$key. ' ("' . implode('","', $value) . '")';
+                } else {
+                    $whereString .= ($isFirst?'':' AND ').$key. ' "' . $value . '"';
+                }
                 $isFirst = FALSE;
             }
             $this->db->where($whereString);
