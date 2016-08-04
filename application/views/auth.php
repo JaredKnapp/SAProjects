@@ -15,7 +15,12 @@
                         <?php echo $error ? $error : 'Enter your Email Address and Password' ?>
                     </div>
 
-                    <?php echo form_open(); ?>
+                    <?php
+                    $hidden = array(
+                        'current_page'=> $current_page
+                    );
+                    echo form_open('auth', array(), $hidden);
+                    ?>
                     <?php $error = form_error("email", "<p class='text-danger'>", '</p>'); ?>
                     <div class="form-group <?php echo $error ? 'has-error' : '' ?>">
                         <label for="email">Email Address:</label>

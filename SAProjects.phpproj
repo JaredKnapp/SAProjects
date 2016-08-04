@@ -48,6 +48,7 @@
     <Compile Include="application\models\Industry_model.php" />
     <Compile Include="application\models\EffortType_model.php" />
     <Compile Include="application\models\Project_model.php" />
+    <Compile Include="assets\includes\auth-floatlogin.php" />
     <Compile Include="application\views\auth.php" />
     <Compile Include="application\views\errors\cli\error_404.php" />
     <Compile Include="application\views\errors\cli\error_db.php" />
@@ -59,7 +60,6 @@
     <Compile Include="application\views\errors\html\error_exception.php" />
     <Compile Include="application\views\errors\html\error_general.php" />
     <Compile Include="application\views\errors\html\error_php.php" />
-    <Compile Include="application\views\login.php" />
     <Compile Include="application\views\pages\about.php" />
     <Compile Include="application\views\pages\home.php" />
     <Compile Include="application\views\project\create.php" />
@@ -68,6 +68,7 @@
     <Compile Include="application\views\project\saview.php" />
     <Compile Include="application\views\project\nownextafter.php" />
     <Compile Include="application\views\project\view.php" />
+    <Compile Include="assets\includes\auth-floataccountinfo.php" />
     <Compile Include="application\views\templates\footer.php" />
     <Compile Include="application\views\templates\header.php" />
     <Compile Include="application\views\welcome_message.php" />
@@ -269,6 +270,7 @@
     <Folder Include="assets\css\" />
     <Folder Include="assets\js\" />
     <Folder Include="assets\images\" />
+    <Folder Include="assets\includes\" />
     <Folder Include="Content\" />
     <Folder Include="Content\DataTables-1.10.12\" />
     <Folder Include="Content\DataTables-1.10.12\extensions\" />
@@ -394,6 +396,7 @@
     <Content Include="assets\css\datatable.css" />
     <Content Include="assets\css\datatable1.css" />
     <Content Include="assets\css\editor.bootstrap.min.css" />
+    <Content Include="assets\css\accountinfo_theme.css" />
     <Content Include="assets\css\login_theme.css" />
     <Content Include="assets\css\theme.css" />
     <Content Include="assets\images\bar.png" />
@@ -403,6 +406,7 @@
     <Content Include="assets\images\loginbuttonbg.png" />
     <Content Include="assets\js\dataTables.editor.min.js" />
     <Content Include="assets\js\editor.bootstrap.min.js" />
+    <Content Include="assets\js\accountinfo.js" />
     <Content Include="assets\js\login.js" />
     <Content Include="composer.json" />
     <Content Include="Content\bootstrap-theme.css" />

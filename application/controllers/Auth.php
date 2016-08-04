@@ -17,11 +17,14 @@ class Auth extends CI_Controller {
 
 	public function index()
 	{
+        $currentPage = $this->input->post('current_page');
+
 		if(!$this->logged_in_check()){
 
             $this->load->library('form_validation');
             $this->form_validation->set_rules("email", "Email Address", "trim|valid_email|required");
             $this->form_validation->set_rules("password", "Password", "trim|required");
+
             if ($this->form_validation->run() == true)
             {
                 $email = $this->input->post('email');
@@ -40,13 +43,18 @@ class Auth extends CI_Controller {
                     // store the user data to session
                     $this->session->set_userdata($this->_userData);
                     $this->session->set_userdata("logged_in", true);
-                    // redirect to dashboard
-                    redirect("dashboard");
+
+                    // redirect to origin
+                    if($currentPage){
+                        redirect($currentPage);
+                    }
+                    redirect("/");
                 }
             }
 
             $data['title'] = 'Login';
             $data['topmenu'] = 'project';
+            $data['current_page'] = $currentPage;
 
             $this->load->view('templates/header', $data);
             $this->load->view("auth");
@@ -90,7 +98,7 @@ class Auth extends CI_Controller {
 	{
 		$this->session->unset_userdata("logged_in");
 		$this->session->sess_destroy();
-		redirect("auth");
+		redirect("login");
 	}
 
     /* blowfish encryption*/

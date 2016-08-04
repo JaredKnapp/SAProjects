@@ -57,7 +57,8 @@ $route['project/create'] = 'project/create';
 $route['project/saview'] = 'SAView/index';
 $route['project/(:any)'] = 'project/view/$1';
 $route['project'] = 'project';
-$route['auth'] = 'auth';
+$route['login'] = 'auth';
+$route['logout'] = 'auth/logout';
 $route['default_controller'] = 'project/create';
 $route['(:any)'] = 'pages/view/$1';
 

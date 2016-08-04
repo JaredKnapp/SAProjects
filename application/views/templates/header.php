@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/css/bootstrap-dialog.min.css" type="text/css" />
     <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/editor.bootstrap.min.css'); ?>" type="text/css" />
     <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/theme.css'); ?>" type="text/css" />
-    <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/login_theme.css'); ?>" type="text/css" />
     <link rel="stylesheet" href="<?php echo $this->config->base_url('Content/themes/base/all.css'); ?>" type="text/css" />
 
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
@@ -28,7 +27,6 @@
     <script src="https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js" type="text/javascript"></script>
     <script src="https://cdn.datatables.net/buttons/1.2.1/js/buttons.bootstrap.min.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/js/bootstrap-dialog.min.js" type="text/javascript"></script>
-    <script src="<?php echo $this->config->base_url('assets/js/login.js'); ?>" type="text/javascript"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -58,27 +56,15 @@
                 <div id="accountinfo" class="nav topcorner">
                     <ul>
                         <li>
-                            <a href="#" id="loginButton"><span>Login <i class="glyphicon glyphicon-collapse-down"></i></span></a>
-                            <div style="clear:both"></div>
-                            <div id="loginBox">
-                                <!--<form id="loginForm" role="form">-->
-                                <?php echo form_open('auth', array('id'=>'loginForm', 'role'=>'form')); ?>
-                                    <?php $error = form_error("email", "<p class='text-danger'>", '</p>'); ?>
-                                <div id="body">
-                                    <div class="form-group <?php echo $error ? 'has-error' : '' ?>">
-                                        <label for="email">Email Address:</label>
-                                        <div class="input_group">
-                                            <input type="email" class="form-control" name="email" id="email" />
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="password">Password:</label>
-                                        <input type="password" class="form-control" name="password" id="password" />
-                                    </div>
-                                    <a href="javascript:document.getElementById('loginForm').submit();" class="btn btn-info"><i class="glyphicon glyphicon-log-in"></i>&nbsp;&nbsp;Sign&nbsp;In</a>
-                                </div>
-                                <?php echo form_close(); ?>
-                            </div>
+                            <?php 
+                            $test = $this->session->userdata("logged_in");
+                            if($this->session->userdata("logged_in") == true){
+                                include base_url().'assets/includes/auth-floataccountinfo.php';
+                            } else {
+                                include base_url().'assets/includes/auth-floatlogin.php'; 
+                            }
+                            ?>
+  
                         </li>
                     </ul>
                 </div>
