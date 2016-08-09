@@ -52,15 +52,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 //$route[LOGIN_PAGE] = 'examples/login';
 
-$route['reports/nna'] = 'NowNextAfter/index';
-$route['project/create'] = 'project/create';
-$route['project/saview'] = 'SAView/index';
-$route['project/(:any)'] = 'project/view/$1';
-$route['project'] = 'project';
-$route['login'] = 'auth';
-$route['logout'] = 'auth/logout';
 $route['default_controller'] = 'project/create';
-$route['(:any)'] = 'pages/view/$1';
+
+$route['reports/nna'] = 'NowNextAfter/index';
+$route['project/saview'] = 'architect/SAView/index';
+$route['architect/saview'] = 'architect/SAView/index';
+
+$route['login'] = 'Auth';
+$route['logout'] = 'Auth/logout';
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

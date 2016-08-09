@@ -1,4 +1,3 @@
-
 <br />
 <table id="table" class="table table-hover table-striped table-bordered" cellspacing="0" width="100%">
     <thead>

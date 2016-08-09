@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Auth extends CI_Controller {
+class Auth extends MY_Controller{
 
     private $_userData = array();
 
@@ -17,7 +17,7 @@ class Auth extends CI_Controller {
 
 	public function index()
 	{
-        $currentPage = $this->input->post('current_page');
+        $currentPage = $this->session->flashdata('current_page') ? $this->session->flashdata('current_page') : $this->input->post('current_page');
 
 		if(!$this->logged_in_check()){
 
@@ -56,9 +56,8 @@ class Auth extends CI_Controller {
             $data['topmenu'] = 'project';
             $data['current_page'] = $currentPage;
 
-            $this->load->view('templates/header', $data);
-            $this->load->view("auth");
-            $this->load->view("templates/footer");
+            $data['body_content'] = 'login';
+            $this->load->view('templates/default', $data);
         } else {
             redirect("dashboard");
         }

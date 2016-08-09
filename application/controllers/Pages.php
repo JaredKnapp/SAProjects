@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Pages extends CI_Controller {
+class Pages extends MY_Controller {
 
     public function view($page = 'home')
     {
@@ -13,8 +13,7 @@ class Pages extends CI_Controller {
 
         $data['title'] = ucfirst($page); // Capitalize the first letter
 
-        $this->load->view('templates/header', $data);
-        $this->load->view('pages/'.$page, $data);
-        $this->load->view('templates/footer', $data);
+        $data['body_content'] = $page;
+        $this->load->view('templates/default', $data);
     }
 }

@@ -80,7 +80,9 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
             <th class="search-input">Effort Output</th>
             <th class="search-input">Effort Justification</th>
             <th>Notes</th>
-            <th>Estimated Complete Date</th>
+            <th>Projected Start</th>
+            <th>Estimated Completion</th>
+            <th>Duration (Work Days)</th>
             <th class="search-status">Status</th>
             <th></th>
         </tr>
@@ -102,6 +104,8 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
             <th>Effort Justification</th>
             <th>Notes</th>
             <th></th>
+            <th></th>
+            <th></th>
             <th>Status</th>
             <th></th>
         </tr>
@@ -110,12 +114,13 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
 <script type="text/javascript">
 
     var save_method; //for save method string
+    var accordion;
     var table;
     var editor;
     var timeoutHandle;
 
     $(document).ready(function () {
-        $("#accordion").accordion({
+        accordion = $("#accordion").accordion({
             active: false,
             activate: function (event, ui) {
                 $('#FilterCollapsed').val(ui.newHeader.text() ? false : true);
@@ -124,6 +129,26 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
             collapsible: true,
             create: function (event, ui) { $("#accordion").show(); }
         });
+
+        editor = new $.fn.dataTable.Editor({
+            ajax: "../php/staff.php",
+            table: "#table",
+            fields: [{
+                label: "Projected start:",
+                name: "projected_start_date"
+            }, {
+                label: "Estimated completion date:",
+                name: "estimated_completion_date"
+            }, {
+                label: "Duration:",
+                name: "estimated_work_days"
+            }
+            ]
+        });
+
+        //$('#table').on('click', 'tbody td:not(:first-child)', function (e) {
+        //    editor.inline(this);
+        //});
 
         table = $('#table').DataTable({
             "processing": true,
@@ -134,7 +159,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                 selector: 'td:nth-child(2)'
             },
             "ajax": {
-                url: "<?php echo site_url('SAView/ajax_list')?>",
+                url: "<?php echo site_url('architect/SAView/ajax_list')?>",
                 data: function (data) {
                     data.searchIndustries = $("input[name='industries[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
                     data.searchPriorities = $("input[name='priorities[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
@@ -143,6 +168,26 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                 },
                 type: "POST"
             },
+            //"columns": [
+            //        { data: null },
+            //        { data: "id" },
+            //        { data: "industries" },
+            //        { data: "sa_users_id" },
+            //        { data: "priority" },
+            //        { data: "priority_index" },
+            //        { data: "workloads" },
+            //        { data: "platforms" },
+            //        { data: "effort_target" },
+            //        { data: "efforttypes" },
+            //        { data: "effortoutput" },
+            //        { data: "effort_justification" },
+            //        { data: "notes" },
+            //        { data: "projected_start_date" },
+            //        { data: "estimated_complete_date" },
+            //        { data: "estimated_work_days" },
+            //        { data: "status" },
+            //        { data: null }
+            //    ],
             "columnDefs": [
                 {
                     "name": "details", "targets": 0, "orderable": false, "className": 'details-control center-vertical center-horizontal', "width": '20px',
@@ -162,9 +207,11 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                 { "name": "vflatprojecttasks.effortoutput", "targets": 10, "visible": false, "orderable": false },
                 { "name": "effort_justification", "targets": 11, "orderable": false },
                 { "name": "notes", "targets": 12, "visible": false, "orderable": false },
-                { "name": "estimated_complete_date", "targets": 13, "orderable": false },
+                { "name": "projected_start_date", "targets": 13, "orderable": true },
+                { "name": "estimated_complete_date", "targets": 14, "orderable": false },
+                { "name": "estimated_work_days", "targets": 15, "orderable": false },
                 {
-                    "name": "status", "targets": 14, "orderable": false, "className": "center-vertical center-horizontal",
+                    "name": "status", "targets": 16, "orderable": false, "className": "center-vertical center-horizontal",
                     "render": function (data, type, row) {
                         labelStyle = 'label-default';
 
@@ -179,7 +226,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                     }
                 },
                 {
-                    "name": "actions", "targets": 15, "orderable": false,
+                    "name": "actions", "targets": 17, "orderable": false,
                     "render": function (data, type, row) {
                         editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
                         deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
@@ -190,6 +237,10 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                     }
                 }
             ],
+            //"select": {
+            //    "style": 'os',
+            //    "selector": 'td:first-child'
+            //},
             "initComplete": function () {
 
                 this.api().columns('.search-select').every(function () {
@@ -341,7 +392,7 @@ foreach($platforms as $key=>$value){
                 if (confirm('Reorder this Project Request?\n' + result)) {
 
                     $.ajax({
-                        url: "<?php echo site_url('SAView/ajax_reorder')?>",
+                        url: "<?php echo site_url('architect/SAView/ajax_reorder')?>",
                         type: "POST",
                         data: data,
                         dataType: "JSON",
@@ -490,7 +541,7 @@ foreach($platforms as $key=>$value){
         $('.help-block').empty();
 
         $.ajax({
-            url: "<?php echo site_url('SAView/ajax_edit/')?>/" + id,
+            url: "<?php echo site_url('architect/SAView/ajax_edit/')?>/" + id,
             cache: false,
             type: "GET",
             dataType: "JSON",
@@ -509,7 +560,9 @@ foreach($platforms as $key=>$value){
                 $('[name="efforttypes_id"]').val(data.efforttypes_id);
                 getEffortOutput(data.effortoutput_id ? data.effortoutput_id.split('||') : null);
                 $('[name="desired_completion_date"]').val(data.desired_completion_date);
+                $('[name="projected_start_date"]').val(data.projected_start_date);
                 $('[name="estimated_completion_date"]').val(data.estimated_completion_date);
+                $('[name="estimated_work_days"]').val(data.estimated_work_days);
                 $('[name="completion_date"]').val(data.completion_date);
                 $('[name="effort_justification"]').val(data.effort_justification);
                 $('[name="notes"]').val(data.notes);
@@ -531,9 +584,9 @@ foreach($platforms as $key=>$value){
         $('#btnSave').attr('disabled', true);
 
         if (save_method == 'add') {
-            url = "<?php echo site_url('SAView/ajax_add')?>";
+            url = "<?php echo site_url('architect/SAView/ajax_add')?>";
         } else {
-            url = "<?php echo site_url('SAView/ajax_update')?>";
+            url = "<?php echo site_url('architect/SAView/ajax_update')?>";
         }
 
         $.ajax({
@@ -570,7 +623,7 @@ foreach($platforms as $key=>$value){
     function defer_project(id) {
         if (confirm('Are you sure you wish to defer this Project Request for later?')) {
             $.ajax({
-                url: "<?php echo site_url('SAView/ajax_defer')?>/" + id,
+                url: "<?php echo site_url('architect/SAView/ajax_defer')?>/" + id,
                 type: "POST",
                 dataType: "JSON",
                 success: function (data) {
@@ -589,7 +642,7 @@ foreach($platforms as $key=>$value){
     function delete_project(id) {
         if (confirm('Are you sure you wish to delete this Project Request?')) {
             $.ajax({
-                url: "<?php echo site_url('SAView/ajax_delete')?>/" + id,
+                url: "<?php echo site_url('architect/SAView/ajax_delete')?>/" + id,
                 type: "POST",
                 dataType: "JSON",
                 success: function (data) {
@@ -694,10 +747,25 @@ foreach($platforms as $key=>$value){
                         </div>
                     </div>
                     <div class="form-group">
+                        <?php echo form_label('Projected Start Date', 'projected_start_date', array('class'=>'control-label col-md-3')); ?>
+                        <div class="col-md-9">
+                            <?php echo form_input(array('name'=>'projected_start_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), '', array('id'=>'projected_start_date')); ?>
+                            <script>$(function () { $('#projected_start_date').datepicker(); });</script>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <?php echo form_label('Estimated Completion Date', 'estimated_completion_date', array('class'=>'control-label col-md-3')); ?>
                         <div class="col-md-9">
                             <?php echo form_input(array('name'=>'estimated_completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), '', array('id'=>'estimated_completion_date')); ?>
                             <script>$(function () { $('#estimated_completion_date').datepicker(); });</script>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Estimated Work Days', 'estimated_work_days', array('class'=>'control-label col-md-3')); ?>
+                        <div class="col-md-9">
+                            <?php echo form_input(array('name'=>'estimated_work_days', 'class'=>'form-control'), '', array('id'=>'estimated_work_days')); ?>
                             <span class="help-block"></span>
                         </div>
                     </div>
@@ -736,6 +804,53 @@ foreach($platforms as $key=>$value){
 <!-- End Bootstrap modal Project edit form-->
 
 <script type="text/javascript">
+    function workday_count(startDate, endDate) {
+
+        // Validate input
+        if (endDate < startDate)
+            return 0;
+
+        // Calculate days between dates
+        var millisecondsPerDay = 86400 * 1000; // Day in milliseconds
+        startDate.setHours(0, 0, 0, 1);  // Start just after midnight
+        endDate.setHours(23, 59, 59, 999);  // End just before midnight
+        var diff = endDate - startDate;  // Milliseconds between datetime objects
+        var days = Math.ceil(diff / millisecondsPerDay);
+
+        // Subtract two weekend days for every week in between
+        var weeks = Math.floor(days / 7);
+        days = days - (weeks * 2);
+
+        // Handle special cases
+        var startDay = startDate.getDay();
+        var endDay = endDate.getDay();
+
+        // Remove weekend not previously removed.
+        if (startDay - endDay > 1)
+            days = days - 2;
+
+        // Remove start day if span starts on Sunday but ends before Saturday
+        if (startDay == 0 && endDay != 6)
+            days = days - 1
+
+        // Remove end day if span ends on Saturday but starts after Sunday
+        if (endDay == 6 && startDay != 0)
+            days = days - 1
+
+        return days;
+    }
+
+    function getWorkingDays() {
+        var start = $('#projected_start_date').val().split('/');
+        if (start && start.length == 3) {
+            var startDate = new Date(start[0], start[1], start[2]);
+            var end = $('#estimated_completion_date').val().split('/');
+            if (end && end.length == 3) {
+                var endDate = new Date(end[0], end[1], end[2]);
+                //$('#estimated_work_days').val(workday_count(startDate, endDate));
+            }
+        }
+    }
 
     function getEffortOutput(val) {
         $.ajax({
@@ -777,6 +892,12 @@ foreach($platforms as $key=>$value){
         });
         $("#industry").on('change', function () {
             getWorkload('');
+        });
+        $("#projected_start_date").on('change', function () {
+            getWorkingDays();
+        });
+        $("#estimated_completion_date").on('change', function () {
+            getWorkingDays();
         });
     });
 </script>

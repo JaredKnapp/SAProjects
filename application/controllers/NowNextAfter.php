@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class NowNextAfter extends CI_Controller {
+class NowNextAfter extends MY_Controller {
 
     var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
     var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
@@ -29,9 +29,8 @@ class NowNextAfter extends CI_Controller {
         $data['platforms']      = $this->platform->get_list();
         $data['sausers']        = $this->user->get_salist();
 
-        $this->load->view('templates/header', $data);
-        $this->load->view('project/nownextafter');
-        $this->load->view('templates/footer');
+        $data['body_content'] = 'project/nownextafter';
+        $this->load->view('templates/default', $data);
     }
 
     public function ajax_list(){
@@ -66,6 +65,18 @@ class NowNextAfter extends CI_Controller {
         $data = array();
         $index = $this->input->post('start');
         foreach($list as $project){
+
+            $nameArr = explode('||', $project->effort_output);
+            $produceArr = explode('||', $project->effort_output_produce);
+            $durationArr = explode('||', $project->effort_output_duration);
+
+            $taskArr = array();
+            $arrayIndex = 0;
+            for($arrayIndex = 0; $arrayIndex < count($nameArr); $arrayIndex++){
+                $taskArr[] = $nameArr[$arrayIndex] . ': ' . $durationArr[$arrayIndex] . ' days' . (empty($produceArr[$arrayIndex])?'':'. (' . $produceArr[$arrayIndex] . ')');
+            }
+
+
             $index++;
             $row = array();
             $row[] = $project->industry;
@@ -75,7 +86,7 @@ class NowNextAfter extends CI_Controller {
             $row[] = $project->platform;
             $row[] = $project->effort_target;
             $row[] = $project->effort_type;
-            $row[] = implode('<br>', explode('||', $project->effort_output));
+            $row[] = '<ul style="margin-left: 5px;"><li>'.implode('</li><li>', $taskArr).'</li></ul>';
             $row[] = $project->effort_justification;
             $row[] = $project->notes;
             $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);

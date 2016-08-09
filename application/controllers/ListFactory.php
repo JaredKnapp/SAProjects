@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class ListFactory extends CI_Controller {
+class ListFactory extends MY_Controller {
 
     public function __construct()
     {
@@ -20,10 +20,8 @@ class ListFactory extends CI_Controller {
         $output = '';
         foreach ($data as $key=>$value)
         {
-            //$completionDate = "<label>Desired Completion Date: </label>&nbsp;<input type='text' name='".$key."_date' id='".$key."_date' value=''/>";
-            //$script = '<script>$(function(){$("#'.$key.'_date").datepicker();});</script>';
             $checkbox = "<input type='checkbox' name='effortoutputs_id[]' value='$key'>";
-            $output .= "$checkbox &nbsp".$value. "<br /><br />";
+            $output .= "<div class='checkbox'><label>$checkbox &nbsp" . $value. "</label></div>";
         }
 
         if(empty($output)){
@@ -39,7 +37,7 @@ class ListFactory extends CI_Controller {
         $id = $this->input->post('id', TRUE);
         $data = $this->Workload_model->get_list($id);
 
-        $output = "<option value='0'>Select One...</option>";
+        $output = "<option value=''>Select One...</option>";
         foreach ($data as $key=>$value)
         {
             $output .= "<option value='".$key."'>".$value."</option>";

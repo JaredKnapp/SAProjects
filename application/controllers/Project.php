@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Project extends CI_Controller {
+class Project extends MY_Controller {
 
     public function __construct()
     {
@@ -29,9 +29,8 @@ class Project extends CI_Controller {
         $data['platforms']      = $this->platform->get_list();
         $data['sausers']        = $this->user->get_salist();
 
-        $this->load->view('templates/header', $data);
-        $this->load->view('project/index', $data);
-        $this->load->view('templates/footer');
+        $data['body_content'] = 'project/index';
+        $this->load->view('templates/default', $data);
     }
 
     public function view($id = NULL)
@@ -46,9 +45,8 @@ class Project extends CI_Controller {
         $data['title'] = $data['project_item']['id'];
         $data['topmenu'] = 'project';
 
-        $this->load->view('templates/header', $data);
-        $this->load->view('project/view', $data);
-        $this->load->view('templates/footer');
+        $data['body_content'] = 'project/view';
+        $this->load->view('templates/default', $data);
     }
 
     public function create()
@@ -62,12 +60,14 @@ class Project extends CI_Controller {
         $data['title'] = 'Submit a project request';
         $data['topmenu'] = 'project';
 
+        $this->form_validation->set_error_delimiters('<div class="alert alert-danger">', '</div>');
         $this->form_validation->set_rules('author_email', 'Email address', 'required|valid_email');
         $this->form_validation->set_rules('industries_id', 'Industry', 'required');
         $this->form_validation->set_rules('workloads_id', 'Workload', 'required');
         $this->form_validation->set_rules('platforms_id', 'Product', 'required');
         $this->form_validation->set_rules('effort_target', 'Effort Target', 'required');
         $this->form_validation->set_rules('efforttypes_id', 'Effort Type', 'required');
+        $this->form_validation->set_rules('effortoutputs_id[]', 'Effort Output', 'required');
         $this->form_validation->set_rules('desired_completion_date', 'Desired Completion Date', 'callback_checkDateFormat');
         $this->form_validation->set_rules('effort_justification', 'Effort Justification', 'required');
 
@@ -93,9 +93,8 @@ class Project extends CI_Controller {
             $data['choicesWorkload']            = array('' => 'Select One...');
             $data['choicesPlatform']            = array('' => 'Select One...') + $this->Platform_model->get_list();
 
-            $this->load->view('templates/header', $data);
-            $this->load->view('project/create');
-            $this->load->view('templates/footer');
+            $data['body_content'] = 'project/create';
+            $this->load->view('templates/default', $data);
 
         }
         else
@@ -126,16 +125,16 @@ class Project extends CI_Controller {
                 $effortoutputs = $this->input->post('effortoutputs_id');
 
                 foreach($effortoutputs as $key=>$value){
-                    $childResult = $this->projecttask->set_projecttask(NULL, $projectId, $value, 'necessary??', $desiredDate);
+                    $this->projecttask->set_projecttask(NULL, $projectId, $value, 'necessary??', $desiredDate);
                 }
             }
 
 
-            $data['title'] = 'Thank You';
+            $data['title'] = '';
+            $data['author_email'] = $this->input->post('author_email');
 
-            $this->load->view('templates/header', $data);
-            $this->load->view('project/create_success');
-            $this->load->view('templates/footer');
+            $data['body_content'] = 'project/create_success';
+            $this->load->view('templates/default', $data);
         }
     }
 
@@ -167,6 +166,17 @@ class Project extends CI_Controller {
         $data = array();
         $index = $this->input->post('start');
         foreach($list as $project){
+
+            $nameArr = explode('||', $project->effort_output);
+            $produceArr = explode('||', $project->effort_output_produce);
+            $durationArr = explode('||', $project->effort_output_duration);
+
+            $taskArr = array();
+            $arrayIndex = 0;
+            for($arrayIndex = 0; $arrayIndex < count($nameArr); $arrayIndex++){
+                $taskArr[] = $nameArr[$arrayIndex] . ': ' . $durationArr[$arrayIndex] . ' days' . (empty($produceArr[$arrayIndex])?'':'. (' . $produceArr[$arrayIndex] . ')');
+            }
+
             $index++;
             $row = array();
             $row[] = $project->industry;
@@ -176,7 +186,7 @@ class Project extends CI_Controller {
             $row[] = $project->platform;
             $row[] = $project->effort_target;
             $row[] = $project->effort_type;
-            $row[] = implode('<br>', explode('||', $project->effort_output));
+            $row[] = '<ul style="margin-left: 5px;"><li>'.implode('</li><li>', $taskArr).'</li></ul>';
             $row[] = $project->effort_justification;
             $row[] = $project->notes;
             $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);

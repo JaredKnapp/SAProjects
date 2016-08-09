@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class SAView extends CI_Controller {
+class SAView extends MY_Controller {
 
     var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status', null);
     var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
@@ -10,7 +10,7 @@ class SAView extends CI_Controller {
 
     public function __construct()
     {
-        parent::__construct();
+        parent::__construct('admin');
         $this->load->model('Project_model', 'project');
         $this->load->model('ProjectTask_model', 'projecttask');
         $this->load->model('EffortType_model', 'effort_type');
@@ -27,16 +27,15 @@ class SAView extends CI_Controller {
         $this->load->model('User_model', 'user');
 
         $data['title'] = 'SA Project View';
-        $data['topmenu'] = 'admin';
+        $data['topmenu'] = 'architects';
 
         $data['industries']                 = $this->industry->get_list();
         $data['efforttypes']                = $this->efforttype->get_list();
         $data['platforms']                  = $this->platform->get_list();
         $data['sausers']                    = $this->user->get_salist();
 
-        $this->load->view('templates/header', $data);
-        $this->load->view('project/saview');
-        $this->load->view('templates/footer');
+        $data['body_content'] = 'architect/saview/index';
+        $this->load->view('templates/default', $data);
     }
 
     public function ajax_list(){
@@ -68,6 +67,17 @@ class SAView extends CI_Controller {
         $data = array();
         $index = $this->input->post('start');
         foreach($list as $project){
+
+            $nameArr = explode('||', $project->effort_output);
+            $produceArr = explode('||', $project->effort_output_produce);
+            $durationArr = explode('||', $project->effort_output_duration);
+
+            $taskArr = array();
+            $arrayIndex = 0;
+            for($arrayIndex = 0; $arrayIndex < count($nameArr); $arrayIndex++){
+                $taskArr[] = $nameArr[$arrayIndex] . ': ' . $durationArr[$arrayIndex] . ' days' . (empty($produceArr[$arrayIndex])?'':'. (' . $produceArr[$arrayIndex] . ')');
+            }
+
             $index++;
             $row = array();
             $row[] = $project->id;
@@ -80,10 +90,12 @@ class SAView extends CI_Controller {
             $row[] = $project->platform;
             $row[] = html_escape($project->effort_target);
             $row[] = $project->effort_type;
-            $row[] = implode('<br>', explode('||', $project->effort_output));
+            $row[] = '<ul style="margin-left: 5px;"><li>'.implode('</li><li>', $taskArr).'</li></ul>';
             $row[] = html_escape($project->effort_justification);
             $row[] = html_escape($project->notes);
+            $row[] = preg_match('/^0000-00-00/', $project->projected_start_date) ? '' : $this->_toMDY($project->projected_start_date);
             $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
+            $row[] = $project->estimated_work_days;
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : "";
             $row[] = '';
 
@@ -105,6 +117,7 @@ class SAView extends CI_Controller {
         $data = $this->project->get_by_id($id);
 
         $data->desired_completion_date = preg_match('/^0000-00-00/', $data->desired_completion_date) ? '' : $this->_toMDY($data->desired_completion_date);
+        $data->projected_start_date = preg_match('/^0000-00-00/', $data->projected_start_date) ? '' : $this->_toMDY($data->projected_start_date);
         $data->estimated_completion_date = preg_match('/^0000-00-00/', $data->estimated_completion_date) ? '' : $this->_toMDY($data->estimated_completion_date);
         $data->completion_date = preg_match('/^0000-00-00/', $data->completion_date) ? '' : $this->_toMDY($data->completion_date);
 
@@ -123,7 +136,9 @@ class SAView extends CI_Controller {
                 'effort_target'             => $this->input->post('effort_target'),
                 'efforttypes_id'            => $this->input->post('efforttypes_id'),
                 'desired_completion_date'   => $this->_tosqldate($this->input->post('desired_completion_date')),
+                'projected_start_date'      => $this->_tosqldate($this->input->post('projected_start_date')),
                 'estimated_completion_date' => $this->_tosqldate($this->input->post('estimated_completion_date')),
+                'estimated_work_days'       => $this->input->post('estimated_work_days'),
                 'completion_date'           => $this->_tosqldate($this->input->post('completion_date')),
                 'effort_justification'      => $this->input->post('effort_justification'),
                 'notes'                     => $this->input->post('notes'),
@@ -148,7 +163,7 @@ class SAView extends CI_Controller {
                 $effortoutputs = $this->input->post('effortoutputs_id');
 
                 foreach($effortoutputs as $key=>$value){
-                    $childResult = $this->projecttask->set_projecttask(NULL, $projectId, $value, 'necessary??', $desiredDate);
+                    $this->projecttask->set_projecttask(NULL, $projectId, $value, 'necessary??', $desiredDate);
                 }
             }
 
@@ -168,7 +183,9 @@ class SAView extends CI_Controller {
                 'effort_target'             => $this->input->post('effort_target') == '' ? NULL : $this->input->post('effort_target'),
                 'efforttypes_id'            => $this->input->post('efforttypes_id') == '' ? NULL : $this->input->post('efforttypes_id'),
                 'desired_completion_date'   => $this->_tosqldate($this->input->post('desired_completion_date') == '' ? NULL : $this->input->post('desired_completion_date')),
+                'projected_start_date'      => $this->_tosqldate($this->input->post('projected_start_date') == '' ? NULL : $this->input->post('projected_start_date')),
                 'estimated_completion_date' => $this->_tosqldate($this->input->post('estimated_completion_date') == '' ? NULL : $this->input->post('estimated_completion_date')),
+                'estimated_work_days'       => $this->input->post('estimated_work_days') == '' ? 0 : $this->input->post('estimated_work_days'),
                 'completion_date'           => $this->_tosqldate($this->input->post('completion_date') == '' ? NULL : $this->input->post('completion_date')),
                 'effort_justification'      => $this->input->post('effort_justification') == '' ? NULL : $this->input->post('effort_justification'),
                 'notes'                     => $this->input->post('notes') == '' ? NULL : $this->input->post('notes'),

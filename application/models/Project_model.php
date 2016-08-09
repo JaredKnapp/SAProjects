@@ -127,6 +127,8 @@ class Project_model extends CI_Model{
         $this->db->select( 'CONCAT(users.firstname, " ", users.lastname ) AS sa', FALSE );
         $this->db->select( 'efforttypes.name AS effort_type', FALSE );
         $this->db->select( 'vflatprojecttasks.effortoutput AS effort_output', FALSE );
+        $this->db->select( 'vflatprojecttasks.produce AS effort_output_produce', FALSE );
+        $this->db->select( 'vflatprojecttasks.duration AS effort_output_duration', FALSE );
         $this->db->from( $this->table );
         $this->db->join( 'workloads', 'workloads.id = '.$this->table.'.workloads_id' , 'left' );
         $this->db->join( 'industries', 'industries.id = workloads.industries_id' , 'left' );
