@@ -107,6 +107,41 @@ class Groups extends MY_Controller{
         echo json_encode(array("status" => TRUE));
     }
 
+    public function ajax_memberindex(){
+
+        $id = array_key_exists('groupId', $_POST) ? $_POST['groupId'] : array();
+
+        $columnOrder    = array('id', 'name', 'member_table');
+        $searchColumns  = array();
+        $where          = array('groups.id = '=>$id);
+        $order          = array('name'=>'ASC');
+
+        $list = $this->groupmember->get_datatables($columnOrder, $searchColumns, NULL, $where, $order);
+
+        $data = array();
+        $index = $this->input->post('start');
+        foreach($list as $group){
+            $index++;
+            $row = array();
+            $row[] = $group->id;
+            $row[] = $group->name;
+            $row[] = $group->member_table;
+            $row[] = ''; //
+
+            $data[] = $row;
+        }
+
+        $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->groupmember->count_all(),
+                "recordsFiltered" => $this->groupmember->count_filtered($columnOrder, $searchColumns, NULL, $where, $order),
+                "data" => $data
+        );
+
+        echo json_encode($output);
+    }
+
+
     private function _validate()
     {
         $this->load->library('form_validation');

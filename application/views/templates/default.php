@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/redmond/jquery-ui.css" type="text/css" >
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" >
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" type="text/css" >
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css" type="text/css" >
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.1/css/buttons.bootstrap.min.css" type="text/css" >
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.2.0/css/select.bootstrap.min.css" type="text/css" >
@@ -236,12 +237,22 @@
                                 </li>
                             </ul>
                         </li>
-                        <?php if($this->authorization->is_member(array('managergroup', 'architectgroup'))){ ?>
+                        <?php if($this->authorization->is_member(array('+managergroup', '+architectgroup'))){ ?>
                         <li>
                             <a href="<?php echo $this->config->site_url('architect/saview'); ?>" class="<?php echo ($topmenu && $topmenu=='architects')?'active':'notactive'; ?>">Architects</a>
                             <ul>
                                 <li>
                                     <a href="<?php echo $this->config->site_url('architect/SAView'); ?>">Project Administration</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <?php }?>
+                        <?php if(false && $this->authorization->is_member(array('+admingroup'))){ ?>
+                        <li>
+                            <a href="<?php echo $this->config->site_url('admin/Groups'); ?>" class="<?php echo ($topmenu && $topmenu=='settings')?'active':'notactive'; ?>">Settings</a>
+                            <ul>
+                                <li>
+                                    <a href="<?php echo $this->config->site_url('admin/Groups'); ?>">Groups</a>
                                 </li>
                             </ul>
                         </li>
@@ -271,7 +282,7 @@
         <div id="footer">
             <div id="copyright">
                 <p>
-                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.3.15a)
+                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.3.18b)
                 </p>
             </div>
             <div id="contactlink">

@@ -77,8 +77,6 @@
     <Compile Include="application\views\architect\saview\index.php" />
     <Compile Include="application\views\project\nownextafter.php" />
     <Compile Include="application\views\project\view.php" />
-    <Compile Include="application\views\templates\footer.php" />
-    <Compile Include="application\views\templates\header.php" />
     <Compile Include="application\views\welcome_message.php" />
     <Compile Include="index.php" />
     <Compile Include="system\core\Benchmark.php" />

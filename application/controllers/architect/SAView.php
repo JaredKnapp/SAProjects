@@ -68,13 +68,15 @@ class SAView extends MY_Controller {
         $index = $this->input->post('start');
         foreach($list as $project){
 
+            $duration = 0;
+
             $nameArr = explode('||', $project->effort_output);
             $produceArr = explode('||', $project->effort_output_produce);
             $durationArr = explode('||', $project->effort_output_duration);
 
             $taskArr = array();
-            $arrayIndex = 0;
-            for($arrayIndex = 0; $arrayIndex < count($nameArr); $arrayIndex++){
+            for( $arrayIndex = 0; $arrayIndex < count($nameArr); $arrayIndex++ ){
+                $duration += ( empty( $durationArr[$arrayIndex] ) ? 0 : $durationArr[$arrayIndex] );
                 $taskArr[] = $nameArr[$arrayIndex] . ': ' . $durationArr[$arrayIndex] . ' days' . (empty($produceArr[$arrayIndex])?'':'. (' . $produceArr[$arrayIndex] . ')');
             }
 
@@ -95,7 +97,7 @@ class SAView extends MY_Controller {
             $row[] = html_escape($project->notes);
             $row[] = preg_match('/^0000-00-00/', $project->projected_start_date) ? '' : $this->_toMDY($project->projected_start_date);
             $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
-            $row[] = $project->estimated_work_days;
+            $row[] = ($project->estimated_work_days>0) ? $project->estimated_work_days . '!' . $duration : $duration; //$project->estimated_work_days;
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : "";
             $row[] = '';
 

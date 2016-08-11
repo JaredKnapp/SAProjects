@@ -209,7 +209,22 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                 { "name": "notes", "targets": 12, "visible": false, "orderable": false },
                 { "name": "projected_start_date", "targets": 13, "orderable": true },
                 { "name": "estimated_complete_date", "targets": 14, "orderable": false },
-                { "name": "estimated_work_days", "targets": 15, "orderable": false },
+                {
+                    "name": "estimated_work_days", "targets": 15, "orderable": false,
+                    "render": function (data, type, row) {
+                        if (data) {
+                            dataArray = String(data).split("!");
+                            if (dataArray.length == 1) {
+                                return data;
+                            } else {
+                                return '<div>' + dataArray[0] + '&nbsp;<i class="glyphicon glyphicon-comment" aria-hidden="true"  data-toggle="popover" data-html="true" data-trigger="focus" title="Overridden Value" data-content="Value has been overriden in the project. Acual sum of project tasks: ' + dataArray[1] + ' days." style="cursor: pointer;"></i></div>';
+                            }
+                        }
+                        else {
+                            return 'empty';
+                        }
+                    }
+                },
                 {
                     "name": "status", "targets": 16, "orderable": false, "className": "center-vertical center-horizontal",
                     "render": function (data, type, row) {
@@ -245,7 +260,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
 
                 this.api().columns('.search-select').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Search...</option></select>')
+                    var select = $('<select><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -258,7 +273,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
 
                 this.api().columns('.search-input').every(function () {
                     var column = this;
-                    $('<input type="text" value="" placeholder="Search...">')
+                    $('<input type="text" value="" placeholder="Filter...">')
                         .appendTo($(column.footer()).empty())
                         .on('keyup change', function () {
                             if (window.event && event.type == "propertychange" && event.propertyName != "value") return;
@@ -276,7 +291,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
 
                 this.api().columns('.search-industry').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Search...</option></select>')
+                    var select = $('<select><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -292,7 +307,7 @@ foreach($industries as $key=>$value){
 
                 this.api().columns('.search-sauser').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Search...</option></select>')
+                    var select = $('<select><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -308,7 +323,7 @@ foreach($sausers as $key=>$value){
 
                 this.api().columns('.search-efforttype').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Search...</option></select>')
+                    var select = $('<select><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -324,7 +339,7 @@ foreach($efforttypes as $key=>$value){
 
                 this.api().columns('.search-status').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Search...</option></select>')
+                    var select = $('<select><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -340,7 +355,7 @@ foreach($statusList as $key=>$value){
 
                 this.api().columns('.search-priority').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Search...</option></select>')
+                    var select = $('<select><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -356,7 +371,7 @@ foreach($priorityList as $key=>$value){
 
                 this.api().columns('.search-platform').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Search...</option></select>')
+                    var select = $('<select><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
