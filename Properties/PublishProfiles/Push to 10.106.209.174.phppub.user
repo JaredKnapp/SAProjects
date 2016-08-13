@@ -48,7 +48,7 @@
       <publishTime>03/21/2016 13:26:30</publishTime>
     </File>
     <File Include="application/config/routes.php">
-      <publishTime>08/09/2016 18:25:27</publishTime>
+      <publishTime>08/13/2016 15:44:23</publishTime>
     </File>
     <File Include="application/config/smileys.php">
       <publishTime>03/21/2016 13:26:30</publishTime>
@@ -63,7 +63,7 @@
       <publishTime>08/11/2016 18:34:43</publishTime>
     </File>
     <File Include="application/controllers/Auth.php">
-      <publishTime>08/04/2016 20:00:13</publishTime>
+      <publishTime>08/12/2016 22:12:59</publishTime>
     </File>
     <File Include="application/controllers/Examples.php">
       <publishTime>07/17/2016 01:33:44</publishTime>
@@ -81,7 +81,7 @@
       <publishTime>08/09/2016 18:14:06</publishTime>
     </File>
     <File Include="application/controllers/Pages.php">
-      <publishTime>08/04/2016 18:53:27</publishTime>
+      <publishTime>08/13/2016 15:43:12</publishTime>
     </File>
     <File Include="application/controllers/Project.php">
       <publishTime>08/09/2016 18:13:07</publishTime>
@@ -162,7 +162,7 @@
       <publishTime>08/11/2016 00:40:37</publishTime>
     </File>
     <File Include="application/views/architect/saview/index.php">
-      <publishTime>08/11/2016 18:44:56</publishTime>
+      <publishTime>08/13/2016 14:16:35</publishTime>
     </File>
     <File Include="application/views/errors/cli/error_404.php">
       <publishTime>03/21/2016 13:26:30</publishTime>
@@ -210,13 +210,13 @@
       <publishTime>08/03/2016 19:18:56</publishTime>
     </File>
     <File Include="application/views/pages/about.php">
-      <publishTime>07/11/2016 19:36:21</publishTime>
+      <publishTime>08/13/2016 15:57:12</publishTime>
     </File>
     <File Include="application/views/pages/home.php">
       <publishTime>07/11/2016 19:35:54</publishTime>
     </File>
     <File Include="application/views/project/create.php">
-      <publishTime>08/09/2016 01:42:35</publishTime>
+      <publishTime>08/12/2016 14:15:00</publishTime>
     </File>
     <File Include="application/views/project/create_success.php">
       <publishTime>08/07/2016 01:31:32</publishTime>
@@ -225,13 +225,13 @@
       <publishTime>08/05/2016 17:51:57</publishTime>
     </File>
     <File Include="application/views/project/nownextafter.php">
-      <publishTime>08/01/2016 20:25:10</publishTime>
+      <publishTime>08/13/2016 15:27:23</publishTime>
     </File>
     <File Include="application/views/project/view.php">
       <publishTime>07/11/2016 22:22:57</publishTime>
     </File>
     <File Include="application/views/templates/default.php">
-      <publishTime>08/11/2016 15:10:44</publishTime>
+      <publishTime>08/13/2016 21:50:31</publishTime>
     </File>
     <File Include="application/views/welcome_message.php">
       <publishTime>03/21/2016 13:26:30</publishTime>
@@ -240,10 +240,19 @@
       <publishTime>08/03/2016 20:00:12</publishTime>
     </File>
     <File Include="assets/css/login_theme.css">
-      <publishTime>08/02/2016 17:48:07</publishTime>
+      <publishTime>08/12/2016 18:39:43</publishTime>
     </File>
     <File Include="assets/css/theme.css">
       <publishTime>08/07/2016 02:12:33</publishTime>
+    </File>
+    <File Include="assets/images/etdlogo.png">
+      <publishTime>08/13/2016 15:53:41</publishTime>
+    </File>
+    <File Include="assets/images/favicon.ico">
+      <publishTime>08/11/2016 19:18:11</publishTime>
+    </File>
+    <File Include="assets/js/bootstrap-hover-dropdown.js">
+      <publishTime>08/12/2016 18:04:39</publishTime>
     </File>
     <File Include="composer.json">
       <publishTime>03/21/2016 13:26:30</publishTime>
@@ -2531,7 +2540,6 @@
     <Folder Include="application/views/architect" />
     <Folder Include="assets" />
     <Folder Include="assets/inc" />
-    <Folder Include="assets/js" />
     <Folder Include="Content/DataTables-1.10.12" />
     <Folder Include="Content/DataTables-1.10.12/extensions" />
     <Folder Include="Content/DataTables-1.10.12/extensions/AutoFill" />

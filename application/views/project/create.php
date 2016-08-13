@@ -2,7 +2,7 @@
 <br />
 <div id="formwrapper" style="text-align: center">
     <?php echo form_open('project/create', array('role'=>'form')); ?>
-    <div class="panel panel-default" style="display: inline-block; text-align: left; width: 600px;">
+    <div class="panel panel-default" style="display: inline-block; text-align: left; width:100%; max-width: 600px;">
         <div class="panel-body">
             <div class="form-group">
                 <?php echo form_label('Email Address:', 'author_email'); ?>

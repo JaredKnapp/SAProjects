@@ -60,6 +60,7 @@ $route['architect/saview'] = 'architect/SAView/index';
 
 $route['login'] = 'Auth';
 $route['logout'] = 'Auth/logout';
+$route['about'] = 'Pages/view/about';
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

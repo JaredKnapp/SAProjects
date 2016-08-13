@@ -1,24 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta name="description" content="SA Project Portal" />
+    <meta name="author" content="Jared" />
+    <link rel="icon" href="<?php echo $this->config->base_url('assets/images/favicon.ico'); ?>" />
 
     <title>
         <?PHP echo SAP_APPLICATIONTITLE; ?>
     </title>
 
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/redmond/jquery-ui.css" type="text/css" >
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" >
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" type="text/css" >
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css" type="text/css" >
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.1/css/buttons.bootstrap.min.css" type="text/css" >
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.2.0/css/select.bootstrap.min.css" type="text/css" >
-    <link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.1.2/css/rowReorder.dataTables.min.css" type="text/css" >
-    <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/editor.bootstrap.min.css'); ?>" type="text/css" >
-    <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/theme.css'); ?>" type="text/css" >
-    <link rel="stylesheet" href="<?php echo $this->config->base_url('Content/themes/base/all.css'); ?>" type="text/css" >
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.1/css/buttons.bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.2.0/css/select.bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.1.2/css/rowReorder.dataTables.min.css" type="text/css" />
+    <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/editor.bootstrap.min.css'); ?>" type="text/css" />
+    <link rel="stylesheet" href="<?php echo $this->config->base_url('Content/themes/base/all.css'); ?>" type="text/css" />
 
     <script src="http://code.jquery.com/jquery-3.1.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
@@ -29,7 +31,7 @@
     <script src="https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js" type="text/javascript"></script>
     <script src="https://cdn.datatables.net/buttons/1.2.1/js/buttons.bootstrap.min.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/js/bootstrap-dialog.min.js" type="text/javascript"></script>
-    <script src="<?php echo $this->config->base_url('assets/js/dataTables.editor.min.js'); ?>" type="text/javascript"></script>
+    <script src="<?php echo $this->config->base_url('assets/js/bootstrap-hover-dropdown.js'); ?>" type="text/javascript"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -38,9 +40,78 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-</head>
-<body>
+    <style>
+        /*!
+         * IE10 viewport hack for Surface/desktop Windows 8 bug
+         * Copyright 2014-2015 Twitter, Inc.
+         * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+         */
 
+        /*
+         * See the Getting Started docs for more information:
+         * http://getbootstrap.com/getting-started/#support-ie10-width
+         */
+        @-ms-viewport {
+            width: device-width;
+        }
+
+        @-o-viewport {
+            width: device-width;
+        }
+
+        @viewport {
+            width: device-width;
+        }
+
+        /* Sticky footer styles
+        -------------------------------------------------- */
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+
+        body {
+            margin-bottom: 30px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30px;
+            background-color: rgba(91, 91, 91, 1);
+            color: #ffffff;
+        }
+
+        .container {
+            width: auto;
+        }
+
+        /*==============================================================
+        NAVBAR Styling
+    ================================================================*/
+        .navbar {
+            background-color: rgba(91, 91, 91, 1);
+        }
+
+            .navbar .navbar-nav {
+                /*text-transform: uppercase;*/
+            }
+
+                .navbar .navbar-nav > .open > a, .navbar .navbar-nav > .open > a:focus, .navbar .navbar-nav > .open > a:hover {
+                    background: #808080;
+                }
+
+                .navbar .navbar-nav > .active > a, .navbar .navbar-nav > .active > a:focus, .navbar .navbar-nav > .active > a:hover {
+                    background: #2c95dd;
+                }
+
+        .dropdown-menu {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body style="font-size: 12px;">
     <script>
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
@@ -54,242 +125,179 @@
         ga('send', 'pageview');
     </script>
 
-    <div id="container">
-        <div id="wrapper">
-            <div id="header">
-                <h1>
-                    <?PHP echo SAP_APPLICATIONTITLE; ?>
-                </h1>
-                <div id="accountinfo" class="nav topcorner">
-                    <ul>
-                        <li>
-                            <?php
-                            if($this->authorization->is_logged_in()){
-                            ?>
-
-                            <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/accountinfo_theme.css'); ?>" type="text/css" />
-
-                            <a href="#" id="accountinfoButton">
-                                <span>
-                                    <?php echo $this->session->userdata('email'); ?>
-                                    <i class="glyphicon glyphicon-collapse-down"></i>
-                                </span>
-                            </a>
-                            <div style="clear:both"></div>
-                            <div id="accountinfoBox">
-                                <div id="accountinfoForm">
-                                    <div id="body">
-                                        <div class="span2">
-                                            <p>
-                                                <button id="logoutButton" class="btn btn-primary btn-block">
-                                                    Logout&nbsp;
-                                                    <span class="glyphicon glyphicon-log-out"></span>
-                                                </button>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <script>
-                                $(function () {
-                                    var button = $('#accountinfoButton');
-                                    var box = $('#accountinfoBox');
-                                    var form = $('#accountinfoForm');
-
-                                    var logoutButton = $('#logoutButton');
-
-                                    button.removeAttr('href');
-
-                                    //Show/Hide the accountinfo form
-                                    button.mouseup(function (accountinfo) {
-                                        box.toggle();
-                                        button.toggleClass('active');
-
-                                        button.find('i.glyphicon').toggleClass('glyphicon-collapse-up', 'glyphicon-collapse-down');
-                                    });
-
-                                    form.mouseup(function () {
-                                        return false;
-                                    });
-
-                                    //Hide accountinfo form if clicked anywhere other than on the form
-                                    $(this).mouseup(function (accountinfo) {
-                                        if (!($(accountinfo.target).parent('#accountinfoButton').length > 0)) {
-                                            button.removeClass('active');
-                                            button.find('i.glyphicon').toggleClass('glyphicon-collapse-up', 'glyphicon-collapse-down');
-                                            box.hide();
-                                        }
-                                    });
-
-                                    logoutButton.click(function () {
-                                        window.location = "<?php echo $this->config->site_url('logout'); ?>";
-                                    });
-                                });
-                            </script>
-
-                            <?php
-                            } else {
-                            ?>
-                            <link rel="stylesheet" href="<?php echo $this->config->base_url('assets/css/login_theme.css'); ?>" type="text/css" />
-
-                            <a href="#" id="loginButton">
-                                <span>
-                                    Login
-                                    <i class="glyphicon glyphicon-collapse-down"></i>
-                                </span>
-                            </a>
-                            <div style="clear:both"></div>
-                            <div id="loginBox">
-                                <?php
-                                $hidden = array(
-                                    'current_page'=> base_url(uri_string())
-                                    );
-                                echo form_open('login', array('id'=>'loginForm', 'role'=>'form'), $hidden);
-                                $error = form_error("email", "<p class='text-danger'>", '</p>');
-                                ?>
-                                <div id="body">
-                                    <div class="form-group <?php echo $error ? 'has-error' : '' ?>">
-                                        <label for="email">Email Address:</label>
-                                        <div class="input_group">
-                                            <input type="email" class="form-control" name="email" id="email" />
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="password">Password:</label>
-                                        <input type="password" class="form-control" name="password" id="password" />
-                                    </div>
-                                    <a href="javascript:document.getElementById('loginForm').submit();" class="btn btn-primary">
-                                        <i class="glyphicon glyphicon-log-in"></i>&nbsp;&nbsp;Sign&nbsp;In
-                                    </a>
-                                </div>
-                                <?php echo form_close(); ?>
-                            </div>
-
-                            <script>
-                                $(function () {
-                                    var button = $('#loginButton');
-                                    var box = $('#loginBox');
-                                    var form = $('#loginForm');
-
-                                    button.removeAttr('href');
-
-                                    //Show/Hide the login form
-                                    button.mouseup(function (login) {
-                                        box.toggle();
-                                        button.toggleClass('active');
-
-                                        button.find('i.glyphicon').toggleClass('glyphicon-collapse-up', 'glyphicon-collapse-down');
-                                    });
-
-                                    form.keypress(function (e) {
-                                        if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
-                                            form.submit();
-                                            return false;
-                                        } else {
-                                            return true;
-                                        }
-                                    });
-
-
-                                    form.mouseup(function () {
-                                        return false;
-                                    });
-
-                                    //Hide login form if clicked anywhere other than on the form
-                                    $(this).mouseup(function (login) {
-                                        if (!($(login.target).parent('#loginButton').length > 0)) {
-                                            button.removeClass('active');
-                                            button.find('i.glyphicon').toggleClass('glyphicon-collapse-up', 'glyphicon-collapse-down');
-                                            box.hide();
-                                        }
-                                    });
-                                });
-                            </script>
-
-
-
-                            <?php
-                            }
-                            ?>
-
-                        </li>
-                    </ul>
-                </div>
-                <nav id="primary_nav_wrap">
-                    <ul>
-                        <li>
-                            <a href="<?php echo $this->config->site_url('project/create'); ?>" class="<?php echo ($topmenu && $topmenu == 'project')?'active':'notactive'; ?>">Project Requests</a>
-                            <ul>
-                                <li>
-                                    <a href="<?php echo $this->config->site_url('project/create'); ?>">Create</a>
-                                </li>
-                                <li>
-                                    <a href="<?php echo $this->config->site_url('project'); ?>">List</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="<?php echo $this->config->site_url('reports/nna'); ?>" class="<?php echo ($topmenu && $topmenu==='report')?'active':'notactive'; ?>">Reports</a>
-                            <ul>
-                                <li>
-                                    <a href="<?php echo $this->config->site_url('reports/nna'); ?>">Now Next After</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <?php if($this->authorization->is_member(array('+managergroup', '+architectgroup'))){ ?>
-                        <li>
-                            <a href="<?php echo $this->config->site_url('architect/saview'); ?>" class="<?php echo ($topmenu && $topmenu=='architects')?'active':'notactive'; ?>">Architects</a>
-                            <ul>
-                                <li>
-                                    <a href="<?php echo $this->config->site_url('architect/SAView'); ?>">Project Administration</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <?php }?>
-                        <?php if(false && $this->authorization->is_member(array('+admingroup'))){ ?>
-                        <li>
-                            <a href="<?php echo $this->config->site_url('admin/Groups'); ?>" class="<?php echo ($topmenu && $topmenu=='settings')?'active':'notactive'; ?>">Settings</a>
-                            <ul>
-                                <li>
-                                    <a href="<?php echo $this->config->site_url('admin/Groups'); ?>">Groups</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <?php }?>
-                    </ul>
-                </nav>
-
-            </div>
-            <div id="content">
-                <h1>
-                    <?php echo $title; ?>
-                </h1>
-
-                <?php
-
-                if(!empty($body_content)){
-                    $this->load->view($body_content);
-                }
-
-                if(!empty($body_error)){
-                    echo $body_error;
-                }
-                ?>
-
+    <nav role="navigation" class="navbar navbar-inverse">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <div class="navbar-brand" href="#">
+                <?PHP echo SAP_APPLICATIONTITLE; ?>
             </div>
         </div>
-        <div id="footer">
-            <div id="copyright">
-                <p>
-                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.3.18b)
-                </p>
-            </div>
-            <div id="contactlink">
-                <a href="mailto:ETD.Solutions.Architecture@emc.com?subject=SA Project Tracker">Contact Us</a>
+        <!-- Collection of nav links and other content for toggling -->
+        <div id="navbarCollapse" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li role="presentation" class="dropdown <?php echo (!empty($topmenu) && $topmenu == 'project')?'active':''; ?>">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="50000" role="button" aria-haspopup="true" aria-expanded="false">
+                        Project Requests
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo $this->config->site_url('project/create'); ?>">Create</a>
+                        </li>
+                        <li>
+                            <a href="<?php echo $this->config->site_url('project'); ?>">List</a>
+                        </li>
+                    </ul>
+                </li>
+                <li role="presentation" class="dropdown <?php echo (!empty($topmenu) && $topmenu==='report')?'active':''; ?>">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="50000" role="button" aria-haspopup="true" aria-expanded="false">
+                        Reports
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo $this->config->site_url('reports/nna'); ?>">Now Next After</a>
+                        </li>
+                    </ul>
+                </li>
+                <?php if($this->authorization->is_member(array('+managergroup', '+architectgroup'))){ ?>
+                <li role="presentation" class="dropdown <?php echo (!empty($topmenu) && $topmenu=='architects')?'active':''; ?>">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="50000" role="button" aria-haspopup="true" aria-expanded="false">
+                        Architects
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo $this->config->site_url('architect/SAView'); ?>">Project Administration</a>
+                        </li>
+                    </ul>
+                </li>
+                <?php }?>
+                <?php if(false && $this->authorization->is_member(array('+admingroup'))){ ?>
+                <li role="presentation" class="dropdown <?php echo (!empty($topmenu) && $topmenu=='settings')?'active':''; ?>">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="50000" role="button" aria-haspopup="true" aria-expanded="false">
+                        Settings
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo $this->config->site_url('admin/Groups'); ?>">Groups</a>
+                        </li>
+                    </ul>
+                </li>
+                <?php }?>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown<?php echo ($this->authorization->is_logged_in() ? ' hide' : ''); ?>" id="menuLogin">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="50000" role="button" aria-haspopup="true" aria-expanded="false">
+                        Login&nbsp;
+                        <i class="glyphicon glyphicon-log-in"></i>
+                    </a>
+                    <div class="dropdown-menu" style="padding:17px; min-width:250px;">
+                        <?php
+                        $hidden = array(
+                                'current_page'=> base_url(uri_string())
+                                );
+                        echo form_open('login', array('id'=>'loginForm', 'role'=>'form'), $hidden);
+                        ?>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-envelope"></span>
+                                </span>
+                                <input type="email" name="email" class="form-control" id="email" placeholder="Email Address..." />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-lock"></span>
+                                </span>
+                                <input type="password" name="password" class="form-control" id="pwd" placeholder="Password..." />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-default">
+                            Login
+                        </button>
+                        <?php echo form_close(); ?><br />
+                        <p>
+                            <a href="mailto:ETD.Solutions.Architecture@emc.com?subject=SA Project Tracker">Need Help? Contact Us.</a>
+                        </p>
+                        <p>
+                            <a href="<?php echo $this->config->site_url('about'); ?>">About this site.</a>
+                        </p>
+
+                    </div>
+                </li>
+                <li class="dropdown<?php echo (!$this->authorization->is_logged_in() ? ' hide' : ''); ?>" id="menuUser">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="50000" role="button" aria-haspopup="true" aria-expanded="false">
+                        <i class='icon-user icon-xxlarge'></i>
+                        <span>
+                            <?php echo $this->session->userdata('email'); ?>
+                        </span>
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="/logout">Logout</a>
+                        </li>
+                        <li class="divider"></li>
+                        <!--<li>
+                            <a href="http://solarch.lab.emc.com">SA Site List</a>
+                        </li>-->
+                        <li>
+                            <a href="mailto:ETD.Solutions.Architecture@emc.com?subject=SA Project Tracker">Contact Us</a>
+                        </li>
+                        <li>
+                            <a href="<?php echo $this->config->site_url('about'); ?>">About</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>
+            <?php echo $title; ?>
+        </h1>
+        <?php
+        if(!empty($body_content)){
+            $this->load->view($body_content);
+        }
+        if(!empty($body_error)){
+            echo $body_error;
+        }
+        ?>
+
+        <!-- Bootstrap modal Login form -->
+        <div class="modal fade" id="modal_loginform" role="dialog">
+            <div class="modal-dialog" style="max-width: 350px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h3 class="modal-title">Login</h3>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <footer class="footer">
+        <div class="container">
+            <p>
+                <small>
+                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.4.02a)
+                </small>
+            </p>
+        </div>
+    </footer>
 </body>
 </html>
 

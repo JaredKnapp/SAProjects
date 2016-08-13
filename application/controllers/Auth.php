@@ -59,7 +59,7 @@ class Auth extends MY_Controller{
             $data['body_content'] = 'login';
             $this->load->view('templates/default', $data);
         } else {
-            redirect("dashboard");
+            redirect("/");
         }
 
 	}

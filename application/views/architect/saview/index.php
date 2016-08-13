@@ -130,26 +130,6 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
             create: function (event, ui) { $("#accordion").show(); }
         });
 
-        editor = new $.fn.dataTable.Editor({
-            ajax: "../php/staff.php",
-            table: "#table",
-            fields: [{
-                label: "Projected start:",
-                name: "projected_start_date"
-            }, {
-                label: "Estimated completion date:",
-                name: "estimated_completion_date"
-            }, {
-                label: "Duration:",
-                name: "estimated_work_days"
-            }
-            ]
-        });
-
-        //$('#table').on('click', 'tbody td:not(:first-child)', function (e) {
-        //    editor.inline(this);
-        //});
-
         table = $('#table').DataTable({
             "processing": true,
             "serverSide": true,
@@ -168,31 +148,11 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                 },
                 type: "POST"
             },
-            //"columns": [
-            //        { data: null },
-            //        { data: "id" },
-            //        { data: "industries" },
-            //        { data: "sa_users_id" },
-            //        { data: "priority" },
-            //        { data: "priority_index" },
-            //        { data: "workloads" },
-            //        { data: "platforms" },
-            //        { data: "effort_target" },
-            //        { data: "efforttypes" },
-            //        { data: "effortoutput" },
-            //        { data: "effort_justification" },
-            //        { data: "notes" },
-            //        { data: "projected_start_date" },
-            //        { data: "estimated_complete_date" },
-            //        { data: "estimated_work_days" },
-            //        { data: "status" },
-            //        { data: null }
-            //    ],
             "columnDefs": [
                 {
                     "name": "details", "targets": 0, "orderable": false, "className": 'details-control center-vertical center-horizontal', "width": '20px',
                     "render": function (data, type, row) {
-                        return '<i id="details-twisty" class="details-control-icon glyphicon glyphicon-triangle-right" data-toggle="tooltip" title="Show Project Tasks" placement="bottom"></i>';
+                        return '<i id="details-twisty" class="details-control-icon glyphicon glyphicon-triangle-right" data-toggle="tooltip" title="Show Project Tasks" placement="bottom" style="cursor: pointer;"></i>';
                     }
                 },
                 { "name": "id", "targets": 1, "visible": false, "searchable": false },
@@ -217,7 +177,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                             if (dataArray.length == 1) {
                                 return data;
                             } else {
-                                return '<div>' + dataArray[0] + '&nbsp;<i class="glyphicon glyphicon-comment" aria-hidden="true"  data-toggle="popover" data-html="true" data-trigger="focus" title="Overridden Value" data-content="Value has been overriden in the project. Acual sum of project tasks: ' + dataArray[1] + ' days." style="cursor: pointer;"></i></div>';
+                                return '<div>' + dataArray[0] + '&nbsp;<i class="glyphicon glyphicon-comment" aria-hidden="true"  data-toggle="popover" data-html="true" data-trigger="focus" title="Overridden Value" data-content="Value has been overriden in the project. Actual sum of project tasks: ' + dataArray[1] + ' days." style="cursor: pointer;"></i></div>';
                             }
                         }
                         else {
@@ -241,7 +201,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                     }
                 },
                 {
-                    "name": "actions", "targets": 17, "orderable": false,
+                    "name": "actions", "targets": 17, "orderable": false, "width": "100px",
                     "render": function (data, type, row) {
                         editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
                         deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';

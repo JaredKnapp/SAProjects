@@ -2,7 +2,6 @@
 $statusList = unserialize(SAP_ACTIVESTATUSLIST);
 $priorityList = unserialize(SAP_PRIORITYLIST);
 ?>
-<br />
 <div id="filters">
     <div id="accordion">
         <span>
@@ -55,11 +54,11 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
     </div>
 </div>
 <br />
-<table id="table" class="table table-hover table-striped table-bordered" cellspacing="0" width="100%">
+<table id="table" class="table table-hover table-striped table-bordered" cellspacing="0">
     <thead>
         <tr>
             <th class="search-industry">Industry</th>
-            <th class="search-sauser">SA</th>
+            <th class="search-sauser">Architect</th>
             <th class="search-priority">Priority</th>
             <th class="search-input">Workload</th>
             <th class="search-platform">Product</th>
@@ -198,7 +197,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                 api.column(0, { page: 'current' }).data().each(function (group, i) {
                     if (last !== group) {
                         $(rows).eq(i).before(
-                            '<tr class="group"><td colspan="11"><p class="lead">' + group + '</p></td></tr>'
+                            '<tr class="group"><td colspan="11" style="background: #2c95dd; color: #fff;"><p class="text-uppercase"><strong>' + group + '</strong><p></td></tr>'
                         );
 
                         last = group;
