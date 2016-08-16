@@ -334,7 +334,7 @@
         <div class="container">
             <p>
                 <small>
-                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.4.03a)
+                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.4.04a)
                 </small>
             </p>
         </div>

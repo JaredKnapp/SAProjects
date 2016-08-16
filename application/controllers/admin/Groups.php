@@ -16,7 +16,7 @@ class Groups extends MY_Controller{
 
     public function index(){
 
-        $data['topmenu'] = 'admin';
+        $data['topmenu'] = 'settings';
         $data['title'] = 'Groups';
 
         $data['body_content'] = 'admin/groups/index';
