@@ -89,7 +89,7 @@
 
         /*==============================================================
         NAVBAR Styling
-    ================================================================*/
+        ================================================================*/
         .navbar {
             background-color: rgba(91, 91, 91, 1);
         }
@@ -108,6 +108,46 @@
 
         .dropdown-menu {
             font-size: 12px;
+        }
+
+        /*===================================================
+            Datatable Styling
+        =====================================================*/
+        /*Datatable Customizations*/
+        table.dataTable th {
+            color: #0077AA;
+            text-transform: uppercase;
+        }
+
+
+        table.dataTable.display tbody tr.odd > .dragable, table.dataTable.order-column.stripe tbody tr.odd > .dragable {
+            background-color: #f1f1f1;
+        }
+
+        table.dataTable.display tbody tr.even > .dragable, table.dataTable.order-column.stripe tbody tr.even > .dragable {
+            background-color: #fafafa;
+        }
+
+        table.dataTable td.reorder {
+            text-align: left;
+        }
+
+        table.dataTable td.center-horizontal {
+            text-align: center;
+        }
+
+        table.dataTable td.center-vertical {
+            vertical-align: central;
+        }
+
+        i.details-control-icon {
+            cursor: pointer;
+        }
+
+        tr.group,
+        tr.group:hover {
+            color: white;
+            background-color: #2c95dd !important;
         }
     </style>
 </head>
@@ -166,7 +206,7 @@
                         </li>
                     </ul>
                 </li>
-                <?php if($this->authorization->is_member(array('+managergroup', '+architectgroup'))){ ?>
+                <?php if($this->authorization->is_member(array(SAP_MANAGERGROUP, SAP_ARCHITECTGROUP))){ ?>
                 <li role="presentation" class="dropdown <?php echo (!empty($topmenu) && $topmenu=='architects')?'active':''; ?>">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="50000" role="button" aria-haspopup="true" aria-expanded="false">
                         Architects
@@ -179,7 +219,7 @@
                     </ul>
                 </li>
                 <?php }?>
-                <?php if(false && $this->authorization->is_member(array('+admingroup'))){ ?>
+                <?php if(true && $this->authorization->is_member(array(SAP_ADMINISTRATORGROUP))){ ?>
                 <li role="presentation" class="dropdown <?php echo (!empty($topmenu) && $topmenu=='settings')?'active':''; ?>">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="50000" role="button" aria-haspopup="true" aria-expanded="false">
                         Settings
@@ -225,7 +265,8 @@
                         <button type="submit" class="btn btn-default">
                             Login
                         </button>
-                        <?php echo form_close(); ?><br />
+                        <?php echo form_close(); ?>
+                        <br />
                         <p>
                             <a href="mailto:ETD.Solutions.Architecture@emc.com?subject=SA Project Tracker">Need Help? Contact Us.</a>
                         </p>
@@ -293,7 +334,7 @@
         <div class="container">
             <p>
                 <small>
-                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.4.02a)
+                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.4.03a)
                 </small>
             </p>
         </div>

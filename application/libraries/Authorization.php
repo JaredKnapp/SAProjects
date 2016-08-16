@@ -10,6 +10,7 @@ class Authorization
         $this->CI =& get_instance();
         $this->CI->load->helper('url');
         $this->CI->load->library('session');
+        $this->CI->load->model('GroupMember_model', 'groupmember');
     }
 
     public function is_logged_in(){
@@ -17,6 +18,7 @@ class Authorization
     }
 
     public function is_member($groups, $doLogin = FALSE){
+
         if(!$this->is_logged_in()){
             if($doLogin){
                 //Store the return page here so we can come back to it
@@ -27,10 +29,30 @@ class Authorization
         }
 
         //Check Group Membership Database
-        if(! $this->CI->session->userdata('is_sa') == '1'){
-            return false;
+        //  if Admin, then just allow anythihng
+        $membership = $this->CI->groupmember->get_membership($this->CI->session->userdata('id'), 'users');
+        if(in_array(SAP_ADMINISTRATORGROUP, $membership)){
+            return true;
         }
 
-        return true;
+        //  Otherwise, check for specific membership
+        if(is_array($groups)){
+            foreach($groups as $group){
+                if(in_array($group, $membership)){
+                    return true;
+                }
+            }
+        } else {
+            if(in_array($groups, $membership)){
+                return true;
+            }
+        }
+
+        if($doLogin){
+            //Store the return page here so we can come back to it
+            $this->CI->session->set_flashdata('current_page', base_url(uri_string()));
+            redirect('login');
+        }
+        return false;
     }
 }

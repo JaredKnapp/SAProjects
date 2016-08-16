@@ -10,7 +10,8 @@ class SAView extends MY_Controller {
 
     public function __construct()
     {
-        parent::__construct('admin');
+        parent::__construct(array('+manager', '+architect'));
+
         $this->load->model('Project_model', 'project');
         $this->load->model('ProjectTask_model', 'projecttask');
         $this->load->model('EffortType_model', 'effort_type');

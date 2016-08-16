@@ -21,12 +21,31 @@ class GroupMember_model extends MY_Model{
         $this->db->select('groups.name AS groups_name');
         $this->db->from($this->table);
         $this->db->join('users', "$this->table.member_table = \'users\' AND users.id = $this->table.member_id", 'left');
-        $this->db->join('groups', "$this->table.member_table = \'users\' AND groups.id = $this->table.member_id", 'left');
+        $this->db->join('groups', "$this->table.member_table = \'groups\' AND groups.id = $this->table.member_id", 'left');
         $query = $this->db->get();
 
         foreach($query->result_array() as $row){
             $nameField = $row['member_table'] . '_name';
             $data[$row['id']]= $row[$nameField];
+        }
+        return $data;
+    }
+
+    public function get_membership($id, $type){
+        $data = array();
+
+        $this->db->select($this->table . '.id');
+        $this->db->select('groups.code AS groups_code');
+        $this->db->from($this->table);
+        $this->db->join('groups', "$this->table.groups_id = groups.id", 'left');
+
+        $this->db->where(array('member_id'=>$id, 'member_table'=>$type));
+
+        $sql = $this->db->get_compiled_select(null, FALSE);
+        $query = $this->db->get();
+
+        foreach($query->result_array() as $row){
+            $data[]= $row['groups_code'];
         }
         return $data;
     }

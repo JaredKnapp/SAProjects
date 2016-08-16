@@ -75,16 +75,16 @@
             },
             "columnDefs": [
                 { "name": "id", "targets": 0, "visible": false },
-                { "name": "code", "targets": 2, "width": "70%" },
-                { "name": "name", "targets": 1, "width": "20%" },
-                {
-                    "name": "actions", "targets": 3, "orderable": false, "width": "10%",
-                    "render": function (data, type, row) {
-                        editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_group(\'' + row[0] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
-                        deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_group(\'' + row[0] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
-                        return editButton + '&nbsp;' + deleteButton;
-                    }
-                }
+                { "name": "name", "targets": 1, "width": "70%" },
+                { "name": "table", "targets": 2, "width": "30%" },
+                //{
+                //    "name": "actions", "targets": 3, "orderable": false, "width": "10%",
+                //    "render": function (data, type, row) {
+                //        editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_group(\'' + row[0] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
+                //        deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_group(\'' + row[0] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
+                //        return editButton + '&nbsp;' + deleteButton;
+                //    }
+                //}
             ]
         });
     });
@@ -198,7 +198,6 @@
 
         }
     }
-
 </script>
 
 <!-- Bootstrap modal Group edit form -->
@@ -230,18 +229,40 @@
                         </div>
                     </div>
                 </div>
-                <?php echo form_close(); ?>
-                <button class="btn btn-success" onclick="add_member()">
-                    <i class="glyphicon glyphicon-plus"></i>Add
-                </button>
+                <?php
+                echo form_close(); ?>
+
+
+                <!--<div class="panel-group" id="panel-add-membership">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <strong>Add Group Membership</strong>
+                                <span class="pull-right">
+                                    <a data-toggle="collapse" data-parent="#panel-membership-group" href="#collapseMembership">
+                                        <span class="toggle-icon glyphicon glyphicon-collapse-up"></span>
+                                    </a>
+                                </span>
+                            </h4>
+                        </div>
+                        <div id="collapseMembership" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                &lt;User List goes here&gt;
+                            </div>
+                        </div>
+                    </div>
+                </div>-->
+
+
+
                 <div>
                     <table id="membertable" class="table table-hover table-striped table-bordered" cellspacing="0" width="100%">
                         <thead>
                             <tr>
                                 <th>id</th>
-                                <th>Table</th>
-                                <th>User</th>
-                                <th>Actions</th>
+                                <th>Name</th>
+                                <th>Source</th>
+                                <!--<th>Actions</th>-->
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -252,63 +273,14 @@
                 <button type="button" id="btnSave" onclick="save_group()" class="btn btn-primary">Save</button>
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
             </div>
+            <script>
+                $('#modal_form').ready(function () {
+                    $('a[data-toggle="collapse"]').click(function () {
+                        $(this).find('span.toggle-icon').toggleClass('glyphicon-collapse-up glyphicon-collapse-down');
+                    });
+                });
+            </script>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 <!-- End Bootstrap modal Group edit form-->
-
-<!-- Bootstrap modal Add Group Member form -->
-<div class="modal fade" id="modal_member_form" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h3 class="modal-title">Add Group Membership</h3>
-            </div>
-            <div class="modal-body form">
-                <?php echo form_open('#', array('id'=>'form', 'class'=>'form-horizontal')); ?>
-                <input type="hidden" value="" name="id" />
-                <div class="form-body">
-                    <div class="form-group">
-                        <?php echo form_label('Name *', 'name', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_input(array('name'=>'name', 'placeholder'=>'Enter a name for the group...', 'class'=>'form-control required'), '', array('id'=>'name')); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Code *', 'code', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_input(array('name'=>'code', 'placeholder'=>'Enter a unique code for this group...', 'class'=>'form-control required'), '', array('id'=>'code')); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                </div>
-                <?php echo form_close(); ?>
-                <button class="btn btn-success" onclick="add_member()">
-                    <i class="glyphicon glyphicon-plus"></i>Add
-                </button>
-                <div>
-                    <table id="membertable" class="table table-hover table-striped table-bordered" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th>id</th>
-                                <th>Table</th>
-                                <th>User</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="btnSave" onclick="save_group()" class="btn btn-primary">Save</button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-<!-- End Bootstrap modal Project edit form-->

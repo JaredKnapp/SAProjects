@@ -156,7 +156,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                     }
                 },
                 { "name": "id", "targets": 1, "visible": false, "searchable": false },
-                { "name": "industries.name", "targets": 2, "orderable": true, "className": "reorder dragable" },
+                { "name": "industries.name", "targets": 2, "orderable": true, "className": "reorder dragable", "width": "30px" },
                 { "name": "sa_users_id", "targets": 3, "orderable": false },
                 { "name": "priority", "targets": 4, "orderable": false },
                 { "name": "priority_index", "visible": false, "targets": 5, "orderable": false },
@@ -177,7 +177,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                             if (dataArray.length == 1) {
                                 return data;
                             } else {
-                                return '<div>' + dataArray[0] + '&nbsp;<i class="glyphicon glyphicon-comment" aria-hidden="true"  data-toggle="popover" data-html="true" data-trigger="focus" title="Overridden Value" data-content="Value has been overriden in the project. Actual sum of project tasks: ' + dataArray[1] + ' days." style="cursor: pointer;"></i></div>';
+                                return '<div>' + dataArray[0] + '&nbsp;<i class="glyphicon glyphicon-comment" aria-hidden="true"  data-toggle="popover" data-html="true" data-trigger="focus" title="Overridden Value" data-content="Sum of project tasks = ' + dataArray[1] + ' days." style="cursor: pointer;"></i></div>';
                             }
                         }
                         else {

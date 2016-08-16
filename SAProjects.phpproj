@@ -404,8 +404,6 @@
     <Content Include="application\views\errors\html\index.html" />
     <Content Include="application\views\errors\index.html" />
     <Content Include="application\views\index.html" />
-    <Content Include="assets\css\accountinfo_theme.css" />
-    <Content Include="assets\css\login_theme.css" />
     <Content Include="assets\css\theme.css" />
     <Content Include="assets\images\etdlogo.png" />
     <Content Include="assets\images\favicon.ico" />

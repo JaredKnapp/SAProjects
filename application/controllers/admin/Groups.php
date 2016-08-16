@@ -6,7 +6,7 @@ class Groups extends MY_Controller{
     public function __construct()
     {
         //Allow only 'admin' group members
-        parent::__construct(array('admin'));
+        parent::__construct(array(SAP_ADMINISTRATORGROUP));
 
         $this->load->helper('url');
 
@@ -113,7 +113,7 @@ class Groups extends MY_Controller{
 
         $columnOrder    = array('id', 'name', 'member_table');
         $searchColumns  = array();
-        $where          = array('groups.id = '=>$id);
+        $where          = array('groupmembers.groups_id = '=>$id);
         $order          = array('name'=>'ASC');
 
         $list = $this->groupmember->get_datatables($columnOrder, $searchColumns, NULL, $where, $order);
@@ -124,7 +124,7 @@ class Groups extends MY_Controller{
             $index++;
             $row = array();
             $row[] = $group->id;
-            $row[] = $group->name;
+            $row[] = empty($group->users_name) ? $group->groups_name : $group->users_name;
             $row[] = $group->member_table;
             $row[] = ''; //
 
@@ -140,7 +140,6 @@ class Groups extends MY_Controller{
 
         echo json_encode($output);
     }
-
 
     private function _validate()
     {
@@ -168,6 +167,5 @@ class Groups extends MY_Controller{
         }
         return $data['status'];
     }
-
 
 }

@@ -20,8 +20,10 @@ class ListFactory extends MY_Controller {
         $output = '';
         foreach ($data as $key=>$value)
         {
-            $checkbox = "<input type='checkbox' name='effortoutputs_id[]' value='$key'>";
-            $output .= "<div class='checkbox'><label>$checkbox &nbsp" . $value. "</label></div>";
+            $cbValue = $value['name'];
+            $cbChecked = $value['isdefault']=='1' ? 'checked' : '';
+            $checkbox = "<input type='checkbox' name='effortoutputs_id[]' $cbChecked value='$key'>";
+            $output .= "<div class='checkbox'><label>$checkbox &nbsp" . $cbValue . "</label></div>";
         }
 
         if(empty($output)){

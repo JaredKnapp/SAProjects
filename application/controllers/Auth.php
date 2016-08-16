@@ -7,7 +7,9 @@ class Auth extends MY_Controller{
 
     public function __construct(){
         parent::__construct();
-        $this->load->model('user_model', 'user');
+        $this->load->model('User_model', 'user');
+        $this->load->model('Group_model', 'group');
+        $this->load->model('GroupMember_model', 'groupmember');
     }
 
 	public function logged_in_check()
@@ -80,6 +82,8 @@ class Auth extends MY_Controller{
             {
                 // we not need password to store in session
                 unset($row['password']);
+
+                //Store the results in the session
                 $this->_userData = $row;
                 return ERR_NONE;
             }

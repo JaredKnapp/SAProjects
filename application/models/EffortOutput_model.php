@@ -17,7 +17,10 @@ class EffortOutput_model extends CI_Model{
         $this->db->order_by('name', 'ASC');
         $query = $this->db->get_where($this->table, array('efforttypes_id' => $efforttypes_id));
         foreach($query->result_array() as $row){
-            $data[$row['id']]=$row['name'] . ': ' . $row['duration'] . ' days' . (empty($row['produce'])?'':(' ('.$row['produce'].')'));
+            $data[$row['id']]=array(
+                'name'=>$row['name'] . ': ' . $row['duration'] . ' days' . (empty($row['produce'])?'':(' ('.$row['produce'].')')),
+                'isdefault'=>$row['isdefault']
+            );
         }
 
         return $data;

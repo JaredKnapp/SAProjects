@@ -90,6 +90,11 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 ---------------------------------*/
 defined('SAP_PASSWORDSALT')         or define('SAP_PASSWORDSALT', ':LKJ89w9 @#$je$jf@#987pjh @#$as9fa sdfas%$#97 08yasdh');
 
+defined('SAP_ADMINISTRATORGROUP')   or define('SAP_ADMINISTRATORGROUP', '+administrator');
+defined('SAP_MANAGERGROUP')         or define('SAP_MANAGERGROUP', '+manager');
+defined('SAP_ARCHITECTGROUP')       or define('SAP_ARCHITECTGROUP', '+architect');
+
+
 defined('SAP_APPLICATIONTITLE')     or define('SAP_APPLICATIONTITLE', 'ETD SA Projects');
 defined('SAP_STATUSLIST')           or define('SAP_STATUSLIST', serialize(array('draft'=>'Requested', 'approved'=>'Approved', 'deferred'=>'Deferred', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled', 'complete'=>'Completed')));
 defined('SAP_ACTIVESTATUSLIST')     or define('SAP_ACTIVESTATUSLIST', serialize(array('approved'=>'Approved', 'inprocess'=>'In Process', 'scheduled'=>'Scheduled')));
