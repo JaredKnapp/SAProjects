@@ -6,24 +6,29 @@ class ListFactory extends MY_Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('Project_model');
-        $this->load->model('EffortType_model');
+
+        $this->load->model('Project_model', 'project');
+        $this->load->model('EffortType_model', 'efforttype');
+
         $this->load->helper('url_helper');
     }
 
     public function GetEffortOutputsCheckbox(){
-        $this->load->model('EffortOutput_model');
+        $this->load->model('EffortOutput_model', 'effortoutput');
 
-        $id = $this->input->post('id', TRUE);
-        $data = $this->EffortOutput_model->get_list($id);
+        $efforttype_id = $this->input->post('id', TRUE);
+        $data = $this->effortoutput->get(array('efforttypes_id'=>$efforttype_id));
 
         $output = '';
         foreach ($data as $key=>$value)
         {
-            $cbValue = $value['name'];
-            $cbChecked = $value['isdefault']=='1' ? 'checked' : '';
-            $checkbox = "<input type='checkbox' name='effortoutputs_id[]' $cbChecked value='$key'>";
-            $output .= "<div class='checkbox'><label>$checkbox &nbsp" . $cbValue . "</label></div>";
+
+            $description = ($value['name'] . ': ' . $value['duration'] . ' days' . (empty($value['produce']) ? '' : (' ('.$value['produce'].')')));
+            $checked = $value['isdefault']=='1' ? 'checked' : '';
+            $duration = $value['duration'];
+
+            $checkbox = "<input type='checkbox' name='effortoutputs_id[]' $checked value='$key' effort-duration='$duration'>";
+            $output .= "<div class='checkbox'><label>$checkbox &nbsp" . $description . "</label></div>";
         }
 
         if(empty($output)){
@@ -33,11 +38,20 @@ class ListFactory extends MY_Controller {
         echo $output;
     }
 
+    public function GetEffortOutputsJSON(){
+        $this->load->model('EffortOutput_model');
+
+        $efforttype_id = $this->input->post('id', TRUE);
+        $data = $this->effortoutput->get(array('efforttypes_id'=>$efforttype_id));
+        echo json_encode($data);
+    }
+
+
     public function GetWorkloadDropdown(){
-        $this->load->model('Workload_model');
+        $this->load->model('Workload_model', 'workload');
 
         $id = $this->input->post('id', TRUE);
-        $data = $this->Workload_model->get_list($id);
+        $data = $this->workload->get_list($id);
 
         $output = "<option value=''>Select One...</option>";
         foreach ($data as $key=>$value)

@@ -57,7 +57,7 @@ class Project extends MY_Controller {
         $this->load->helper('form');
         $this->load->library('form_validation');
 
-        $data['title'] = 'Submit a project request';
+        $data['title'] = 'Submit a Project Request';
         $data['topmenu'] = 'project';
 
         $this->form_validation->set_error_delimiters('<div class="alert alert-danger">', '</div>');

@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class SAView extends MY_Controller {
 
-    var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status', null);
+    var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'efforttype', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status', null);
     var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
     var $where          = array();
     var $order          = array('industries.name'=>'ASC', 'platforms.sortorder'=>'ASC', 'priority_index'=>'ASC');
@@ -14,7 +14,8 @@ class SAView extends MY_Controller {
 
         $this->load->model('Project_model', 'project');
         $this->load->model('ProjectTask_model', 'projecttask');
-        $this->load->model('EffortType_model', 'effort_type');
+        $this->load->model('EffortType_model', 'efforttype');
+        $this->load->model('EffortOutput_model', 'effortoutput');
         $this->load->model('Industry_model', 'industry');
         $this->load->model('Platform_model', 'platform');
         $this->load->model('User_model', 'user');
@@ -31,12 +32,50 @@ class SAView extends MY_Controller {
         $data['topmenu'] = 'architects';
 
         $data['industries']                 = $this->industry->get_list();
+        $data['priorityList']               = unserialize(SAP_PRIORITYLIST);
+        $data['statusList']                 = unserialize(SAP_STATUSLIST);
         $data['efforttypes']                = $this->efforttype->get_list();
         $data['platforms']                  = $this->platform->get_list();
         $data['sausers']                    = $this->user->get_salist();
 
         $data['body_content'] = 'architect/saview/index';
         $this->load->view('templates/default', $data);
+    }
+
+    public function load_project(){
+        $data = array();
+
+        $data['industries']                 = $this->industry->get_list();
+        $data['platforms']                  = $this->platform->get_list();
+        $data['sausers']                    = $this->user->get_salist();
+        $data['efforttypes']                = $this->efforttype->get_list();
+
+        $this->load->view('architect/saview/edit_project', $data);
+    }
+
+    public function load_project_task(){
+        $data = array();
+
+        $data['rowIndex'] = $this->input->get('rowIndex', TRUE);
+        $data['is_task'] = $this->input->get('is_task', TRUE);
+        $data['is_selected'] = $this->input->get('is_selected', TRUE);
+        $data['projected_start_date'] = $this->input->get('projected_start_date', TRUE);
+        $data['estimated_completion_date'] = $this->input->get('estimated_completion_date', TRUE);
+        $data['duration'] = $this->input->get('duration', TRUE);
+        $data['completion_date'] = $this->input->get('completion_date', TRUE);
+        $data['collateral_url'] = $this->input->get('collateral_url', TRUE);
+
+        $this->load->view('architect/saview/edit_project_task', $data);
+    }
+
+    public function test(){
+        $this->load->helper('url');
+
+        $data['title'] = 'Testing';
+        $data['topmenu'] = 'architects';
+
+        $data['body_content'] = 'architect/saview/test';
+        $this->load->view('templates/defaultThin', $data);
     }
 
     public function ajax_list(){
@@ -328,6 +367,58 @@ class SAView extends MY_Controller {
         }
     }
 
+    public function ajax_gettasktable(){
+        $output = array();
+
+        $projectsId = $this->input->post('projects_id');
+        $project = empty($projectsId) ? null : $this->project->get_by_id($projectsId);
+        $projecttasks = empty($projectsId) ? array() : $this->projecttask->get(array('projects_id'=>$projectsId));
+
+        $efforttypesId = empty($this->input->post('efforttypes_id')) ? $project->efforttypes_id : $this->input->post('efforttypes_id');
+        $effortdata = $this->effortoutput->get(array('efforttypes_id'=>$efforttypesId));
+
+        foreach($effortdata as $effort){
+            $effortRow = array();
+            $taskRow = array();
+
+            $effortRow['id'] = $effort['id'];
+            $effortRow['name'] = $effort['name'];
+            $effortRow['sortorder'] = $effort['sortorder'];
+            $effortRow['affinity'] = $effort['affinity'];
+            $effortRow['isselectable'] = $effort['isselectable'];
+            $effortRow['isdefault'] = $effort['isdefault'];
+            $effortRow['produce'] = is_null($effort['produce'])? '' : $effort['produce'];
+            $effortRow['duration'] = $effort['duration'];
+            $effortRow['exampleurl'] = $effort['exampleurl'];
+            $effortRow['helptext'] = $effort['helptext'];
+            $effortRow['kit_reference_id'] = $effort['kit_reference_id'];
+            $effortRow['efforttypes_id'] = $effort['efforttypes_id'];
+
+            foreach($projecttasks as $task){
+                if($task['effortoutputs_id']==$effort['id']){
+
+                    $taskRow['id'] = $task['id'];
+                    $taskRow['name'] = $task['name'];
+                    $taskRow['duration'] = is_null($task['duration']) ? '' : $task['duration'];
+                    $taskRow['desired_completion_date'] =  $this->_toMDY($task['desired_completion_date']);
+                    $taskRow['projected_start_date'] = $this->_toMDY($task['projected_start_date']);
+                    $taskRow['estimated_completion_date'] = $this->_toMDY($task['estimated_completion_date']);
+                    $taskRow['completion_date'] = $this->_toMDY($task['completion_date']);
+                    $taskRow['collateralurl'] = is_null($task['collateralurl']) ? '' : $task['collateralurl'];
+
+                    break;
+                }
+            }
+            $output[] = array(
+                'is_task'       => (array_key_exists('id', $taskRow) ? '1' : '0'),
+                'is_selected'   => (array_key_exists('id', $taskRow) ? '1' : '0'),  //Everything that is currently is a task should be selected
+                'effort'        => $effortRow,
+                'task'          => $taskRow);
+        }
+
+        echo json_encode($output);
+    }
+
     private function _validate()
     {
         $data = array();
@@ -355,6 +446,8 @@ class SAView extends MY_Controller {
             if(count($datearray) == 3){
                 return $datearray[1] . '/' . $datearray[2] . '/' . $datearray[0];
             }
+        } else {
+            return '';
         }
         return $date;
     }

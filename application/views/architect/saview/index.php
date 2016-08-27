@@ -1,18 +1,37 @@
-<?php
-$statusList = unserialize(SAP_STATUSLIST);
-$priorityList = unserialize(SAP_PRIORITYLIST);
-?>
 
-<button class="btn btn-success" onclick="add_project_request()">
+<script src="<?php echo $this->config->base_url('assets/js/sap-getprojecttaskdata.js'); ?>" type="text/javascript"></script>
+
+<script type="text/javascript">
+    var filter_accordion;
+    var table;
+    var timeoutHandle;
+
+    var edit_project_page = "<?php echo site_url('/architect/SAView/load_project'); ?>";
+
+    var ajax_projectlist_url = "<?php echo site_url('architect/SAView/ajax_list'); ?>";
+    var ajax_reorder_url = "<?php echo site_url('architect/SAView/ajax_reorder'); ?>";
+    var ajax_tasktable_url = "<?php echo site_url('architect/SAView/ajax_gettasktable'); ?>";
+
+</script>
+
+<style>
+    .project-dialog .modal-dialog {
+        width: 1200px;
+    }
+</style>
+
+<button class="btn btn-success" onclick="addProjectRequest()">
     <i class="glyphicon glyphicon-plus"></i>Add Project Request
 </button>
-<button class="btn btn-default" onclick="reload_table()">
+
+<button class="btn btn-default" onclick="reloadTable()">
     <i class="glyphicon glyphicon-refresh"></i>Reload
 </button>
+
 <br />
 <br />
 <div id="filters">
-    <div id="accordion">
+    <div id="filter_accordion">
         <span>
             <span>
                 <strong>Additional&nbsp;Filters</strong>
@@ -27,7 +46,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                                 <strong>Industries:</strong>
                                 <?php
                                 foreach($industries as $key=>$value){
-                                    echo "<div class='checkbox center-vertical'><label for='industries_$key' class='selected'><input type='checkbox' name='industries[]' id='industries_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                    echo "<div class='checkbox center-vertical'><label for='industries_$key' class='selected'><input type='checkbox' name='industries[]' id='industries_$key' onchange='searchChanged()' value=\"$key\" checked>$value</label></div>";
                                 }
                                 ?>
                             </td>
@@ -35,14 +54,14 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                                 <strong>Priorities:</strong>
                                 <?php
                                 foreach($priorityList as $key=>$value){
-                                    echo "<div class='checkbox'><label for='priorities_$key' class='selected'><input type='checkbox' name='priorities[]' id='priorities_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                    echo "<div class='checkbox'><label for='priorities_$key' class='selected'><input type='checkbox' name='priorities[]' id='priorities_$key' onchange='searchChanged()' value=\"$key\" checked>$value</label></div>";
                                 }
                                 ?>
                                 <br />
                                 <strong>Statuses:</strong>
                                 <?php
                                 foreach($statusList as $key=>$value){
-                                    echo "<div class='checkbox'><label for='statuses_$key' class='selected'><input type='checkbox' name='statuses[]' id='statuses_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                    echo "<div class='checkbox'><label for='statuses_$key' class='selected'><input type='checkbox' name='statuses[]' id='statuses_$key' onchange='searchChanged()' value=\"$key\" checked>$value</label></div>";
                                 }
                                 ?>
 
@@ -51,7 +70,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                                 <strong>Platforms</strong>
                                 <?php
                                 foreach($platforms as $key=>$value){
-                                    echo "<div class='checkbox'><label for='platforms_$key' class='selected'><input type='checkbox' name='platforms[]' id='platforms_$key' onchange='search_changed()' value=\"$key\" checked>$value</label></div>";
+                                    echo "<div class='checkbox'><label for='platforms_$key' class='selected'><input type='checkbox' name='platforms[]' id='platforms_$key' onchange='searchChanged()' value=\"$key\" checked>$value</label></div>";
                                 }
                                 ?>
                             </td>
@@ -113,33 +132,26 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
 </table>
 <script type="text/javascript">
 
-    var save_method; //for save method string
-    var accordion;
-    var table;
-    var editor;
-    var timeoutHandle;
-
     $(document).ready(function () {
-        accordion = $("#accordion").accordion({
+        filter_accordion = $("#filter_accordion").accordion({
             active: false,
             activate: function (event, ui) {
                 $('#FilterCollapsed').val(ui.newHeader.text() ? false : true);
             },
             heightStyle: "content",
             collapsible: true,
-            create: function (event, ui) { $("#accordion").show(); }
+            create: function (event, ui) { $("#filter_accordion").show(); }
         });
 
+
         table = $('#table').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ordering": false,
-            "searching": true,
-            "rowReorder": {
-                selector: 'td:nth-child(2)'
-            },
-            "ajax": {
-                url: "<?php echo site_url('architect/SAView/ajax_list')?>",
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: true,
+            rowReorder: { selector: 'td:nth-child(2)' },
+            ajax: {
+                url: ajax_projectlist_url,
                 data: function (data) {
                     data.searchIndustries = $("input[name='industries[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
                     data.searchPriorities = $("input[name='priorities[]']:checked:enabled").map(function () { value = $(this).val(); return value; }).get();
@@ -148,7 +160,7 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                 },
                 type: "POST"
             },
-            "columnDefs": [
+            columnDefs: [
                 {
                     "name": "details", "targets": 0, "orderable": false, "className": 'details-control center-vertical center-horizontal', "width": '20px',
                     "render": function (data, type, row) {
@@ -205,18 +217,14 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                     "render": function (data, type, row) {
                         editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
                         deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
-                        approveButton = (row[14] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="edit_project(\'' + row[1] + '\', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>' : false;
-                        deferButton = (row[14] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="defer_project(\'' + row[2] + '\')"><i class="glyphicon glyphicon-thumbs-down"></i></a>' : false;
+                        approveButton = (row[16] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="edit_project(\'' + row[1] + '\', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>' : false;
+                        deferButton = (row[16] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="defer_project(\'' + row[2] + '\')"><i class="glyphicon glyphicon-thumbs-down"></i></a>' : false;
                         notesButton = (row[12]) ? '<a href="#" class="btn btn-sm btn-info" href="javascript:void(0)" data-toggle="popover" data-html="true" data-trigger="focus" title="Project Notes" data-content="' + (row[12]).replace(/(\r\n|\n|\r)/g, "<br />") + '"><i class="glyphicon glyphicon-info-sign"></i></a>' : false;
                         return editButton + '&nbsp;' + deleteButton + (approveButton ? (' ' + approveButton) : '') + (deferButton ? (' ' + deferButton) : '') + (notesButton ? (' ' + notesButton) : '');
                     }
                 }
             ],
-            //"select": {
-            //    "style": 'os',
-            //    "selector": 'td:first-child'
-            //},
-            "initComplete": function () {
+            initComplete: function () {
 
                 this.api().columns('.search-select').every(function () {
                     var column = this;
@@ -348,7 +356,6 @@ foreach($platforms as $key=>$value){
         });
 
         table.on('row-reorder', function (e, diff, edit) {
-
             if (diff.length > 0) {
                 var result = 'Reorder started on row: ' + edit.triggerRow.data()[1] + ' Status: ' + edit.triggerRow.data()[14] + '\n';
 
@@ -364,15 +371,16 @@ foreach($platforms as $key=>$value){
                     data += ('&' + rowData[1] + '=' + diff[i].newData);
                 }
 
-                if (confirm('Reorder this Project Request?\n' + result)) {
+                //if (confirm('Reorder this Project Request?\n' + result)) {
+                if (confirm('Reorder this Project Request?')) {
 
                     $.ajax({
-                        url: "<?php echo site_url('architect/SAView/ajax_reorder')?>",
+                        url: ajax_reorder_url,
                         type: "POST",
                         data: data,
                         dataType: "JSON",
                         success: function (data) {
-                            if (data.status) reload_table();
+                            if (data.status) reloadTable();
                             else alert(data.errorText);
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
@@ -383,20 +391,7 @@ foreach($platforms as $key=>$value){
             }
         });
 
-        /************************************************
-        //Disable select until i can get a cleaner interface.
-        *************************************************/
-        //$('#table tbody').on('click', 'tr', function () {
-        //    if ($(this).hasClass('selected')) {
-        //        $(this).removeClass('selected');
-        //    }
-        //    else {
-        //        table.$('tr.selected').removeClass('selected');
-        //        $(this).addClass('selected');
-        //    }
-        //});
-        // Add event listener for opening and closing details
-
+        //Enable ALL Popups
         $('#table').on('draw.dt', function () {
 
             $('[data-toggle="popover"]').popover({
@@ -414,6 +409,7 @@ foreach($platforms as $key=>$value){
 
         });
 
+        //Enable Details twistie
         $('#table tbody').on('click', 'td.details-control', function () {
             var tr = $(this).closest('tr');
             var icon = $(this).find('i');
@@ -422,457 +418,83 @@ foreach($platforms as $key=>$value){
             if (row.child.isShown()) {
                 // This row is already open - close it
                 row.child.hide();
-                //tr.removeClass('shown');
                 icon.removeClass('glyphicon-triangle-bottom');
                 icon.addClass('glyphicon-triangle-right');
-            }
-            else {
-                // Open this row
-                row.child(format_row_details(row.data())).show();
-                //tr.addClass('shown');
-                icon.removeClass('glyphicon-triangle-right');
-                icon.addClass('glyphicon-triangle-bottom');
+            } else {
+                var control = { row: row, icon: icon };
+                var data = row.data();
+                getProjectTaskData(ajax_tasktable_url, control, data[1], null, formatProjectChildrowData);
             }
         });
 
-        $('#table tbody').on('click', 'td.reorder', function () {
-            var tr = $(this).closest('tr');
-            var icon = $(this).find('i');
-            var row = table.row(tr);
+    });  //<-- END Document Ready Function
 
-            if (row.child.isShown()) {
-                // This row is already open - close it
-                row.child.hide();
-                //tr.removeClass('shown');
-                icon.removeClass('glyphicon-triangle-bottom');
-                icon.addClass('glyphicon-triangle-right');
-            }
-            else {
-                // Open this row
-                row.child(format_row_details(row.data())).show();
-                //tr.addClass('shown');
-                icon.removeClass('glyphicon-triangle-right');
-                icon.addClass('glyphicon-triangle-bottom');
-            }
-        });
-
-        $('[data-toggle="popover"]').popover({
-            placement: 'top'
-        });
-
-        $("input").change(function () {
-            $(this).parent().parent().removeClass('has-error');
-            $(this).next().empty();
-        });
-
-        $("textarea").change(function () {
-            $(this).parent().parent().removeClass('has-error');
-            $(this).next().empty();
-        });
-
-        $("select").change(function () {
-            $(this).parent().parent().removeClass('has-error');
-            $(this).next().empty();
-        });
-
-    });
-
-    /* Formatting function for row details - modify as you need */
-    function format_row_details(d) {
-        // `d` is the original data object for the row
-        return '<div style="padding-left: 50px;">' +
-            '<strong>Selected Project Tasks:</strong><br>' +
-            '<div style="padding-left: 20px;">' +
-            d[10] +
-            '</div>' +
-            '</div>';
+    function reloadTable() {
+        table.ajax.reload(null, false);
     }
 
-    function search_changed() {
+    function searchChanged() {
         window.clearTimeout(timeoutHandle);
         timeoutHandle = window.setTimeout(reload_table, 2000);
     }
 
-    function reload_table() {
-        table.ajax.reload(null, false);
+    function formatProjectChildrowData(control, data) {
+        var row = control['row'];
+        var icon = control['icon'];
+
+        var tableData = row.data();
+
+        var rowData = "<div style='padding-left: 25px; padding-right: 300px;' class='table-responsive'>";
+        rowData += "<table class='table table-bordered table-condensed table-hover table-striped' style='table-layout: fixed;'><thead><tr>" +
+            "<th style='width: 300px;'>Task</th>" +
+            "<th style='width: 150px;'>Output</th>" +
+            "<th style='width: 150px;'>Projected Start Date</th>" +
+            "<th style='width: 150px;'>Estimated Completion Date</th>" +
+            "<th style='width: 75px;'>Duration (Days)</th>" +
+            "<th style='width: 150px;'>Date Completed</th>" +
+            //"<th style='width: 50px;'><!--Collateral Link--></th>" +
+            "</tr></thead><tbody>";
+
+        $.each(data, function (index, value) {
+            var task = value['task'];
+            var effort = value['effort'];
+
+            if (task && task['id']) {
+                rowData += '<tr>';
+                rowData += '<td>' + effort['name'] + '</td>';
+                rowData += '<td>' + effort['produce'] + '</td>';
+                rowData += '<td>' + task['projected_start_date'] + '</td>';
+                rowData += '<td>' + task['estimated_completion_date'] + '</td>';
+                rowData += '<td>' + task['duration'] + '</td>';
+                rowData += '<td>' + task['completion_date'] + '</td>';
+                //rowData += '<td>' + (task['collateralurl'] ? task['collateralurl'] : null) + '</td>';
+                rowData += '</tr>';
+
+            }
+        });
+
+        rowData += '</tbody></table></div>';
+
+        row.child(rowData).show();
+        icon.removeClass('glyphicon-triangle-right');
+        icon.addClass('glyphicon-triangle-bottom');
     }
 
-    function add_project_request() {
-        save_method = 'add';
-        $('#form')[0].reset();
-        $('.form-group').removeClass('has-error');
-        $('.help-block').empty();
+    function addProjectRequest() {
+        BootstrapDialog.show({
+            cssClass: 'project-dialog',
+            draggable: true,
+            title: 'Add Project',
+            message: function (dialog) {
+                var $message = $('<div><center><i class="icon-spinner icon-spin icon-large"></i>Loading...</center></div>');
+                var pageToLoad = dialog.getData('pageToLoad');
+                $message.load(pageToLoad);
 
-        $('[name="status"]').val('<?php echo SAP_DEFAULTSTATUS; ?>');
-        $("#effortoutput").html('Select an effort type...');
-        $('.modal-title').text('New Project Request');
-        $('#modal_form').modal('show');
-    }
-
-    function edit_project(id, newStatus) {
-        save_method = 'update';
-        $('#form')[0].reset();
-        $('.form-group').removeClass('has-error');
-        $('.help-block').empty();
-
-        $.ajax({
-            url: "<?php echo site_url('architect/SAView/ajax_edit/')?>/" + id,
-            cache: false,
-            type: "GET",
-            dataType: "JSON",
-            success: function (data) {
-
-                $("#effortoutput").html('Select an effort type...');
-
-                $('[name="id"]').val(data.id);
-                $('[name="status"]').val(newStatus ? newStatus : data.status);
-                $('[name="author_email"]').val(data.author_email);
-                $('[name="industries_id"]').val(data.industries_id);
-                getWorkload(data.workloads_id);
-                $('[name="platforms_id"]').val(data.platforms_id);
-                $('[name="sa_users_id"]').val(data.sa_users_id);
-                $('[name="effort_target"]').val(data.effort_target);
-                $('[name="efforttypes_id"]').val(data.efforttypes_id);
-                getEffortOutput(data.effortoutput_id ? data.effortoutput_id.split('||') : null);
-                $('[name="desired_completion_date"]').val(data.desired_completion_date);
-                $('[name="projected_start_date"]').val(data.projected_start_date);
-                $('[name="estimated_completion_date"]').val(data.estimated_completion_date);
-                $('[name="estimated_work_days"]').val(data.estimated_work_days);
-                $('[name="completion_date"]').val(data.completion_date);
-                $('[name="effort_justification"]').val(data.effort_justification);
-                $('[name="notes"]').val(data.notes);
-
-                $('#modal_form').modal('show');
-                $('.modal-title').text('Edit Project Request');
-
+                return $message;
             },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('Error get data from ajax');
+            data: {
+                'pageToLoad': edit_project_page
             }
         });
     }
-
-    function save() {
-        var url;
-
-        $('#btnSave').text('saving...');
-        $('#btnSave').attr('disabled', true);
-
-        if (save_method == 'add') {
-            url = "<?php echo site_url('architect/SAView/ajax_add')?>";
-        } else {
-            url = "<?php echo site_url('architect/SAView/ajax_update')?>";
-        }
-
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: $('#form').serialize(),
-            dataType: "JSON",
-            success: function (data) {
-
-                if (data.status) {
-                    $('#modal_form').modal('hide');
-                    reload_table();
-                }
-                else {
-                    for (var i = 0; i < data.inputerror.length; i++) {
-                        $('[name="' + data.inputerror[i] + '"]').parent().parent().addClass('has-error');
-                        $('[name="' + data.inputerror[i] + '"]').next().text(data.error_string[i]);
-                    }
-                }
-                $('#btnSave').text('save');
-                $('#btnSave').attr('disabled', false);
-
-
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('Error adding / update data');
-                $('#btnSave').text('save');
-                $('#btnSave').attr('disabled', false);
-
-            }
-        });
-    }
-
-    function defer_project(id) {
-        if (confirm('Are you sure you wish to defer this Project Request for later?')) {
-            $.ajax({
-                url: "<?php echo site_url('architect/SAView/ajax_defer')?>/" + id,
-                type: "POST",
-                dataType: "JSON",
-                success: function (data) {
-                    //if success reload ajax table
-                    $('#modal_form').modal('hide');
-                    reload_table();
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert('Error deferring Project Request');
-                }
-            });
-
-        }
-    }
-
-    function delete_project(id) {
-        if (confirm('Are you sure you wish to delete this Project Request?')) {
-            $.ajax({
-                url: "<?php echo site_url('architect/SAView/ajax_delete')?>/" + id,
-                type: "POST",
-                dataType: "JSON",
-                success: function (data) {
-                    //if success reload ajax table
-                    $('#modal_form').modal('hide');
-                    reload_table();
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert('Error deleting Project Request');
-                }
-            });
-
-        }
-    }
-</script>
-
-<!-- Bootstrap modal Project edit form -->
-<div class="modal fade" id="modal_form" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h3 class="modal-title">Project Request Form</h3>
-            </div>
-            <div class="modal-body form">
-
-                <!--<form action="#" id="form" class="form-horizontal">-->
-                <?php echo form_open('#', array('id'=>'form', 'class'=>'form-horizontal')); ?>
-                <input type="hidden" value="" name="id" />
-                <div class="form-body">
-                    <div class="form-group">
-                        <?php echo form_label('Status *', 'status', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_dropdown('status', unserialize(SAP_STATUSLIST), '', 'class="form-control required" id="status"'); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Email Address *', 'author_email', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_input(array('name'=>'author_email', 'placeholder'=>'Enter your email address...', 'class'=>'form-control required'), '', array('id'=>'author_email')); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Industry *', 'industries_id', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_dropdown('industries_id', array('' => 'Select One...') + $industries, '', 'class="form-control required" id="industry"'); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Workload *', 'workloads_id', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_dropdown('workloads_id', array('' => 'Select One...'), '', 'class="form-control required" id="workload"'); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Product *', 'platforms_id', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_dropdown('platforms_id', array('' => 'Select One...') + $platforms, '', 'class="form-control required" id="platform"'); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('SA *', 'sa_users_id', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_dropdown('sa_users_id', array('' => 'Select One...') + $sausers, '', 'class="form-control required" id="platform"'); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Effort Target *', 'effort_target', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_textarea(array('name'=>'effort_target', 'id'=>'effort_target', 'placeholder'=>'Enter a short description of this project...', 'class'=>'form-control form-control'), '');?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Effort Type *', 'efforttypes_id', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_dropdown('efforttypes_id', array('' => 'Select One...') + $efforttypes, '', 'class="form-control required" id="efforttype"'); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Effort Output *', 'effortoutputs_id', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <div id="effortoutput">Select an Effort Type...</div>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Desired Completion Date *', 'desired_completion_date', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_input(array('name'=>'desired_completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control required'), '', array('id'=>'desired_completion_date')); ?>
-                            <script>$(function () { $('#desired_completion_date').datepicker(); });</script>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Projected Start Date', 'projected_start_date', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_input(array('name'=>'projected_start_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), '', array('id'=>'projected_start_date')); ?>
-                            <script>$(function () { $('#projected_start_date').datepicker(); });</script>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Estimated Completion Date', 'estimated_completion_date', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_input(array('name'=>'estimated_completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), '', array('id'=>'estimated_completion_date')); ?>
-                            <script>$(function () { $('#estimated_completion_date').datepicker(); });</script>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Estimated Work Days', 'estimated_work_days', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_input(array('name'=>'estimated_work_days', 'class'=>'form-control'), '', array('id'=>'estimated_work_days')); ?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Completion Date', 'completion_date', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_input(array('name'=>'completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), '', array('id'=>'completion_date')); ?>
-                            <script>$(function () { $('#completion_date').datepicker(); });</script>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Effort Justification *', 'effort_justification', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_textarea(array('name'=>'effort_justification', 'id'=>'effort_justification', 'placeholder'=>'Explain why this project should be considered...', 'class'=>'form-control'), '');?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <?php echo form_label('Notes', 'notes', array('class'=>'control-label col-md-3')); ?>
-                        <div class="col-md-9">
-                            <?php echo form_textarea(array('name'=>'notes', 'id'=>'notes', 'placeholder'=>'Provide any additional information that may be relevant...', 'class'=>'form-control'), '');?>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-                </div>
-                <?php echo form_close(); ?>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="btnSave" onclick="save()" class="btn btn-primary">Save</button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-<!-- End Bootstrap modal Project edit form-->
-
-<script type="text/javascript">
-    function workday_count(startDate, endDate) {
-
-        // Validate input
-        if (endDate < startDate)
-            return 0;
-
-        // Calculate days between dates
-        var millisecondsPerDay = 86400 * 1000; // Day in milliseconds
-        startDate.setHours(0, 0, 0, 1);  // Start just after midnight
-        endDate.setHours(23, 59, 59, 999);  // End just before midnight
-        var diff = endDate - startDate;  // Milliseconds between datetime objects
-        var days = Math.ceil(diff / millisecondsPerDay);
-
-        // Subtract two weekend days for every week in between
-        var weeks = Math.floor(days / 7);
-        days = days - (weeks * 2);
-
-        // Handle special cases
-        var startDay = startDate.getDay();
-        var endDay = endDate.getDay();
-
-        // Remove weekend not previously removed.
-        if (startDay - endDay > 1)
-            days = days - 2;
-
-        // Remove start day if span starts on Sunday but ends before Saturday
-        if (startDay == 0 && endDay != 6)
-            days = days - 1
-
-        // Remove end day if span ends on Saturday but starts after Sunday
-        if (endDay == 6 && startDay != 0)
-            days = days - 1
-
-        return days;
-    }
-
-    function getWorkingDays() {
-        var start = $('#projected_start_date').val().split('/');
-        if (start && start.length == 3) {
-            var startDate = new Date(start[0], start[1], start[2]);
-            var end = $('#estimated_completion_date').val().split('/');
-            if (end && end.length == 3) {
-                var endDate = new Date(end[0], end[1], end[2]);
-                //$('#estimated_work_days').val(workday_count(startDate, endDate));
-            }
-        }
-    }
-
-    function getEffortOutput(val) {
-        $.ajax({
-            url: "<?php echo base_url();?>index.php/ListFactory/GetEffortOutputsCheckbox",
-            data: { id: $('#efforttype').val() },
-            type: "POST",
-            success: function (data) {
-                $("#effortoutput").html(data);
-                if (val) {
-                    $.each($("input[name='effortoutputs_id[]']"), function () {
-                        $(this).prop("checked", ($.inArray($(this).val(), val) != -1));
-                    });
-                }
-            }
-        }).fail(function () {
-            alert("ERROR: problem populating Effort Output checkboxes.");
-        });
-    }
-
-    function getWorkload(val) {
-        $.ajax({
-            url: "<?php echo base_url();?>index.php/ListFactory/GetWorkloadDropdown",
-            data: { id: $('#industry').val() },
-            type: "POST",
-            success: function (data) {
-                $("#workload").html(data);
-                if (val) {
-                    $("#workload").val(val);
-                }
-            }
-        }).fail(function () {
-            alert("ERROR: problem populating Workload dropdown.");
-        });
-    }
-
-    $(document).ready(function () {
-        $("#efforttype").on('change', function () {
-            getEffortOutput('');
-        });
-        $("#industry").on('change', function () {
-            getWorkload('');
-        });
-        $("#projected_start_date").on('change', function () {
-            getWorkingDays();
-        });
-        $("#estimated_completion_date").on('change', function () {
-            getWorkingDays();
-        });
-    });
 </script>
