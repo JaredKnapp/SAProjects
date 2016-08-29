@@ -1,12 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Workload_model extends CI_Model{
-
-    protected $table = 'workloads';
+class Workload_model extends MY_Model{
 
     public function __construct(){
-        parent::__construct();
+        parent::__construct('workloads');
         $this->load->database();
     }
 

@@ -32,19 +32,32 @@ class ProjectTask_model extends MY_Model{
         return $query->result_array();
     }
 
-    public function set_projecttask($id = NULL, $projectsID = null, $effortOutputsID = NULL, $name = NULL, $desiredCompletionDate = NULL, $estimatedDueDate = NULL, $completionDate = NULL){
+    public function set_projecttask($id = NULL, $projectsID = null, $effortOutputsID = NULL, $projectedStartDate = NULL, $estimatedCompletionDate = NULL, $duration = NULL, $completionDate = NULL, $collateralURL = NULL){
+
         $data = array(
-            'projects_id' => $projectsID,
-            'effortoutputs_id' => $effortOutputsID,
-            'name' => $name,
-            'desired_completion_date' => is_null($desiredCompletionDate)?NULL:date('Y-m-d', strtotime($desiredCompletionDate)),
-            'estimated_due_date' => is_null($estimatedDueDate)?NULL:(date('Y-m-d', strtotime($estimatedDueDate))),
-            'completion_date' => is_null($completionDate)?NULL:date('Y-m-d', strtotime($completionDate)),
-            'created' => date("Y-m-d H:i:s"),
-            'modified' => date("Y-m-d H:i:s")
+            'id'                        => $id,
+            'effortoutputs_id'          => $effortOutputsID,
+            'projects_id'               => $projectsID,
+            'name'                      => '-see effort-',
+            'projected_start_date'      => empty($projectedStartDate) ? NULL : date('Y-m-d', strtotime($projectedStartDate)),
+            'estimated_completion_date' => empty($estimatedCompletionDate) ? NULL : (date('Y-m-d', strtotime($estimatedCompletionDate))),
+            'duration'                  => empty($duration) ? 0 : $duration,
+            'completion_date'           => empty($completionDate) ? NULL : date('Y-m-d', strtotime($completionDate)),
+            'collateralurl'             => $collateralURL,
+            'modified'                  => date("Y-m-d H:i:s")
         );
 
-        return $this->db->insert($this->table, $data);
+        if(!array_key_exists('id', $data) || empty($data['id'])){
+            $data['created'] = date("Y-m-d H:i:s");
+            if($this->db->insert($this->table, $data)){
+                $id = $this->db->insert_id();
+            }
+        } else {
+            $this->db->update($this->table, $data, array('id'=>$data['id']));
+            $id = $data['id'];
+        }
+
+        return $id;
     }
 
     public function delete_by_id($id){

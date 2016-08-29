@@ -2,8 +2,6 @@
 <script src="<?php echo $this->config->base_url('assets/js/sap-getprojecttaskdata.js'); ?>" type="text/javascript"></script>
 
 <script type="text/javascript">
-    var task_table = null;
-    var task_editor = null;
     var notechars_max = 10000;
 
     var edit_project_task_page = "<?php echo site_url('/architect/SAView/load_project_task'); ?>";
@@ -17,129 +15,159 @@
     }
 </style>
 
-<?php echo form_open('#', array('id'=>'form')); ?>
-<input type="hidden" value="" name="id" />
-<div class="form-body">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <?php echo form_label('Email Address *', 'author_email', array('class'=>'control-label')); ?>
-                <?php echo form_input(array('name'=>'author_email', 'placeholder'=>'Enter your email address...', 'class'=>'form-control required'), '', array('id'=>'author_email')); ?>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Industry *', 'industries_id', array('class'=>'control-label')); ?>
-                <?php echo form_dropdown('industries_id', array('' => 'Select One...') + $industries, '', 'class="form-control required" id="industry"'); ?>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Workload *', 'workloads_id', array('class'=>'control-label')); ?>
-                <?php echo form_dropdown('workloads_id', array('' => 'Select One...'), '', 'class="form-control required" id="workload"'); ?>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Product *', 'platforms_id', array('class'=>'control-label')); ?>
-                <?php echo form_dropdown('platforms_id', array('' => 'Select One...') + $platforms, '', 'class="form-control required" id="platform"'); ?>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Effort Target *', 'effort_target', array('class'=>'control-label')); ?>
-                <?php echo form_textarea(array('name'=>'effort_target', 'id'=>'effort_target', 'placeholder'=>'Enter a short description of this project...', 'class'=>'form-control form-control'), '');?>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Effort Justification *', 'effort_justification', array('class'=>'control-label')); ?>
-                <?php echo form_textarea(array('name'=>'effort_justification', 'id'=>'effort_justification', 'placeholder'=>'Explain why this project should be considered...', 'class'=>'form-control'), '');?>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Desired Completion Date *', 'desired_completion_date', array('class'=>'control-label')); ?>
-                <?php echo form_input(array('name'=>'desired_completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control required'), '', array('id'=>'desired_completion_date')); ?>
-                <script>$(function () { $('#desired_completion_date').datepicker(); });</script>
-                <span class="help-block"></span>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group">
-                <?php echo form_label('Status *', 'status', array('class'=>'control-label')); ?>
-                <?php echo form_dropdown('status', unserialize(SAP_STATUSLIST), '', 'class="form-control required" id="status"'); ?>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('SA *', 'sa_users_id', array('class'=>'control-label')); ?>
-                <?php echo form_dropdown('sa_users_id', array('' => 'Select One...') + $sausers, '', 'class="form-control required" id="platform"'); ?>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Projected Start Date', 'projected_start_date', array('class'=>'control-label')); ?>
-                <?php echo form_input(array('name'=>'projected_start_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), '', array('id'=>'projected_start_date')); ?>
-                <script>$(function () { $('#projected_start_date').datepicker(); });</script>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Estimated Completion Date', 'estimated_completion_date', array('class'=>'control-label')); ?>
-                <?php echo form_input(array('name'=>'estimated_completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), '', array('id'=>'estimated_completion_date')); ?>
-                <script>$(function () { $('#estimated_completion_date').datepicker(); });</script>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Estimated Work Days', 'estimated_work_days', array('class'=>'control-label')); ?>
-                <?php echo form_input(array('name'=>'estimated_work_days', 'class'=>'form-control'), '', array('id'=>'estimated_work_days')); ?>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Completion Date', 'completion_date', array('class'=>'control-label')); ?>
-                <?php echo form_input(array('name'=>'completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), '', array('id'=>'completion_date')); ?>
-                <script>$(function () { $('#completion_date').datepicker(); });</script>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group">
-                <?php echo form_label('Notes', 'notes', array('class'=>'control-label')); ?>
-                <?php echo form_textarea(array('name'=>'notes', 'id'=>'notes', 'placeholder'=>'Provide any additional information that may be relevant...', 'class'=>'form-control'), '');?>
-                <span class="help-block"></span>
-                <h6 class="pull-right" id="note_count_message"></h6>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6 ">
-            <div class="form-group">
-                <?php echo form_label('Effort Type *', 'efforttypes_id', array('class'=>'control-label')); ?>
-                <?php echo form_dropdown('efforttypes_id', array('' => 'Select One...') + $efforttypes, '', 'class="form-control required" id="efforttype"'); ?>
-                <span class="help-block"></span>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <?php echo form_label('Project Tasks:', 'projecttask_id'); ?>
-                    <label class="pull-right">
-                        <input type="checkbox" id="showallefforts" name="showallefforts" value="yes" checked />&nbsp;Show All Effort Choices
-                    </label>
+
+
+<ul class="nav nav-tabs">
+    <li class="active">
+        <a data-toggle="tab" href="#project_info_tab">Project</a>
+    </li>
+    <li>
+        <a data-toggle="tab" href="#project_notes_tab">Notes</a>
+    </li>
+</ul>
+
+
+<?php
+$hidden = array('id'=>$id);
+echo form_open('#', array('id'=>'project_form'), $hidden);
+?>
+<div class="tab-content">
+    <div id="project_info_tab" class="tab-pane fade in active">
+        <h3>Project Information</h3>
+        <div class="form-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <?php echo form_label('Email Address *', 'author_email', array('class'=>'control-label')); ?>
+                        <?php echo form_input(array('name'=>'author_email', 'placeholder'=>'Enter your email address...', 'class'=>'form-control required'), $author_email, array('id'=>'author_email')); ?>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Industry *', 'industries_id', array('class'=>'control-label')); ?>
+                        <?php echo form_dropdown('industries_id', array('' => 'Select One...') + $industries, $industries_id, 'class="form-control required" id="industry"'); ?>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Workload *', 'workloads_id', array('class'=>'control-label')); ?>
+                        <?php echo form_dropdown('workloads_id', array('' => 'Select One...'), $workloads_id, 'class="form-control required" id="workload"'); ?>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Product *', 'platforms_id', array('class'=>'control-label')); ?>
+                        <?php echo form_dropdown('platforms_id', array('' => 'Select One...') + $platforms, $platforms_id, 'class="form-control required" id="platform"'); ?>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Effort Target *', 'effort_target', array('class'=>'control-label')); ?>
+                        <?php echo form_textarea(array('name'=>'effort_target', 'id'=>'effort_target', 'placeholder'=>'Enter a short description of this project...', 'class'=>'form-control form-control'), $effort_target);?>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Effort Justification *', 'effort_justification', array('class'=>'control-label')); ?>
+                        <?php echo form_textarea(array('name'=>'effort_justification', 'id'=>'effort_justification', 'placeholder'=>'Explain why this project should be considered...', 'class'=>'form-control'), $effort_justification);?>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Desired Completion Date *', 'desired_completion_date', array('class'=>'control-label')); ?>
+                        <?php echo form_input(array('name'=>'desired_completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control required'), $desired_completion_date, array('id'=>'desired_completion_date')); ?>
+                        <span class="help-block"></span>
+                        <script>$(function () { $('#desired_completion_date').datepicker(); });</script>
+                    </div>
                 </div>
-                <div class="panel-body">
-                    <table id="task_table" class="table table-bordered table-condensed table-hover table-striped" cellpadding="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px; align-content:center;"></th>
-                                <th style="">Task</th>
-                                <th style="width: 200px;">Projected Start Date</th>
-                                <th style="width: 50px;">Work Days</th>
-                                <th style="width: 200px;">Estimated Completion Date</th>
-                                <th style="width: 200px;">Date Completed</th>
-                                <th style="width: 50px">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <?php echo form_label('Status *', 'status', array('class'=>'control-label')); ?>
+                        <?php echo form_dropdown('status', unserialize(SAP_STATUSLIST), $status, 'class="form-control required" id="status"'); ?>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('SA *', 'sa_users_id', array('class'=>'control-label')); ?>
+                        <?php echo form_dropdown('sa_users_id', array('' => 'Select One...') + $sausers, $sa_users_id, 'class="form-control required" id="platform"'); ?>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Projected Start Date', 'projected_start_date', array('class'=>'control-label')); ?>
+                        <?php echo form_input(array('name'=>'projected_start_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), $projected_start_date, array('id'=>'projected_start_date')); ?>
+                        <script>$(function () { $('#projected_start_date').datepicker(); });</script>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Estimated Completion Date', 'estimated_completion_date', array('class'=>'control-label')); ?>
+                        <?php echo form_input(array('name'=>'estimated_completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), $estimated_completion_date, array('id'=>'estimated_completion_date')); ?>
+                        <script>$(function () { $('#estimated_completion_date').datepicker(); });</script>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Estimated Work Days', 'estimated_work_days', array('class'=>'control-label')); ?>
+                        <?php echo form_input(array('name'=>'estimated_work_days', 'class'=>'form-control'), $estimated_work_days, array('id'=>'estimated_work_days')); ?>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <?php echo form_label('Completion Date', 'completion_date', array('class'=>'control-label')); ?>
+                        <?php echo form_input(array('name'=>'completion_date', 'placeholder'=>'mm/dd/yyyy', 'class'=>'form-control'), $completion_date, array('id'=>'completion_date')); ?>
+                        <script>$(function () { $('#completion_date').datepicker(); });</script>
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 ">
+                    <div class="form-group">
+                        <?php echo form_label('Effort Type *', 'efforttypes_id', array('class'=>'control-label')); ?>
+                        <?php echo form_dropdown('efforttypes_id', array('' => 'Select One...') + $efforttypes, $efforttypes_id, 'class="form-control required" id="efforttype"'); ?>
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <?php echo form_label('Project Tasks:', 'projecttask_id'); ?>
+                            <label class="pull-right">
+                                <input type="checkbox" id="showallefforts" name="showallefforts" value="yes" <?php echo $showallefforts_checked; ?> />&nbsp;Show All Effort Choices
+                            </label>
+                        </div>
+                        <div class="panel-body">
+                            <table id="task_table" class="table table-bordered table-condensed table-hover table-striped" cellpadding="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px; align-content:center;"></th>
+                                        <th style="">Task</th>
+                                        <th style="width: 200px;">Projected Start Date</th>
+                                        <th style="width: 50px;">Work Days</th>
+                                        <th style="width: 200px;">Estimated Completion Date</th>
+                                        <th style="width: 200px;">Date Completed</th>
+                                        <th style="width: 50px">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="project_notes_tab" class="tab-pane fade">
+        <h3>Project Notes</h3>
+        <div class="form-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <?php echo form_label('Notes', 'notes', array('class'=>'control-label')); ?>
+                        <?php echo form_textarea(array('name'=>'notes', 'id'=>'notes', 'placeholder'=>'Provide any additional information that may be relevant...', 'class'=>'form-control', 'style'=>'height: 700px;'), $notes);?>
+                        <span class="help-block"></span>
+                        <h6 class="pull-right" id="note_count_message"></h6>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <?php echo form_close(); ?>
+
+
 
 <script type="text/javascript">
 
@@ -156,10 +184,7 @@
             columns: [
                 {
                     data: null, defaultContent: '', orderable: false, render: function (data, type, row, meta) {
-                        var isNew = ("id" in row['task']) ? false : true;
-                        var isDefault = row['effort']['isdefault'] == 1;
-                        var checkedProp = (((isNew && isDefault) || row['is_selected'] == 1) ? 'checked' : '');
-
+                        var checkedProp = (row['is_selected'] == 1 ? 'checked' : '');
                         return "<input type='checkbox' id='effortoutput_" + row['effort']['id'] + "' name='effortoutput_" + row['effort']['id'] + "' value='" + row['effort']['id'] + "' " + checkedProp + " onchange='toggleTaskState(this, \"" + meta['row'] + "\")'/>";
                     }
                 },
@@ -214,6 +239,8 @@
             buildDetailTaskTable();
         });
 
+        getWorkload('<?php echo $workloads_id; ?>');
+        buildDetailTaskTable();
     });
 
     function toggleTaskState(cb, rowIndex) {
@@ -304,14 +331,11 @@
                     (("completion_date" in task) ? ('&completion_date=' + encodeURIComponent(task['completion_date'])) : '') +
                     (("collateral_url" in task) ? ('&collateral_url=' + encodeURIComponent(task['collateral_url'])) : '');
 
-                alert(pageToLoad + "?" + queryString);
-
                 message.load(pageToLoad + "?" + queryString);
-
                 return message;
             },
             buttons: [{
-                label: 'Save',
+                label: 'Update',
                 cssClass: 'btn-primary',
                 action: function (dialogItself) {
                     var rowIndex = $('input[name=t_rowindex]').val();
@@ -321,8 +345,6 @@
                     var duration = $('input[name=t_duration]').val();
                     var completion_date = $('input[name=t_completion_date]').val();
                     var collateral_url = $('input[name=t_collateral_url]').val();
-
-                    alert('hello');
 
                     var row = task_table.row(rowIndex);
                     var rowData = row.data();
@@ -341,7 +363,8 @@
                     dialogItself.close();
 
                 }
-            }, {
+            },
+            {
                 label: 'Close',
                 action: function (dialogItself) {
                     dialogItself.close();

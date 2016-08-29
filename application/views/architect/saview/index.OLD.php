@@ -642,6 +642,8 @@ foreach($platforms as $key=>$value){
             url = "<?php echo site_url('architect/SAView/ajax_update')?>";
         }
 
+        alert($('#form').serialize());
+
         $.ajax({
             url: url,
             type: "POST",

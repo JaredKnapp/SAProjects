@@ -20,14 +20,15 @@ class ListFactory extends MY_Controller {
         $data = $this->effortoutput->get(array('efforttypes_id'=>$efforttype_id));
 
         $output = '';
-        foreach ($data as $key=>$value)
+        foreach ($data as $value)
         {
 
             $description = ($value['name'] . ': ' . $value['duration'] . ' days' . (empty($value['produce']) ? '' : (' ('.$value['produce'].')')));
             $checked = $value['isdefault']=='1' ? 'checked' : '';
             $duration = $value['duration'];
+            $id = $value['id'];
 
-            $checkbox = "<input type='checkbox' name='effortoutputs_id[]' $checked value='$key' effort-duration='$duration'>";
+            $checkbox = "<input type='checkbox' name='effortoutputs_id[]' $checked value='$id' effort-duration='$duration'>";
             $output .= "<div class='checkbox'><label>$checkbox &nbsp" . $description . "</label></div>";
         }
 

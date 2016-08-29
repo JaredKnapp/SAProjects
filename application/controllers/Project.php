@@ -121,11 +121,9 @@ class Project extends MY_Controller {
                 );
                 $this->input->set_cookie($cookie);
 
-                $desiredDate = $this->input->post('desired_completion_date');
                 $effortoutputs = $this->input->post('effortoutputs_id');
-
-                foreach($effortoutputs as $key=>$value){
-                    $this->projecttask->set_projecttask(NULL, $projectId, $value, 'necessary??', $desiredDate);
+                foreach($effortoutputs as $effortId){
+                    $this->projecttask->set_projecttask(NULL, $projectId, $effortId);
                 }
             }
 

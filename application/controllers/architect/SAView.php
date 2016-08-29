@@ -17,6 +17,7 @@ class SAView extends MY_Controller {
         $this->load->model('EffortType_model', 'efforttype');
         $this->load->model('EffortOutput_model', 'effortoutput');
         $this->load->model('Industry_model', 'industry');
+        $this->load->model('Workload_model', 'workload');
         $this->load->model('Platform_model', 'platform');
         $this->load->model('User_model', 'user');
     }
@@ -49,6 +50,35 @@ class SAView extends MY_Controller {
         $data['platforms']                  = $this->platform->get_list();
         $data['sausers']                    = $this->user->get_salist();
         $data['efforttypes']                = $this->efforttype->get_list();
+
+        $id = $this->input->get('id');
+        $status = $this->input->get('newstatus');
+
+        $project                    = (!empty($id) ? $this->project->get_by_id($id) : null);
+        $workload                   = (!empty($project) ? $this->workload->get_by_id($project->workloads_id) : null);
+
+        $data['id']                 = (!empty($project) ? $project->id : '');
+        $data['priority']           = (!empty($project) ? $project->priority : '');
+        $data['priority_index']     = (!empty($project) ? $project->priority_index : '');
+        $data['status']             = (!empty($status) ? $status : (!empty($project) ? $project->status : ''));
+        $data['effort_target']      = (!empty($project) ? $project->effort_target : '');
+        $data['effort_justification']       = (!empty($project) ? $project->effort_justification : '');
+        $data['desired_completion_date']    = $this->_toMDY((!empty($project) ? $project->desired_completion_date : ''));
+        $data['projected_start_date']       = $this->_toMDY((!empty($project) ? $project->projected_start_date : ''));
+        $data['estimated_completion_date']  = $this->_toMDY((!empty($project) ? $project->estimated_completion_date : ''));
+        $data['estimated_work_days']        = (!empty($project) ? $project->estimated_work_days : '');
+        $data['completion_date']            = $this->_toMDY((!empty($project) ? $project->completion_date : ''));
+        $data['author_email']       = (!empty($project) ? $project->author_email : '');
+        $data['notes']              = (!empty($project) ? $project->notes : '');
+        $data['workloads_id']       = (!empty($project) ? $project->workloads_id : '');
+        $data['platforms_id']       = (!empty($project) ? $project->platforms_id : '');
+        $data['sa_users_id']        = (!empty($project) ? $project->sa_users_id : '');
+        $data['efforttypes_id']     = (!empty($project) ? $project->efforttypes_id : '');
+        $data['created']            = (!empty($project) ? $project->created : '');
+        $data['modified']           = (!empty($project) ? $project->modified : '');
+        $data['industries_id']      = (!empty($workload) ? $workload->industries_id : '');
+        $data['showallefforts_checked'] = (!empty($project) ? '' : 'checked');
+
 
         $this->load->view('architect/saview/edit_project', $data);
     }
@@ -202,10 +232,11 @@ class SAView extends MY_Controller {
                 $this->input->set_cookie($cookie);
 
                 $desiredDate = $this->input->post('desired_completion_date');
-                $effortoutputs = $this->input->post('effortoutputs_id');
+                $taskData = $this->input->post('task_data');
 
-                foreach($effortoutputs as $key=>$value){
-                    $this->projecttask->set_projecttask(NULL, $projectId, $value, 'necessary??', $desiredDate);
+                foreach($taskData as $taskString){
+                    $task = $this->_parseTask($taskString);
+                    $this->projecttask->set_projecttask($task['id'], $projectId, $task['effort_id'], $task['projected_start_date'], $task['estimated_completion_date'], $task['duration'], $task['completion_date'], $task['collateral_url']);
                 }
             }
 
@@ -240,25 +271,22 @@ class SAView extends MY_Controller {
             }
 
             $original = $this->project->get_by_id($this->input->post('id'));
-
             $projectId = $this->project->set_project($project);
             if($projectId){
 
-                $desiredDate = $this->input->post('desired_completion_date');
-                $effortoutputs = $this->input->post('effortoutputs_id');
+                $taskData = $this->input->post('task_data');
+                $taskIds = array();
 
                 //Add missing tasks
-                foreach($effortoutputs as $key=>$value){
-                    $current = $this->projecttask->get_projecttask(array('projects_id'=>$projectId, 'effortoutputs_id'=>$value));
-                    if(!$current){
-                        $this->projecttask->set_projecttask(NULL, $projectId, $value, 'necessary??', $desiredDate);
-                    }
+                foreach($taskData as $taskString){
+                    $task = $this->_parseTask($taskString);
+                    $taskIds[] = $this->projecttask->set_projecttask($task['id'], $projectId, $task['effort_id'], $task['projected_start_date'], $task['estimated_completion_date'], $task['duration'], $task['completion_date'], $task['collateral_url']);
                 }
 
                 //Delete removed tasks
                 $projecttasks = $this->projecttask->get_list(array('projects_id'=>$projectId));
                 foreach($projecttasks as $projecttask){
-                    if(!in_array($projecttask['effortoutputs_id'], $effortoutputs)){
+                    if(!in_array($projecttask['id'], $taskIds)){
                         $this->projecttask->delete_by_id($projecttask['id']);
                     }
                 }
@@ -371,15 +399,17 @@ class SAView extends MY_Controller {
         $output = array();
 
         $projectsId = $this->input->post('projects_id');
+        $isNew = empty($projectsId) ? true : false;
         $project = empty($projectsId) ? null : $this->project->get_by_id($projectsId);
         $projecttasks = empty($projectsId) ? array() : $this->projecttask->get(array('projects_id'=>$projectsId));
 
-        $efforttypesId = empty($this->input->post('efforttypes_id')) ? $project->efforttypes_id : $this->input->post('efforttypes_id');
+        $efforttypesId = empty($this->input->post('efforttypes_id')) ? (empty($project) ? '' : $project->efforttypes_id) : $this->input->post('efforttypes_id');
         $effortdata = $this->effortoutput->get(array('efforttypes_id'=>$efforttypesId));
 
         foreach($effortdata as $effort){
             $effortRow = array();
             $taskRow = array();
+            $isDefault = $effort['isdefault'] == 1 ? true : false;
 
             $effortRow['id'] = $effort['id'];
             $effortRow['name'] = $effort['name'];
@@ -411,7 +441,7 @@ class SAView extends MY_Controller {
             }
             $output[] = array(
                 'is_task'       => (array_key_exists('id', $taskRow) ? '1' : '0'),
-                'is_selected'   => (array_key_exists('id', $taskRow) ? '1' : '0'),  //Everything that is currently is a task should be selected
+                'is_selected'   => ( ( ( $isNew  && $isDefault ) || array_key_exists('id', $taskRow)) ? '1' : '0'),  //Everything that is currently is a task should be selected
                 'effort'        => $effortRow,
                 'task'          => $taskRow);
         }
@@ -431,6 +461,48 @@ class SAView extends MY_Controller {
             $data['error_string'][] = 'Email Address is required';
             $data['status'] = FALSE;
         }
+        if($this->input->post('industries_id') == ''){
+            $data['inputerror'][] = 'industries_id';
+            $data['error_string'][] = 'Industry is required';
+            $data['status'] = FALSE;
+        }
+        if($this->input->post('workloads_id') == ''){
+            $data['inputerror'][] = 'workloads_id';
+            $data['error_string'][] = 'Workload is required';
+            $data['status'] = FALSE;
+        }
+        if($this->input->post('platforms_id') == ''){
+            $data['inputerror'][] = 'platforms_id';
+            $data['error_string'][] = 'Product is required';
+            $data['status'] = FALSE;
+        }
+        if($this->input->post('effort_target') == ''){
+            $data['inputerror'][] = 'effort_target';
+            $data['error_string'][] = 'Effort Target is required';
+            $data['status'] = FALSE;
+        }
+        if($this->input->post('effort_justification') == ''){
+            $data['inputerror'][] = 'effort_justification';
+            $data['error_string'][] = 'Effort Justification is required';
+            $data['status'] = FALSE;
+        }
+        if($this->input->post('desired_completion_date') == ''){
+            $data['inputerror'][] = 'desired_completion_date';
+            $data['error_string'][] = 'Desired Completion Date is required';
+            $data['status'] = FALSE;
+        }
+        if($this->input->post('efforttypes_id') == ''){
+            $data['inputerror'][] = 'efforttypes_id';
+            $data['error_string'][] = 'Effort Type is required';
+            $data['status'] = FALSE;
+        }
+        if($this->input->post('efforttypes_id') == ''){
+            $data['inputerror'][] = 'efforttypes_id';
+            $data['error_string'][] = 'Effort Type is required';
+            $data['status'] = FALSE;
+        }
+
+
 
         if($data['status'] === FALSE)
         {
@@ -439,7 +511,18 @@ class SAView extends MY_Controller {
         return $data['status'];
     }
 
-    private function _toMDY($date){
+    private function _parseTask($taskString){
+        $task = array();
+        $taskfields = explode('~~', $taskString);
+        foreach($taskfields as $fieldString){
+            $taskFieldArray = explode('|', $fieldString);
+            $task[$taskFieldArray[0]] = $taskFieldArray[1];
+        }
+
+        return $task;
+    }
+
+    private function _toMDY($date, $interval = 0){
         if($date){
             $datetimearray = explode(' ', $date);
             $datearray = explode('-', $datetimearray[0]);

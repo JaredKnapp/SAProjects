@@ -2,15 +2,20 @@
 <script src="<?php echo $this->config->base_url('assets/js/sap-getprojecttaskdata.js'); ?>" type="text/javascript"></script>
 
 <script type="text/javascript">
-    var filter_accordion;
-    var table;
-    var timeoutHandle;
+    var filter_accordion = null;
+    var table = null;
+    var task_table = null;
+    var timeoutHandle = null;
 
     var edit_project_page = "<?php echo site_url('/architect/SAView/load_project'); ?>";
 
     var ajax_projectlist_url = "<?php echo site_url('architect/SAView/ajax_list'); ?>";
     var ajax_reorder_url = "<?php echo site_url('architect/SAView/ajax_reorder'); ?>";
     var ajax_tasktable_url = "<?php echo site_url('architect/SAView/ajax_gettasktable'); ?>";
+    var ajax_addproject_url = "<?php echo site_url('architect/SAView/ajax_add')?>";
+    var ajax_updateproject_url = "<?php echo site_url('architect/SAView/ajax_update')?>";
+    var ajax_deleteproject_url = "<?php echo site_url('architect/SAView/ajax_delete')?>";
+    var ajax_deferproject_url = "<?php echo site_url('architect/SAView/ajax_defer')?>";
 
 </script>
 
@@ -215,10 +220,10 @@
                 {
                     "name": "actions", "targets": 17, "orderable": false, "width": "100px",
                     "render": function (data, type, row) {
-                        editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="edit_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
-                        deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="delete_project(\'' + row[1] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
-                        approveButton = (row[16] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="edit_project(\'' + row[1] + '\', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>' : false;
-                        deferButton = (row[16] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="defer_project(\'' + row[2] + '\')"><i class="glyphicon glyphicon-thumbs-down"></i></a>' : false;
+                        editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="editProjectRequest(\'' + row[1] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
+                        deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="deleteProject(\'' + row[1] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
+                        approveButton = (row[16] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="editProjectRequest(\'' + row[1] + '\', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>' : false;
+                        deferButton = (row[16] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="deferProject(\'' + row[1] + '\')"><i class="glyphicon glyphicon-thumbs-down"></i></a>' : false;
                         notesButton = (row[12]) ? '<a href="#" class="btn btn-sm btn-info" href="javascript:void(0)" data-toggle="popover" data-html="true" data-trigger="focus" title="Project Notes" data-content="' + (row[12]).replace(/(\r\n|\n|\r)/g, "<br />") + '"><i class="glyphicon glyphicon-info-sign"></i></a>' : false;
                         return editButton + '&nbsp;' + deleteButton + (approveButton ? (' ' + approveButton) : '') + (deferButton ? (' ' + deferButton) : '') + (notesButton ? (' ' + notesButton) : '');
                     }
@@ -416,7 +421,6 @@ foreach($platforms as $key=>$value){
             var row = table.row(tr);
 
             if (row.child.isShown()) {
-                // This row is already open - close it
                 row.child.hide();
                 icon.removeClass('glyphicon-triangle-bottom');
                 icon.addClass('glyphicon-triangle-right');
@@ -429,13 +433,21 @@ foreach($platforms as $key=>$value){
 
     });  //<-- END Document Ready Function
 
+    function buildLinkedText(linkText, linkURL) {
+        if (linkURL) {
+            return '<a href="' + linkURL + '" target="_blank">' + linkText + '</a>';
+        } else {
+            return linkText
+        }
+    }
+
     function reloadTable() {
         table.ajax.reload(null, false);
     }
 
     function searchChanged() {
         window.clearTimeout(timeoutHandle);
-        timeoutHandle = window.setTimeout(reload_table, 2000);
+        timeoutHandle = window.setTimeout(reloadTable, 2000);
     }
 
     function formatProjectChildrowData(control, data) {
@@ -461,7 +473,7 @@ foreach($platforms as $key=>$value){
 
             if (task && task['id']) {
                 rowData += '<tr>';
-                rowData += '<td>' + effort['name'] + '</td>';
+                rowData += '<td>' + buildLinkedText(effort['name'], task['collateralurl']) + '</td>';
                 rowData += '<td>' + effort['produce'] + '</td>';
                 rowData += '<td>' + task['projected_start_date'] + '</td>';
                 rowData += '<td>' + task['estimated_completion_date'] + '</td>';
@@ -481,20 +493,144 @@ foreach($platforms as $key=>$value){
     }
 
     function addProjectRequest() {
+        loadProject('add', null, null);
+    }
+
+    function editProjectRequest(id, newStatus) {
+        loadProject('edit', id, newStatus);
+    }
+
+    function loadProject(editMode, id, newStatus) {
         BootstrapDialog.show({
             cssClass: 'project-dialog',
             draggable: true,
-            title: 'Add Project',
-            message: function (dialog) {
+            title: editMode == 'add' ? 'Add Project Request' : 'Edit Project Request',
+            message: function (dialogRef) {
                 var $message = $('<div><center><i class="icon-spinner icon-spin icon-large"></i>Loading...</center></div>');
-                var pageToLoad = dialog.getData('pageToLoad');
+                var pageToLoad = dialogRef.getData('pageToLoad');
+                var url = pageToLoad;
                 $message.load(pageToLoad);
 
                 return $message;
             },
+            buttons: [{
+                label: 'Save',
+                cssClass: 'btn-primary',
+                action: function (dialogRef) {
+                    var formData = $('#project_form').serialize();
+                    var tableData = task_table.data();
+
+                    $.each(tableData, function (index, value) {
+                        if (value['is_selected'] == 1) {
+                            var taskString = "effort_id|" + value['effort']['id'];
+                            var task = value['task'];
+
+                            taskString += '~~id|' + (task['id'] ? task['id'] : '');
+                            taskString += '~~projected_start_date|' + (task['projected_start_date'] ? task['projected_start_date'] : '');
+                            taskString += '~~estimated_completion_date|' + (task['estimated_completion_date'] ? task['estimated_completion_date'] : '');
+                            taskString += '~~duration|' + (task['duration'] ? task['duration'] : '');
+                            taskString += '~~completion_date|' + (task['completion_date'] ? task['completion_date'] : '');
+                            taskString += '~~collateral_url|' + (task['collateral_url'] ? task['collateral_url'] : '');
+
+                            formData += "&task_data%5B%5D=" + encodeURIComponent(taskString);
+                        }
+                    });
+
+                    this.spin();
+                    dialogRef.enableButtons(false);
+                    dialogRef.setClosable(false);
+
+                    saveProjectData(dialogRef, this, editMode, formData);
+
+                }
+            },
+            {
+                label: 'Close',
+                action: function (dialogRef) {
+                    dialogRef.close();
+                }
+            }],
+            onshow: function (dialogRef) {
+
+            },
+            onshown: function (dialogRef) {
+
+            },
             data: {
-                'pageToLoad': edit_project_page
+                'pageToLoad': edit_project_page + (editMode == 'add' ? '' : ('?id=' + id)) + (newStatus ? ('&newstatus=' + newStatus) : ''),
             }
         });
+    }
+
+    function saveProjectData(dialogRef, button, saveMethod, jsonProjectData) {
+        var url = (saveMethod == 'add') ? ajax_addproject_url : ajax_updateproject_url;
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: jsonProjectData,
+            dataType: "JSON",
+            success: function (data) {
+
+                if (data.status) {
+                    dialogRef.close();
+                    reloadTable();
+                } else {
+                    for (var i = 0; i < data.inputerror.length; i++) {
+                        $('[name="' + data.inputerror[i] + '"]').parent().parent().addClass('has-error');
+                        $('[name="' + data.inputerror[i] + '"]').next().text(data.error_string[i]);
+                    }
+                }
+
+                dialogRef.enableButtons(true);
+                dialogRef.setClosable(true);
+                button.stopSpin();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+                alert('Error adding / update data (' + (errorThrown ? errorThrown : 'unknown') + ')');
+
+                dialogRef.enableButtons(true);
+                dialogRef.setClosable(true);
+                button.stopSpin();
+            }
+        });
+    }
+
+    function deferProject(id) {
+        if (confirm('Are you sure you wish to defer this Project Request for later?')) {
+            $.ajax({
+                url: ajax_deferproject_url + '/' + id,
+                type: "POST",
+                dataType: "JSON",
+                success: function (data) {
+                    //if success reload ajax table
+                    $('#modal_form').modal('hide');
+                    reloadTable();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('Error deferring Project Request');
+                }
+            });
+
+        }
+    }
+
+    function deleteProject(id) {
+        if (confirm('Are you sure you wish to delete this Project Request?')) {
+            $.ajax({
+                url: ajax_deleteproject_url + '/' +id,
+                type: "POST",
+                dataType: "JSON",
+                success: function (data) {
+                    //if success reload ajax table
+                    reloadTable();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('Error deleting Project Request');
+                }
+            });
+
+        }
     }
 </script>
