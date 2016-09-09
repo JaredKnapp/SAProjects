@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class NowNextAfter extends MY_Controller {
 
     var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
-    var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
+    var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.status');
     var $where          = array();
     var $order          = array('industries.name'=>'ASC', 'platforms.sortorder'=>'ASC', 'priority_index'=>'ASC');
 
@@ -66,6 +66,12 @@ class NowNextAfter extends MY_Controller {
         $index = $this->input->post('start');
         foreach($list as $project){
 
+            $projectedStartDate = preg_match('/^0000-00-00/', $project->projected_start_date) ? '' : $this->_toMDY($project->projected_start_date);
+            $projectEstimatedCompletionDate = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
+            $taskEstimatedCompletionDate = preg_match('/^0000-00-00/', $project->task_estimated_completion_date) ? '' : $this->_toMDY($project->task_estimated_completion_date);
+            $estimatedCompletionDate = !null_or_empty($projectEstimatedCompletionDate) ? "$projectEstimatedCompletionDate!$taskEstimatedCompletionDate" : $taskEstimatedCompletionDate;
+            $duration = ($project->estimated_work_days > 0) ? "$project->estimated_work_days!$project->task_duration" : $project->task_duration;
+
             $nameArr = explode('||', $project->effort_output);
             $produceArr = explode('||', $project->effort_output_produce);
             $durationArr = explode('||', $project->effort_output_duration);
@@ -73,7 +79,11 @@ class NowNextAfter extends MY_Controller {
             $taskArr = array();
             $arrayIndex = 0;
             for($arrayIndex = 0; $arrayIndex < count($nameArr); $arrayIndex++){
-                $taskArr[] = $nameArr[$arrayIndex] . ': ' . $durationArr[$arrayIndex] . ' days' . (empty($produceArr[$arrayIndex])?'':'. (' . $produceArr[$arrayIndex] . ')');
+                if(!null_or_empty($nameArr[$arrayIndex])){
+                    $taskArr[] = $nameArr[$arrayIndex] .
+                        ($arrayIndex >= count($durationArr) || null_or_empty($durationArr[$arrayIndex]) ? ''    : ( ': ' . $durationArr[$arrayIndex] . ' days')) .
+                        ($arrayIndex >= count($produceArr) || null_or_empty($produceArr[$arrayIndex])  ? ''    : ( ' (' . $produceArr[$arrayIndex] . ')'));
+                }
             }
 
 
@@ -89,7 +99,7 @@ class NowNextAfter extends MY_Controller {
             $row[] = '<ul style="margin-left: 5px;"><li>'.implode('</li><li>', $taskArr).'</li></ul>';
             $row[] = $project->effort_justification;
             $row[] = $project->notes;
-            $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
+            $row[] = $estimatedCompletionDate;
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : '';
 
             $data[] = $row;

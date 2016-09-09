@@ -23,6 +23,10 @@
     .project-dialog .modal-dialog {
         width: 1200px;
     }
+
+    .project-notes-dialog .modal-dialog {
+        width: 500px;
+    }
 </style>
 
 <button class="btn btn-success" onclick="addProjectRequest()">
@@ -92,18 +96,15 @@
     <thead>
         <tr>
             <th></th>
-            <th>id</th>
+            <th>SAPID</th>
             <th class="search-industry">Industry</th>
             <th class="search-sauser">SA</th>
             <th class="search-priority">Priority</th>
-            <th>Priority Index</th>
             <th class="search-input">Workload</th>
             <th class="search-platform">Product</th>
             <th class="search-input">Effort Target</th>
             <th class="search-efforttype">Effort Type</th>
-            <th class="search-input">Effort Output</th>
             <th class="search-input">Effort Justification</th>
-            <th>Notes</th>
             <th>Projected Start</th>
             <th>Estimated Completion</th>
             <th>Duration (Work Days)</th>
@@ -115,18 +116,15 @@
     <tfoot>
         <tr>
             <td></td>
-            <th>id</th>
+            <th></th>
             <th>Industry</th>
             <th>SA</th>
             <th>Priority</th>
-            <th></th>
             <th>Workload</th>
             <th>Product</th>
             <th>Effort Target</th>
             <th>Effort Type</th>
-            <th>Effort Output</th>
             <th>Effort Justification</th>
-            <th>Notes</th>
             <th></th>
             <th></th>
             <th></th>
@@ -154,6 +152,7 @@
             serverSide: true,
             ordering: false,
             searching: true,
+            rowId: 'id',
             rowReorder: { selector: 'td:nth-child(2)' },
             ajax: {
                 url: ajax_projectlist_url,
@@ -165,30 +164,49 @@
                 },
                 type: "POST"
             },
-            columnDefs: [
+            columns: [
                 {
-                    "name": "details", "targets": 0, "orderable": false, "className": 'details-control center-vertical center-horizontal', "width": '20px',
-                    "render": function (data, type, row) {
-                        return '<i id="details-twisty" class="details-control-icon glyphicon glyphicon-triangle-right" data-toggle="tooltip" title="Show Project Tasks" placement="bottom" style="cursor: pointer;"></i>';
+                    data: null, className: 'details-control center-vertical center-horizontal',
+                    defaultContent: '<i id="details-twisty" class="details-control-icon glyphicon glyphicon-triangle-right" data-toggle="tooltip" title="Show Project Tasks" placement="bottom" style="cursor: pointer;"></i>'
+                },
+                { data: "sapid", className: "reorder dragable" },
+                { data: "industry", name: "industries.name" },
+                { data: "sa", name: "sa_users_id" },
+                { data: "priority", name: "priority" },
+                { data: "workload", name: "workloads.name" },
+                { data: "platform", name: "platforms.name" },
+                { data: "effort_target", name: "effort_target" },
+                { data: "effort_type", name: "efforttypes.name" },
+                { data: "effort_justification", name: "effort_justification" },
+                { data: "projected_start_date", name: "projected_start_date" },
+                {
+                    name: "estimated_completion_date",
+                    data: "estimated_completion_date",
+                    render: function (data, type, row, meta) {
+                        if (data) {
+                            dataArray = String(data).split("!");
+                            if (dataArray.length == 1) {
+                                return data;
+                            } else {
+                                message = 'Latest task completion date = ' + dataArray[1];
+                                if (!dataArray[1]) {
+                                    message = 'No date set for any of the tasks.'
+                                }
+                                else if (dataArray[0] == dataArray[1]) {
+                                    message = 'Value matches latest task completion date (' + dataArray[1] + ').';
+                                }
+                                return '<div>' + dataArray[0] + '&nbsp;<i class="glyphicon glyphicon-comment" aria-hidden="true"  data-toggle="popover" data-html="true" data-trigger="focus" title="Overridden Value" data-content="' + message + '." style="cursor: pointer;"></i></div>';
+                            }
+                        }
+                        else {
+                            return '';
+                        }
                     }
                 },
-                { "name": "id", "targets": 1, "visible": false, "searchable": false },
-                { "name": "industries.name", "targets": 2, "orderable": true, "className": "reorder dragable", "width": "30px" },
-                { "name": "sa_users_id", "targets": 3, "orderable": false },
-                { "name": "priority", "targets": 4, "orderable": false },
-                { "name": "priority_index", "visible": false, "targets": 5, "orderable": false },
-                { "name": "workloads.name", "targets": 6, "orderable": false },
-                { "name": "platforms.name", "targets": 7, "orderable": false },
-                { "name": "effort_target", "targets": 8, "orderable": false },
-                { "name": "efforttypes.name", "targets": 9, "orderable": false },
-                { "name": "vflatprojecttasks.effortoutput", "targets": 10, "visible": false, "orderable": false },
-                { "name": "effort_justification", "targets": 11, "orderable": false },
-                { "name": "notes", "targets": 12, "visible": false, "orderable": false },
-                { "name": "projected_start_date", "targets": 13, "orderable": true },
-                { "name": "estimated_complete_date", "targets": 14, "orderable": false },
                 {
-                    "name": "estimated_work_days", "targets": 15, "orderable": false,
-                    "render": function (data, type, row) {
+                    name: "estimated_work_days",
+                    data: "duration",
+                    render: function (data, type, row) {
                         if (data) {
                             dataArray = String(data).split("!");
                             if (dataArray.length == 1) {
@@ -203,8 +221,10 @@
                     }
                 },
                 {
-                    "name": "status", "targets": 16, "orderable": false, "className": "center-vertical center-horizontal",
-                    "render": function (data, type, row) {
+                    name: "status",
+                    data: "status",
+                    className: "center-vertical center-horizontal",
+                    render: function (data, type, row) {
                         labelStyle = 'label-default';
 
                         if (data === '<?php echo $statusList['draft']; ?>') labelStyle = 'label-default';
@@ -218,13 +238,13 @@
                     }
                 },
                 {
-                    "name": "actions", "targets": 17, "orderable": false, "width": "100px",
-                    "render": function (data, type, row) {
-                        editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="editProjectRequest(\'' + row[1] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
-                        deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="deleteProject(\'' + row[1] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
-                        approveButton = (row[16] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="editProjectRequest(\'' + row[1] + '\', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>' : false;
-                        deferButton = (row[16] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="deferProject(\'' + row[1] + '\')"><i class="glyphicon glyphicon-thumbs-down"></i></a>' : false;
-                        notesButton = (row[12]) ? '<a href="#" class="btn btn-sm btn-info" href="javascript:void(0)" data-toggle="popover" data-html="true" data-trigger="focus" title="Project Notes" data-content="' + (row[12]).replace(/(\r\n|\n|\r)/g, "<br />") + '"><i class="glyphicon glyphicon-info-sign"></i></a>' : false;
+                    data: null,
+                    render: function (data, type, row) {
+                        editButton = '<a class="btn btn-sm btn-success" href="javascript:void(0)" title="Edit" onclick="editProjectRequest(\'' + data['id'] + '\')"><i class="glyphicon glyphicon-pencil"></i></a>';
+                        deleteButton = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" title="Delete" onclick="deleteProject(\'' + data['id'] + '\')"><i class="glyphicon glyphicon-trash"></i></a>';
+                        approveButton = (data['status'] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Approve" onclick="editProjectRequest(\'' + data['id'] + '\', \'approved\')"><i class="glyphicon glyphicon-thumbs-up"></i></a>' : false;
+                        deferButton = (data['status'] === '<?php echo $statusList[SAP_DEFAULTSTATUS] ?>') ? '<a class="btn btn-sm btn-info" href="javascript:void(0)" title="Defer" onclick="deferProject(\'' + data['id'] + '\')"><i class="glyphicon glyphicon-thumbs-down"></i></a>' : false;
+                        notesButton = (data['notes']) ? '<a href="#" class="btn btn-sm btn-info" href="javascript:void(0)" data-toggle="popover" data-html="true" data-trigger="focus" title="Project Notes" data-content="' + (data['notes']).replace(/(\r\n|\n|\r)/g, "<br />") + '"><i class="glyphicon glyphicon-info-sign"></i></a>' : false;
                         return editButton + '&nbsp;' + deleteButton + (approveButton ? (' ' + approveButton) : '') + (deferButton ? (' ' + deferButton) : '') + (notesButton ? (' ' + notesButton) : '');
                     }
                 }
@@ -362,18 +382,22 @@ foreach($platforms as $key=>$value){
 
         table.on('row-reorder', function (e, diff, edit) {
             if (diff.length > 0) {
-                var result = 'Reorder started on row: ' + edit.triggerRow.data()[1] + ' Status: ' + edit.triggerRow.data()[14] + '\n';
 
-                var triggerId = edit.triggerRow.data()[1];
-                var status = edit.triggerRow.data()[14];
+                var result = 'Reorder started on row: ' + edit.triggerRow.data()['sapid'] + ' Status: ' + edit.triggerRow.data()['status'] + '\n';
 
-                var data = 'key=' + edit.triggerRow.data()[1];
+                var triggerId = edit.triggerRow.data()['id'];
+                var status = edit.triggerRow.data()['status'];
+
+                var data = 'key=' + edit.triggerRow.data()['id'];
 
                 for (var i = 0, ien = diff.length ; i < ien ; i++) {
                     var rowData = table.row(diff[i].node).data();
 
-                    result += rowData[1] + ' updated to be in position ' + diff[i].newData + ' (was ' + diff[i].oldData + ')\n';
-                    data += ('&' + rowData[1] + '=' + diff[i].newData);
+                    var oldData = table.row(diff[i].oldPosition).data();
+                    var newData = table.row(diff[i].newPosition).data();
+
+                    result += rowData['id'] + ' updated to be in position ' + newData['id'] + ' (was ' + oldData['id'] + ')\n';
+                    data += ('&' + rowData['id'] + '=' + newData['id']);
                 }
 
                 //if (confirm('Reorder this Project Request?\n' + result)) {
@@ -427,7 +451,7 @@ foreach($platforms as $key=>$value){
             } else {
                 var control = { row: row, icon: icon };
                 var data = row.data();
-                getProjectTaskData(ajax_tasktable_url, control, data[1], null, formatProjectChildrowData);
+                getProjectTaskData(ajax_tasktable_url, control, data['id'], null, formatProjectChildrowData);
             }
         });
 
@@ -619,7 +643,7 @@ foreach($platforms as $key=>$value){
     function deleteProject(id) {
         if (confirm('Are you sure you wish to delete this Project Request?')) {
             $.ajax({
-                url: ajax_deleteproject_url + '/' +id,
+                url: ajax_deleteproject_url + '/' + id,
                 type: "POST",
                 dataType: "JSON",
                 success: function (data) {

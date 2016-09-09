@@ -2,11 +2,15 @@
 <script src="<?php echo $this->config->base_url('assets/js/sap-getprojecttaskdata.js'); ?>" type="text/javascript"></script>
 
 <script type="text/javascript">
+    var noteshistorytable = null;
     var notechars_max = 10000;
 
     var edit_project_task_page = "<?php echo site_url('/architect/SAView/load_project_task'); ?>";
 
     var ajax_workload_url = "<?php echo site_url('ListFactory/GetWorkloadDropdown');?>";
+    var ajax_projectnotes_url = "<?php echo site_url('architect/SAView/ajax_getprojectnotes'); ?>";
+
+
 </script>
 
 <style>
@@ -14,8 +18,6 @@
         width: 700px;
     }
 </style>
-
-
 
 <ul class="nav nav-tabs">
     <li class="active">
@@ -33,14 +35,17 @@ echo form_open('#', array('id'=>'project_form'), $hidden);
 ?>
 <div class="tab-content">
     <div id="project_info_tab" class="tab-pane fade in active">
-        <h3>Project Information</h3>
+        <h3>Project Information<?php echo ($sapid ? " for SAPID $sapid" : ''); ?></h3>
         <div class="form-body">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <?php echo form_label('Email Address *', 'author_email', array('class'=>'control-label')); ?>
-                        <?php echo form_input(array('name'=>'author_email', 'placeholder'=>'Enter your email address...', 'class'=>'form-control required'), $author_email, array('id'=>'author_email')); ?>
-                        <span class="help-block"></span>
+                        <div class="input-group">
+                            <span class="input-group-addon">@</span>
+                            <?php echo form_input(array('name'=>'author_email', 'placeholder'=>'Enter your email address...', 'class'=>'form-control required'), $author_email, array('id'=>'author_email')); ?>
+                            <span class="help-block"></span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <?php echo form_label('Industry *', 'industries_id', array('class'=>'control-label')); ?>
@@ -155,11 +160,24 @@ echo form_open('#', array('id'=>'project_form'), $hidden);
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
-                        <?php echo form_label('Notes', 'notes', array('class'=>'control-label')); ?>
-                        <?php echo form_textarea(array('name'=>'notes', 'id'=>'notes', 'placeholder'=>'Provide any additional information that may be relevant...', 'class'=>'form-control', 'style'=>'height: 700px;'), $notes);?>
+                        <?php echo form_label('New Comments:', 'notes', array('class'=>'control-label')); ?>
+                        <?php echo form_textarea(array('name'=>'notes', 'id'=>'notes', 'placeholder'=>'Provide any additional information that may be relevant...', 'class'=>'form-control'), '');?>
                         <span class="help-block"></span>
                         <h6 class="pull-right" id="note_count_message"></h6>
                     </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="notes_history_table" class="table table-bordered table-condensed table-hover table-striped" cellpadding="0" width="100%">
+                        <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>History:</td>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -172,6 +190,35 @@ echo form_open('#', array('id'=>'project_form'), $hidden);
 <script type="text/javascript">
 
     $(document).ready(function () {
+
+        noteshistorytable = $('#notes_history_table').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: true,
+            scrollY: "500px",
+            scrollCollapse: true,
+            paging: false,
+            ajax: {
+                url: ajax_projectnotes_url,
+                data: function (data) {
+                    data.projects_id = $("input[name='id']").val();
+                },
+                type: "POST"
+            },
+            columns: [
+                { data: "id", "visible": false },
+                {
+                    data: null, defaultContent: '', render: function (data, type, row, meta) {
+                        var modDatePieces = row['modified'].split(/[- :]/);
+                        var modDate = new Date(Date.UTC(modDatePieces[0], modDatePieces[1] - 1, modDatePieces[2], modDatePieces[3], modDatePieces[4], modDatePieces[5]));
+
+                        var user = row['user'];
+                        return '<strong>' + (user==null ? 'anonymous' : user) + '</strong><br />' + row['notes'] + '<br />' + modDate.toLocaleDateString() + ' ' + modDate.toLocaleTimeString(); // dd,yyyy hh:mm tt');
+                    }
+                }
+            ]
+        });
 
         task_table = $('#task_table').DataTable({
             rowId: 'effort_id',

@@ -6,6 +6,7 @@ class ProjectTask_model extends MY_Model{
     public function __construct(){
         parent::__construct('projecttasks');
         $this->load->database();
+        $this->load->helper('string');
     }
 
     public function get_projecttask($where){
@@ -39,29 +40,24 @@ class ProjectTask_model extends MY_Model{
             'effortoutputs_id'          => $effortOutputsID,
             'projects_id'               => $projectsID,
             'name'                      => '-see effort-',
-            'projected_start_date'      => empty($projectedStartDate) ? NULL : date('Y-m-d', strtotime($projectedStartDate)),
-            'estimated_completion_date' => empty($estimatedCompletionDate) ? NULL : (date('Y-m-d', strtotime($estimatedCompletionDate))),
-            'duration'                  => empty($duration) ? 0 : $duration,
-            'completion_date'           => empty($completionDate) ? NULL : date('Y-m-d', strtotime($completionDate)),
+            'projected_start_date'      => null_or_empty($projectedStartDate) ? NULL : date('Y-m-d', strtotime($projectedStartDate)),
+            'estimated_completion_date' => null_or_empty($estimatedCompletionDate) ? NULL : (date('Y-m-d', strtotime($estimatedCompletionDate))),
+            'duration'                  => null_or_empty($duration) ? 0 : $duration,
+            'completion_date'           => null_or_empty($completionDate) ? NULL : date('Y-m-d', strtotime($completionDate)),
             'collateralurl'             => $collateralURL,
             'modified'                  => date("Y-m-d H:i:s")
         );
 
-        if(!array_key_exists('id', $data) || empty($data['id'])){
+        if(null_or_empty($id)){
             $data['created'] = date("Y-m-d H:i:s");
             if($this->db->insert($this->table, $data)){
                 $id = $this->db->insert_id();
             }
         } else {
-            $this->db->update($this->table, $data, array('id'=>$data['id']));
-            $id = $data['id'];
+            $this->db->update($this->table, $data, array('id'=>$id));
         }
 
         return $id;
     }
 
-    public function delete_by_id($id){
-        $this->db->where('id', $id);
-        $this->db->delete($this->table);
-    }
 }

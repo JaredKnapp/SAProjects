@@ -1,3 +1,9 @@
+
+<style>
+    .project-notes-dialog .modal-dialog {
+        width: 700px;
+    }
+</style>
 <br />
 <table id="table" class="table table-hover table-striped table-bordered" cellspacing="0" width="100%">
     <thead>
@@ -14,6 +20,9 @@
             <th class="search-input">Notes</th>
             <th>Estimated Complete Date</th>
             <th class="search-status">Status</th>
+            <th class="search-status">
+                <!--Buttons-->
+            </th>
         </tr>
     </thead>
     <tfoot>
@@ -31,6 +40,9 @@
             <th>
                 <!--Estimated Complete Date-->
             </th>
+            <th>
+                <!--Buttons-->
+            </th>
             <th>Status</th>
         </tr>
     </tfoot>
@@ -38,6 +50,7 @@
 </table>
 <script type="text/javascript">
     var table;
+    var load_projectnotes_page = "<?php echo site_url('/Project/load_notes'); ?>";
 
     $(document).ready(function () {
         table = $('#table').DataTable({
@@ -60,9 +73,37 @@
                 { "name": "efforttypes.name", "targets": 6 },
                 { "name": "vflatprojecttasks.effortoutput", "targets": 7 },
                 { "name": "effort_justification", "targets": 8 },
-                { "name": "notes", "targets": 9 },
-                { "name": "estimated_complete_date", "targets": 10 },
-                { "name": "status", "targets": 11 }
+                { "name": "notes", "targets": 9, visible: false },
+                {
+                    "name": "estimated_complete_date", "targets": 10, "orderable": false,
+                    "render": function (data, type, row, meta) {
+                        if (data) {
+                            dataArray = String(data).split("!");
+                            if (dataArray.length == 1) {
+                                return data;
+                            } else {
+                                message = 'Latest task completion date = ' + dataArray[1];
+                                if (!dataArray[1]) {
+                                    message = 'No date set for any of the tasks.'
+                                }
+                                else if (dataArray[0] == dataArray[1]) {
+                                    message = 'Value matches latest task completion date (' + dataArray[1] + ').';
+                                }
+                                return '<div>' + dataArray[0] + '&nbsp;<i class="glyphicon glyphicon-comment" aria-hidden="true"  data-toggle="popover" data-html="true" data-trigger="focus" title="Overridden in Project" data-content="' + message + '." style="cursor: pointer;"></i></div>';
+                            }
+                        }
+                        else {
+                            return '';
+                        }
+                    }
+                },
+                { "name": "status", "targets": 11 },
+                {
+                    "name": "", targets: 12,
+                    "render": function (data, type, row) {
+                        return (row[9]) ? '<a href="#" onclick="loadNotes(\'' + row[12] + '\')" class="btn btn-sm btn-info" data-toggle="popover" data-html="true" data-trigger="focus" title="Project Notes" data-content="' + (row[9]).replace(/(\r\n|\n|\r)/g, "<br />") + '"><i class="glyphicon glyphicon-info-sign"></i></a>' : '';
+                    }
+                }
             ],
             "initComplete": function () {
                 this.api().columns('.search-select').every(function () {
@@ -205,5 +246,49 @@ foreach($platforms as $key=>$value){
             $(this).next().empty();
         });
 
+        //Enable ALL Popups
+        $('#table').on('draw.dt', function () {
+
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                placement: 'left',
+            });
+
+            $(document).on("click", ".popover-footer .btn", function () {
+                $(this).parents(".popover").popover('hide');
+            });
+
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+        });
+
     });
+
+    function loadNotes(id) {
+        BootstrapDialog.show({
+            cssClass: 'project-notes-dialog',
+            draggable: true,
+            title: 'Project Notes',
+            message: function (dialogRef) {
+                var $message = $('<div><center><i class="icon-spinner icon-spin icon-large"></i>Loading...</center></div>');
+                var pageToLoad = dialogRef.getData('pageToLoad');
+                var url = pageToLoad;
+                $message.load(pageToLoad);
+
+                return $message;
+            },
+            buttons: [
+                {
+                    label: 'Close',
+                    action: function (dialogRef) {
+                        dialogRef.close();
+                    }
+                }],
+            data: {
+                'pageToLoad': load_projectnotes_page + '?id=' + id,
+            }
+        });
+    }
 </script>

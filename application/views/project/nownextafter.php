@@ -172,7 +172,30 @@ $priorityList = unserialize(SAP_PRIORITYLIST);
                         return data ? data.replace(/(\r\n|\n|\r)/g, "<br />") : '';
                     }
                 },
-                { "name": "estimated_complete_date", "targets": 10 },
+                {
+                    "name": "estimated_complete_date", "targets": 10, "orderable": false,
+                    "render": function (data, type, row, meta) {
+                        if (data) {
+                            dataArray = String(data).split("!");
+                            if (dataArray.length == 1) {
+                                return data;
+                            } else {
+                                message = 'Latest task completion date = ' + dataArray[1];
+                                if (!dataArray[1]) {
+                                    message = 'No date set for any of the tasks.'
+                                }
+                                else if (dataArray[0] == dataArray[1]) {
+                                    message = 'Value matches latest task completion date (' + dataArray[1] + ').';
+                                }
+                                return '<div>' + dataArray[0] + '&nbsp;<i class="glyphicon glyphicon-comment" aria-hidden="true"  data-toggle="popover" data-html="true" data-trigger="focus" title="Overridden in Project" data-content="' + message + '." style="cursor: pointer;"></i></div>';
+                            }
+                        }
+                        else {
+                            return '';
+                        }
+                    }
+                },
+
                 {
                     "name": "status", "targets": 11,
                     "render": function (data, type, row) {
@@ -327,6 +350,25 @@ foreach($platforms as $key=>$value){
 
             }
         });
+
+        //Enable ALL Popups
+        $('#table').on('draw.dt', function () {
+
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                placement: 'left',
+            });
+
+            $(document).on("click", ".popover-footer .btn", function () {
+                $(this).parents(".popover").popover('hide');
+            });
+
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+        });
+
 
         $("input").change(function () {
             $(this).parent().parent().removeClass('has-error');

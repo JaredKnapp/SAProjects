@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class SAView extends MY_Controller {
 
     var $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'efforttype', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status', null);
-    var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
+    var $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.status');
     var $where          = array();
     var $order          = array('industries.name'=>'ASC', 'platforms.sortorder'=>'ASC', 'priority_index'=>'ASC');
 
@@ -20,6 +20,8 @@ class SAView extends MY_Controller {
         $this->load->model('Workload_model', 'workload');
         $this->load->model('Platform_model', 'platform');
         $this->load->model('User_model', 'user');
+        $this->load->model('ProjectNote_model', 'projectnote');
+
     }
 
     public function index(){
@@ -54,31 +56,30 @@ class SAView extends MY_Controller {
         $id = $this->input->get('id');
         $status = $this->input->get('newstatus');
 
-        $project                    = (!empty($id) ? $this->project->get_by_id($id) : null);
-        $workload                   = (!empty($project) ? $this->workload->get_by_id($project->workloads_id) : null);
+        $project                    = (!null_or_empty($id) ? $this->project->get_by_id($id) : null);
+        $workload                   = (!null_or_empty($project) ? $this->workload->get_by_id($project->workloads_id) : null);
 
-        $data['id']                 = (!empty($project) ? $project->id : '');
-        $data['priority']           = (!empty($project) ? $project->priority : '');
-        $data['priority_index']     = (!empty($project) ? $project->priority_index : '');
-        $data['status']             = (!empty($status) ? $status : (!empty($project) ? $project->status : ''));
-        $data['effort_target']      = (!empty($project) ? $project->effort_target : '');
-        $data['effort_justification']       = (!empty($project) ? $project->effort_justification : '');
-        $data['desired_completion_date']    = $this->_toMDY((!empty($project) ? $project->desired_completion_date : ''));
-        $data['projected_start_date']       = $this->_toMDY((!empty($project) ? $project->projected_start_date : ''));
-        $data['estimated_completion_date']  = $this->_toMDY((!empty($project) ? $project->estimated_completion_date : ''));
-        $data['estimated_work_days']        = (!empty($project) ? $project->estimated_work_days : '');
-        $data['completion_date']            = $this->_toMDY((!empty($project) ? $project->completion_date : ''));
-        $data['author_email']       = (!empty($project) ? $project->author_email : '');
-        $data['notes']              = (!empty($project) ? $project->notes : '');
-        $data['workloads_id']       = (!empty($project) ? $project->workloads_id : '');
-        $data['platforms_id']       = (!empty($project) ? $project->platforms_id : '');
-        $data['sa_users_id']        = (!empty($project) ? $project->sa_users_id : '');
-        $data['efforttypes_id']     = (!empty($project) ? $project->efforttypes_id : '');
-        $data['created']            = (!empty($project) ? $project->created : '');
-        $data['modified']           = (!empty($project) ? $project->modified : '');
-        $data['industries_id']      = (!empty($workload) ? $workload->industries_id : '');
-        $data['showallefforts_checked'] = (!empty($project) ? '' : 'checked');
-
+        $data['id']                 = (!null_or_empty($project) ? $project->id : '');
+        $data['sapid']              = (!null_or_empty($project) ? $project->sapid : '');
+        $data['priority']           = (!null_or_empty($project) ? $project->priority : '');
+        $data['priority_index']     = (!null_or_empty($project) ? $project->priority_index : '');
+        $data['status']             = (!null_or_empty($status) ? $status : (!null_or_empty($project) ? $project->status : ''));
+        $data['effort_target']      = (!null_or_empty($project) ? $project->effort_target : '');
+        $data['effort_justification']       = (!null_or_empty($project) ? $project->effort_justification : '');
+        $data['desired_completion_date']    = $this->_toMDY((!null_or_empty($project) ? $project->desired_completion_date : ''));
+        $data['projected_start_date']       = $this->_toMDY((!null_or_empty($project) ? $project->projected_start_date : ''));
+        $data['estimated_completion_date']  = $this->_toMDY((!null_or_empty($project) ? $project->estimated_completion_date : ''));
+        $data['estimated_work_days']        = (!null_or_empty($project) ? $project->estimated_work_days : '');
+        $data['completion_date']            = $this->_toMDY((!null_or_empty($project) ? $project->completion_date : ''));
+        $data['author_email']       = (!null_or_empty($project) ? $project->author_email : '');
+        $data['workloads_id']       = (!null_or_empty($project) ? $project->workloads_id : '');
+        $data['platforms_id']       = (!null_or_empty($project) ? $project->platforms_id : '');
+        $data['sa_users_id']        = (!null_or_empty($project) ? $project->sa_users_id : '');
+        $data['efforttypes_id']     = (!null_or_empty($project) ? $project->efforttypes_id : '');
+        $data['created']            = (!null_or_empty($project) ? $project->created : '');
+        $data['modified']           = (!null_or_empty($project) ? $project->modified : '');
+        $data['industries_id']      = (!null_or_empty($workload) ? $workload->industries_id : '');
+        $data['showallefforts_checked'] = (!null_or_empty($project) ? '' : 'checked');
 
         $this->load->view('architect/saview/edit_project', $data);
     }
@@ -137,39 +138,32 @@ class SAView extends MY_Controller {
         $data = array();
         $index = $this->input->post('start');
         foreach($list as $project){
-
-            $duration = 0;
-
-            $nameArr = explode('||', $project->effort_output);
-            $produceArr = explode('||', $project->effort_output_produce);
-            $durationArr = explode('||', $project->effort_output_duration);
-
-            $taskArr = array();
-            for( $arrayIndex = 0; $arrayIndex < count($nameArr); $arrayIndex++ ){
-                $duration += ( empty( $durationArr[$arrayIndex] ) ? 0 : $durationArr[$arrayIndex] );
-                $taskArr[] = $nameArr[$arrayIndex] . ': ' . $durationArr[$arrayIndex] . ' days' . (empty($produceArr[$arrayIndex])?'':'. (' . $produceArr[$arrayIndex] . ')');
-            }
-
             $index++;
-            $row = array();
-            $row[] = $project->id;
-            $row[] = $project->id;
-            $row[] = $project->industry;
-            $row[] = $project->sa;
-            $row[] = array_key_exists($project->priority, $priorityList) ? $priorityList[$project->priority] : '';
-            $row[] = $project->priority_index;
-            $row[] = $project->workload;
-            $row[] = $project->platform;
-            $row[] = html_escape($project->effort_target);
-            $row[] = $project->effort_type;
-            $row[] = '<ul style="margin-left: 5px;"><li>'.implode('</li><li>', $taskArr).'</li></ul>';
-            $row[] = html_escape($project->effort_justification);
-            $row[] = html_escape($project->notes);
-            $row[] = preg_match('/^0000-00-00/', $project->projected_start_date) ? '' : $this->_toMDY($project->projected_start_date);
-            $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
-            $row[] = ($project->estimated_work_days>0) ? $project->estimated_work_days . '!' . $duration : $duration; //$project->estimated_work_days;
-            $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : "";
-            $row[] = '';
+
+            $projectedStartDate = preg_match('/^0000-00-00/', $project->projected_start_date) ? '' : $this->_toMDY($project->projected_start_date);
+            $projectEstimatedCompletionDate = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
+            $taskEstimatedCompletionDate = preg_match('/^0000-00-00/', $project->task_estimated_completion_date) ? '' : $this->_toMDY($project->task_estimated_completion_date);
+            $estimatedCompletionDate = !null_or_empty($projectEstimatedCompletionDate) ? "$projectEstimatedCompletionDate!$taskEstimatedCompletionDate" : $taskEstimatedCompletionDate;
+            $duration = ($project->estimated_work_days > 0) ? "$project->estimated_work_days!$project->task_duration" : $project->task_duration;
+
+            $row = array(
+                'id'                        =>$project->id,
+                'sapid'                     =>$project->sapid,
+                'industry'                  =>$project->industry,
+                'sa'                        =>$project->sa,
+                'priority'                  =>array_key_exists($project->priority, $priorityList) ? $priorityList[$project->priority] : '',
+                'priority_index'            =>$project->priority_index,
+                'workload'                  =>$project->workload,
+                'platform'                  =>$project->platform,
+                'effort_target'             =>html_escape($project->effort_target),
+                'effort_type'               =>$project->effort_type,
+                'effort_justification'      =>html_escape($project->effort_justification),
+                'notes'                     =>html_escape($project->notes),
+                'projected_start_date'      =>$projectedStartDate,
+                'estimated_completion_date' =>$estimatedCompletionDate,
+                'duration'                  =>$duration,
+                'status'                    =>array_key_exists($project->status, $statusList) ? $statusList[$project->status] : ""
+            );
 
             $data[] = $row;
         }
@@ -184,17 +178,17 @@ class SAView extends MY_Controller {
         echo json_encode($output);
     }
 
-    public function ajax_edit($id)
-    {
-        $data = $this->project->get_by_id($id);
+    //public function ajax_edit($id)
+    //{
+    //    $data = $this->project->get_by_id($id);
 
-        $data->desired_completion_date = preg_match('/^0000-00-00/', $data->desired_completion_date) ? '' : $this->_toMDY($data->desired_completion_date);
-        $data->projected_start_date = preg_match('/^0000-00-00/', $data->projected_start_date) ? '' : $this->_toMDY($data->projected_start_date);
-        $data->estimated_completion_date = preg_match('/^0000-00-00/', $data->estimated_completion_date) ? '' : $this->_toMDY($data->estimated_completion_date);
-        $data->completion_date = preg_match('/^0000-00-00/', $data->completion_date) ? '' : $this->_toMDY($data->completion_date);
+    //    $data->desired_completion_date = preg_match('/^0000-00-00/', $data->desired_completion_date) ? '' : $this->_toMDY($data->desired_completion_date);
+    //    $data->projected_start_date = preg_match('/^0000-00-00/', $data->projected_start_date) ? '' : $this->_toMDY($data->projected_start_date);
+    //    $data->estimated_completion_date = preg_match('/^0000-00-00/', $data->estimated_completion_date) ? '' : $this->_toMDY($data->estimated_completion_date);
+    //    $data->completion_date = preg_match('/^0000-00-00/', $data->completion_date) ? '' : $this->_toMDY($data->completion_date);
 
-        echo json_encode($data);
-    }
+    //    echo json_encode($data);
+    //}
 
     public function ajax_add()
     {
@@ -213,7 +207,6 @@ class SAView extends MY_Controller {
                 'estimated_work_days'       => $this->input->post('estimated_work_days'),
                 'completion_date'           => $this->_tosqldate($this->input->post('completion_date')),
                 'effort_justification'      => $this->input->post('effort_justification'),
-                'notes'                     => $this->input->post('notes'),
                 'status'                    => $this->input->post('status'),
                 'priority'                  => SAP_DEFAULTPRIORITY,
                 'priority_index'            => SAP_DEFAULTPRIORITYINDEX
@@ -238,6 +231,16 @@ class SAView extends MY_Controller {
                     $task = $this->_parseTask($taskString);
                     $this->projecttask->set_projecttask($task['id'], $projectId, $task['effort_id'], $task['projected_start_date'], $task['estimated_completion_date'], $task['duration'], $task['completion_date'], $task['collateral_url']);
                 }
+
+                //Create Notes
+                $notes = $this->input->post('notes');
+                if(!$this->_empty($notes)){
+                    $userId = ($this->authorization->is_logged_in() ? $this->session->userdata("id") : NULL);
+                    $this->projectnote->set(NULL, $projectId, NULL, $userId, $notes);
+                }
+
+                $this->industry->cleanup_priority_index($this->input->post('industries_id'), $this->input->post('platforms_id'));
+
             }
 
             echo json_encode(array("status" => TRUE));
@@ -261,7 +264,6 @@ class SAView extends MY_Controller {
                 'estimated_work_days'       => $this->input->post('estimated_work_days') == '' ? 0 : $this->input->post('estimated_work_days'),
                 'completion_date'           => $this->_tosqldate($this->input->post('completion_date') == '' ? NULL : $this->input->post('completion_date')),
                 'effort_justification'      => $this->input->post('effort_justification') == '' ? NULL : $this->input->post('effort_justification'),
-                'notes'                     => $this->input->post('notes') == '' ? NULL : $this->input->post('notes'),
                 'status'                    => $this->input->post('status') == '' ? NULL : $this->input->post('status')
             );
 
@@ -289,6 +291,13 @@ class SAView extends MY_Controller {
                     if(!in_array($projecttask['id'], $taskIds)){
                         $this->projecttask->delete_by_id($projecttask['id']);
                     }
+                }
+
+                //Create Notes
+                $notes = $this->input->post('notes');
+                if(!$this->_empty($notes)){
+                    $userId = ($this->authorization->is_logged_in() ? $this->session->userdata("id") : NULL);
+                    $this->projectnote->set(NULL, $projectId, NULL, $userId, $notes);
                 }
 
                 //Cleanup priorities of original record if they are leaving to new industry or platform
@@ -399,11 +408,11 @@ class SAView extends MY_Controller {
         $output = array();
 
         $projectsId = $this->input->post('projects_id');
-        $isNew = empty($projectsId) ? true : false;
-        $project = empty($projectsId) ? null : $this->project->get_by_id($projectsId);
-        $projecttasks = empty($projectsId) ? array() : $this->projecttask->get(array('projects_id'=>$projectsId));
+        $isNew = null_or_empty($projectsId) ? true : false;
+        $project = null_or_empty($projectsId) ? null : $this->project->get_by_id($projectsId);
+        $projecttasks = null_or_empty($projectsId) ? array() : $this->projecttask->get(array('projects_id'=>$projectsId));
 
-        $efforttypesId = empty($this->input->post('efforttypes_id')) ? (empty($project) ? '' : $project->efforttypes_id) : $this->input->post('efforttypes_id');
+        $efforttypesId = null_or_empty($this->input->post('efforttypes_id')) ? (null_or_empty($project) ? '' : $project->efforttypes_id) : $this->input->post('efforttypes_id');
         $effortdata = $this->effortoutput->get(array('efforttypes_id'=>$efforttypesId));
 
         foreach($effortdata as $effort){
@@ -445,6 +454,31 @@ class SAView extends MY_Controller {
                 'effort'        => $effortRow,
                 'task'          => $taskRow);
         }
+
+        echo json_encode($output);
+    }
+
+    public function ajax_getprojectnotes(){
+        $projectsId = $this->input->post('projects_id');
+        $projecttasks_id = $this->input->post('projecttasks_id');
+        $searchText = $_POST['search']['value'];
+
+        $where = array('projects_id'=>$projectsId);
+        if(!null_or_empty($projecttasks_id)){
+            $where['projecttasks_id'] = $projecttasks_id;
+        }
+        if(!null_or_empty($searchText)){
+            $where["concat(users.firstname, ' ', users.lastname, '|', notes) like"] = "%$searchText%";
+        }
+
+        $data = $this->projectnote->get($where);
+
+        $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->project->count_all(),
+                "recordsFiltered" => count($data),
+                "data" => $data
+        );
 
         echo json_encode($output);
     }
@@ -523,7 +557,7 @@ class SAView extends MY_Controller {
     }
 
     private function _toMDY($date, $interval = 0){
-        if($date){
+        if($date && ! preg_match("/^0000-00-00/", $date)){
             $datetimearray = explode(' ', $date);
             $datearray = explode('-', $datetimearray[0]);
             if(count($datearray) == 3){

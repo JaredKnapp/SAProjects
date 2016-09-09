@@ -9,11 +9,13 @@ class Project_model extends CI_Model{
         parent::__construct();
         $this->load->database();
         $this->load->model('ProjectTask_model', 'projecttask');
+        $this->load->model('ProjectNote_model', 'projectnote');
     }
 
     public function get_projects($id = NULL, $where = array(), $order = array()){
         if($id === NULL){
             $this->db->select( $this->table.'.*', FALSE );
+            $this->db->select( "lpad(convert($this->table.id, char), 5, '0') AS sapid", FALSE);
 
             $this->db->from( $this->table );
 
@@ -57,8 +59,11 @@ class Project_model extends CI_Model{
     public function get_by_id($id)
     {
         $this->db->select( $this->table.'.*', FALSE );
+        $this->db->select( "lpad(convert($this->table.id, char), 5, '0') AS sapid", FALSE);
         $this->db->select( 'vflatprojecttasks.effortoutput_id AS effortoutput_id' );
         $this->db->select( 'workloads.industries_id AS industries_id', FALSE );
+        $this->db->select( '(select sum(`projecttasks`.duration) from `projecttasks` where `projecttasks`.projects_id = projects.id) as `task_duration`', FALSE);
+        $this->db->select( '(select max(`projecttasks`.estimated_completion_date) from `projecttasks` where `projecttasks`.projects_id = projects.id) as `task_estimated_completion_date`', FALSE);
         $this->db->join( 'workloads', 'workloads.id = ' . $this->table . '.workloads_id', 'left' );
         $this->db->join( 'vflatprojecttasks', 'vflatprojecttasks.projects_id = ' . $this->table . '.id', 'left');
         $query = $this->db->get_where($this->table, array($this->table . '.id' => $id));
@@ -70,6 +75,8 @@ class Project_model extends CI_Model{
     {
         $this->load->helper('url');
         $id = null;
+
+        if(array_key_exists('sapid', $data)){ unset($data['sapid']); }
 
         $data['modified'] = date("Y-m-d H:i:s");
 
@@ -88,6 +95,11 @@ class Project_model extends CI_Model{
 
     public function delete_by_id($id)
     {
+        $projectnotes = $this->projectnote->get(array('projects_id'=>$id));
+        foreach($projectnotes as $projectnote){
+            $this->projectnote->delete_by_id($projectnote['id']);
+        }
+
         $projecttasks = $this->projecttask->get_list(array('projects_id'=>$id));
         foreach($projecttasks as $projecttask){
             $this->projecttask->delete_by_id($projecttask['id']);
@@ -121,6 +133,7 @@ class Project_model extends CI_Model{
     private function _get_datatables_query($columnOrder, $searchColumns, $searchText, $where, $order)
     {
         $this->db->select( $this->table.'.*', FALSE );
+        $this->db->select( "lpad(convert($this->table.id, char), 5, '0') AS sapid", FALSE);
         $this->db->select( 'workloads.name AS workload', FALSE );
         $this->db->select( 'industries.name AS industry', FALSE );
         $this->db->select( 'platforms.name AS platform', FALSE );
@@ -129,6 +142,10 @@ class Project_model extends CI_Model{
         $this->db->select( 'vflatprojecttasks.effortoutput AS effort_output', FALSE );
         $this->db->select( 'vflatprojecttasks.produce AS effort_output_produce', FALSE );
         $this->db->select( 'vflatprojecttasks.duration AS effort_output_duration', FALSE );
+        $this->db->select( 'vflatprojectnotesbyproject.notes AS notes', TRUE );
+        $this->db->select( '(select sum(`projecttasks`.duration) from `projecttasks` where `projecttasks`.projects_id = projects.id) as `task_duration`', FALSE);
+        $this->db->select( '(select max(`projecttasks`.estimated_completion_date) from `projecttasks` where `projecttasks`.projects_id = projects.id) as `task_estimated_completion_date`', FALSE);
+
         $this->db->from( $this->table );
         $this->db->join( 'workloads', 'workloads.id = '.$this->table.'.workloads_id' , 'left' );
         $this->db->join( 'industries', 'industries.id = workloads.industries_id' , 'left' );
@@ -136,39 +153,40 @@ class Project_model extends CI_Model{
         $this->db->join( 'users', 'users.id = '.$this->table.'.sa_users_id' , 'left' );
         $this->db->join( 'efforttypes', 'efforttypes.id = '.$this->table.'.efforttypes_id' , 'left' );
         $this->db->join( 'vflatprojecttasks', 'vflatprojecttasks.projects_id = '.$this->table.'.id', 'left');
+        $this->db->join( 'vflatprojectnotesbyproject', 'vflatprojectnotesbyproject.projects_id = '.$this->table.'.id', 'left');
 
         $isFirst = TRUE;
-        if( $searchText )
-        {
-            foreach ( $searchColumns as $item )
-            {
+        if( $searchText && preg_match("/^\d{5}$/", $searchText)) {
+            //Searching ONLY by SAPID
+            $this->db->having("sapid", $searchText, 1);
+        } else {
+            if($searchText){
+                foreach ( $searchColumns as $item ){
 
-                if( $isFirst )
-                {
-                    $this->db->group_start();
-                    $this->db->like( $item, $searchText );
+                    if( $isFirst ){
+                        $this->db->group_start();
+                        $this->db->like( $item, $searchText );
+                        $isFirst = FALSE;
+                    } else {
+                        $this->db->or_like( $item, $searchText );
+                    }
+                }
+                if(! $isFirst) $this->db->group_end();
+            }
+
+            $isFirst = TRUE;
+            $whereString = "";
+            if($where && count($where>0)){
+                foreach($where as $key=>$value){
+                    if(is_array($value)){
+                        $whereString .= ($isFirst?'':' AND ').$key. ' ("' . implode('","', $value) . '")';
+                    } else {
+                        $whereString .= ($isFirst?'':' AND ').$key. ' "' . $value . '"';
+                    }
                     $isFirst = FALSE;
                 }
-                else
-                {
-                    $this->db->or_like( $item, $searchText );
-                }
+                $this->db->where($whereString);
             }
-            if(! $isFirst) $this->db->group_end();
-        }
-
-        $isFirst = TRUE;
-        $whereString = "";
-        if($where && count($where>0)){
-            foreach($where as $key=>$value){
-                if(is_array($value)){
-                    $whereString .= ($isFirst?'':' AND ').$key. ' ("' . implode('","', $value) . '")';
-                } else {
-                    $whereString .= ($isFirst?'':' AND ').$key. ' "' . $value . '"';
-                }
-                $isFirst = FALSE;
-            }
-            $this->db->where($whereString);
         }
 
         if( $order && count( $order ) > 0 ){

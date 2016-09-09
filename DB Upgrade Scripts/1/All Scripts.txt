@@ -1,7 +1,59 @@
-﻿
-/* PROJECT TASKS /*
+﻿=========================================================================
+/* DONE - PROJECT TASKS /*
+=========================================================================
 ALTER TABLE `isv_registry`.`projecttasks` 
 ADD COLUMN `projected_start_interval` INT(11) NULL DEFAULT 0 AFTER `projected_start_date`,
 ADD COLUMN `estimated_completion_interval` INT(11) NULL DEFAULT 0 AFTER `estimated_completion_date`;
+
+=========================================================================
+/* DONE - Add Notes (table should already be created) */
+=========================================================================
+INSERT INTO `isv_registry`.`projectnotes`
+(`notes`,
+`projects_id`,
+`created`,
+`modified`)
+ select notes, id, modified, modified from projects where notes is not null and notes != '' ;
+
+=========================================================================
+/* DONE - Remove Notes from Project */
+=========================================================================
+ ALTER TABLE `isv_registry`.`projects` 
+DROP COLUMN `notes`;
+
+=========================================================================
+/* DONE - CREATE NOtes VIEW by Project */
+=========================================================================
+USE `isv_registry`;
+CREATE  OR REPLACE VIEW `vflatprojectnotesbyproject` AS
+    SELECT 
+        projectnotes.projects_id,
+        GROUP_CONCAT(CONCAT(CONCAT('<strong>',
+                            IF(users.id IS NULL,
+                                'anonymous',
+                                CONCAT(`users`.firstname, ' ', `users`.lastname)),
+                            '</strong>'),
+                    '<br />',
+                    `projectnotes`.notes,
+                    '<br />',
+                    DATE_FORMAT(`projectnotes`.modified,
+                            '%M %d, %Y  %h:%i %p'))
+            SEPARATOR '<br>') as `notes`
+    FROM
+        `projectnotes`
+            LEFT JOIN
+        `users` ON `projectnotes`.users_id = `users`.id
+    GROUP BY `projectnotes`.projects_id
+    ORDER BY `projectnotes`.projects_id , `projectnotes`.created DESC;
+
+
+
+
+
+
+
+
+
+
 
 

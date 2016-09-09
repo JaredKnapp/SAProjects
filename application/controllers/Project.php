@@ -11,6 +11,7 @@ class Project extends MY_Controller {
 
         $this->load->helper('cookie');
         $this->load->helper('url_helper');
+        $this->load->helper('string');
     }
 
     public function index()
@@ -54,7 +55,12 @@ class Project extends MY_Controller {
         $this->load->model('EffortType_model');
         $this->load->model('Industry_model');
         $this->load->model('Platform_model');
+        $this->load->model('ProjectNote_model');
+
+        $this->load->helper('url');
         $this->load->helper('form');
+
+        $this->load->library('session');
         $this->load->library('form_validation');
 
         $data['title'] = 'Submit a Project Request';
@@ -107,7 +113,6 @@ class Project extends MY_Controller {
                 'efforttypes_id'            => $this->input->post('efforttypes_id'),
                 'desired_completion_date'   => $this->_tosqldate($this->input->post('desired_completion_date')),
                 'effort_justification'      => $this->input->post('effort_justification'),
-                'notes'                     => $this->input->post('notes'),
                 'status'                    => SAP_DEFAULTSTATUS,
                 'priority'                  => SAP_DEFAULTPRIORITY,
                 'priority_index'            => SAP_DEFAULTPRIORITYINDEX
@@ -121,10 +126,19 @@ class Project extends MY_Controller {
                 );
                 $this->input->set_cookie($cookie);
 
+                //Create Project Tasks
                 $effortoutputs = $this->input->post('effortoutputs_id');
                 foreach($effortoutputs as $effortId){
                     $this->projecttask->set_projecttask(NULL, $projectId, $effortId);
                 }
+
+                //Create Notes
+                $notes = $this->input->post('notes');
+                if(!$this->_empty($notes)){
+                    $userId = ($this->authorization->is_logged_in() ? $this->session->userdata("id") : NULL);
+                    $this->ProjectNote_model->set(NULL, $projectId, NULL, $userId, $notes);
+                }
+
             }
 
 
@@ -136,9 +150,14 @@ class Project extends MY_Controller {
         }
     }
 
+    public function load_notes(){
+        $data['id'] = $this->input->get('id');
+        $this->load->view('project/dialog_projectnotes', $data);
+    }
+
     public function ajax_list(){
         $columnOrder    = array('industry', 'sa', 'priority', 'workload', 'platform', 'effort_target', 'effort_type', 'effort_output', 'effort_justification', 'notes', 'estimated_completion_date', 'status');
-        $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.notes', 'projects.status');
+        $searchColumns  = array('industries.name', 'users.firstname', 'users.lastname', 'projects.priority', 'workloads.name', 'platforms.name', 'projects.effort_target', 'efforttypes.name', 'vflatprojecttasks.effortoutput', 'projects.effort_justification', 'projects.status');
         $where          = array();
         $order          = array('industries.name'=>'ASC', 'platforms.sortorder'=>'ASC', 'priority_index'=>'ASC');
 
@@ -156,14 +175,20 @@ class Project extends MY_Controller {
         }
 
 
-        $list = $this->project->get_datatables($columnOrder, $searchColumns, $searchText, $where, $order);
+        $projects = $this->project->get_datatables($columnOrder, $searchColumns, $searchText, $where, $order);
 
         $priorityList = unserialize(SAP_PRIORITYLIST);
         $statusList = unserialize(SAP_STATUSLIST);
 
         $data = array();
         $index = $this->input->post('start');
-        foreach($list as $project){
+        foreach($projects as $project){
+
+            $projectedStartDate = preg_match('/^0000-00-00/', $project->projected_start_date) ? '' : $this->_toMDY($project->projected_start_date);
+            $projectEstimatedCompletionDate = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
+            $taskEstimatedCompletionDate = preg_match('/^0000-00-00/', $project->task_estimated_completion_date) ? '' : $this->_toMDY($project->task_estimated_completion_date);
+            $estimatedCompletionDate = !null_or_empty($projectEstimatedCompletionDate) ? "$projectEstimatedCompletionDate!$taskEstimatedCompletionDate" : $taskEstimatedCompletionDate;
+            $duration = ($project->estimated_work_days > 0) ? "$project->estimated_work_days!$project->task_duration" : $project->task_duration;
 
             $nameArr = explode('||', $project->effort_output);
             $produceArr = explode('||', $project->effort_output_produce);
@@ -172,7 +197,11 @@ class Project extends MY_Controller {
             $taskArr = array();
             $arrayIndex = 0;
             for($arrayIndex = 0; $arrayIndex < count($nameArr); $arrayIndex++){
-                $taskArr[] = $nameArr[$arrayIndex] . ': ' . $durationArr[$arrayIndex] . ' days' . (empty($produceArr[$arrayIndex])?'':'. (' . $produceArr[$arrayIndex] . ')');
+                if(!null_or_empty($nameArr[$arrayIndex])){
+                    $taskArr[] = $nameArr[$arrayIndex] .
+                        ($arrayIndex >= count($durationArr) || null_or_empty($durationArr[$arrayIndex]) ? ''    : ( ': ' . $durationArr[$arrayIndex] . ' days')) .
+                        ($arrayIndex >= count($produceArr) || null_or_empty($produceArr[$arrayIndex])  ? ''    : ( ' (' . $produceArr[$arrayIndex] . ')'));
+                }
             }
 
             $index++;
@@ -187,8 +216,9 @@ class Project extends MY_Controller {
             $row[] = '<ul style="margin-left: 5px;"><li>'.implode('</li><li>', $taskArr).'</li></ul>';
             $row[] = $project->effort_justification;
             $row[] = $project->notes;
-            $row[] = preg_match('/^0000-00-00/', $project->estimated_completion_date) ? '' : $this->_toMDY($project->estimated_completion_date);
+            $row[] = $estimatedCompletionDate;
             $row[] = array_key_exists($project->status, $statusList) ? $statusList[$project->status] : '';
+            $row[] = $project->id;
 
             $data[] = $row;
         }
@@ -202,6 +232,31 @@ class Project extends MY_Controller {
 
         echo json_encode($output);
     }
+
+    public function ajax_getprojectnotes(){
+        $this->load->model('ProjectNote_model', 'projectnote');
+
+        $projectsId = $this->input->post('projects_id');
+        $projecttasks_id = $this->input->post('projecttasks_id');
+        $searchText = $_POST['search']['value'];
+
+        $where = array('projects_id'=>$projectsId);
+        if(!null_or_empty($projecttasks_id)){
+            $where['projecttasks_id'] = $projecttasks_id;
+        }
+
+        $data = $this->projectnote->get($where, $searchText);
+
+        $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->project->count_all(),
+                "recordsFiltered" => count($data),
+                "data" => $data
+        );
+
+        echo json_encode($output);
+    }
+
 
     /*********************************************************************************
      * Utilities and Callbacks
