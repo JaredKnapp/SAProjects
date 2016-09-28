@@ -37,7 +37,12 @@
     <Compile Include="application\config\routes.php" />
     <Compile Include="application\config\smileys.php" />
     <Compile Include="application\config\user_agents.php" />
+    <Compile Include="application\controllers\SendEmails.php" />
     <Compile Include="application\helpers\MY_string_helper.php" />
+    <Compile Include="application\libraries\Audit.php" />
+    <Compile Include="application\libraries\Notification.php" />
+    <Compile Include="application\models\AuditHistory_model.php" />
+    <Compile Include="application\models\Email_model.php" />
     <Compile Include="application\models\ProjectNote_model.php" />
     <Compile Include="application\controllers\Auth.php" />
     <Compile Include="application\controllers\Examples.php" />

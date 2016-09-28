@@ -8,7 +8,9 @@
             As your request is processed, notifications of your request status changes will be sent to
             <strong>
                 '<?php echo $author_email; ?>'
-            </strong>.
-        </div>
+            </strong>.<br />
+            <br />
+            Your request SAPID is <?php echo str_pad($project_id, 5, '0', STR_PAD_LEFT); ?>, and can be tracked using this 
+<a href="<?php echo $this->config->site_url('project'); ?>?search=<?php echo str_pad($project_id, 5, '0', STR_PAD_LEFT); ?>" target="_blank">link</a></div>
     </div>
 </div>

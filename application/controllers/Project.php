@@ -12,6 +12,8 @@ class Project extends MY_Controller {
         $this->load->helper('cookie');
         $this->load->helper('url_helper');
         $this->load->helper('string');
+
+        $this->load->library('notification');
     }
 
     public function index()
@@ -139,11 +141,12 @@ class Project extends MY_Controller {
                     $this->ProjectNote_model->set(NULL, $projectId, NULL, $userId, $notes);
                 }
 
+                $this->notification->newproject($this->input->post('author_email'), NULL, $projectId, $project);
             }
-
 
             $data['title'] = '';
             $data['author_email'] = $this->input->post('author_email');
+            $data['project_id'] = $projectId;
 
             $data['body_content'] = 'project/create_success';
             $this->load->view('templates/default', $data);
@@ -257,10 +260,10 @@ class Project extends MY_Controller {
         echo json_encode($output);
     }
 
-
     /*********************************************************************************
      * Utilities and Callbacks
      *********************************************************************************/
+
     public function checkDateFormat($date) {
         $dateArray = explode('/', $date);
         if(sizeof($dateArray)==3){

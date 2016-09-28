@@ -101,6 +101,7 @@ defined('SAP_ACTIVESTATUSLIST')     or define('SAP_ACTIVESTATUSLIST', serialize(
 defined('SAP_PRIORITYLIST')         or define('SAP_PRIORITYLIST', serialize(array('now'=>"Now", 'next'=>"Next", 'after'=>'After', 'beyond'=>"Beyond")));
 
 defined('SAP_DEFERREDSTATUS')       or define('SAP_DEFERREDSTATUS', 'deferred');
+defined('SAP_DELETEDSTATUS')        or define('SAP_DELETEDSTATUS', 'deleted');
 
 defined('SAP_DEFAULTSTATUS')        or define('SAP_DEFAULTSTATUS', 'draft');
 defined('SAP_DEFAULTPRIORITY')      or define('SAP_DEFAULTPRIORITY', 'beyond');

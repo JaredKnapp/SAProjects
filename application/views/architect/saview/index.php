@@ -17,6 +17,21 @@
     var ajax_deleteproject_url = "<?php echo site_url('architect/SAView/ajax_delete')?>";
     var ajax_deferproject_url = "<?php echo site_url('architect/SAView/ajax_defer')?>";
 
+    var filter_searchText = "<?php echo (array_key_exists('search', $_GET) && $_GET['search']) ? $_GET['search'] : ""; ?>";
+
+    //Populate Search Boxes using QueryString
+    var filter_values = new Array();
+    <?php
+foreach($_GET as $key=>$value){
+    if(substr("$key     ", 0, 4)=="col_"){
+        echo "filter_values['$key']='$value'; \r";
+        //echo "$('[name=\"$key\"]').val('$value');\r";
+        //echo "table.column(".substr($key, 4).").search('$value');\r";
+    }
+}
+?>
+
+
 </script>
 
 <style>
@@ -37,6 +52,10 @@
     <i class="glyphicon glyphicon-refresh"></i>Reload
 </button>
 
+<button class="btn btn-default pull-right" title="Copy URL to clipboard" onclick="showURL()">
+    <i class="glyphicon glyphicon-paperclip"></i>
+</button>
+
 <br />
 <br />
 <div id="filters">
@@ -54,23 +73,29 @@
                             <td width="200" valign="top">
                                 <strong>Industries:</strong>
                                 <?php
+                                $queryValues = array_key_exists('industries', $_GET) ? $_GET['industries'] : array_keys($industries);
                                 foreach($industries as $key=>$value){
-                                    echo "<div class='checkbox center-vertical'><label for='industries_$key' class='selected'><input type='checkbox' name='industries[]' id='industries_$key' onchange='searchChanged()' value=\"$key\" checked>$value</label></div>";
+                                    $isChecked = in_array($key, $queryValues);
+                                    echo "<div class='checkbox center-vertical'><label for='industries_$key' class='selected'><input type='checkbox' name='industries[]' id='industries_$key' onchange='searchChanged()' value=\"$key\" " . ($isChecked ? "checked" : "") . ">$value</label></div>";
                                 }
                                 ?>
                             </td>
                             <td width="200" valign="top">
                                 <strong>Priorities:</strong>
                                 <?php
+                                $queryValues = array_key_exists('priorities', $_GET) ? $_GET['priorities'] : array_keys($priorityList);
                                 foreach($priorityList as $key=>$value){
-                                    echo "<div class='checkbox'><label for='priorities_$key' class='selected'><input type='checkbox' name='priorities[]' id='priorities_$key' onchange='searchChanged()' value=\"$key\" checked>$value</label></div>";
+                                    $isChecked = in_array($key, $queryValues);
+                                    echo "<div class='checkbox'><label for='priorities_$key' class='selected'><input type='checkbox' name='priorities[]' id='priorities_$key' onchange='searchChanged()' value=\"$key\" " . ($isChecked ? "checked" : "") . ">$value</label></div>";
                                 }
                                 ?>
                                 <br />
                                 <strong>Statuses:</strong>
                                 <?php
+                                $queryValues = array_key_exists('statuses', $_GET) ? $_GET['statuses'] : array_keys($statusList);
                                 foreach($statusList as $key=>$value){
-                                    echo "<div class='checkbox'><label for='statuses_$key' class='selected'><input type='checkbox' name='statuses[]' id='statuses_$key' onchange='searchChanged()' value=\"$key\" checked>$value</label></div>";
+                                    $isChecked = in_array($key, $queryValues);
+                                    echo "<div class='checkbox'><label for='statuses_$key' class='selected'><input type='checkbox' name='statuses[]' id='statuses_$key' onchange='searchChanged()' value=\"$key\" " . ($isChecked ? "checked" : "") . ">$value</label></div>";
                                 }
                                 ?>
 
@@ -78,8 +103,10 @@
                             <td width="200" valign="top">
                                 <strong>Platforms</strong>
                                 <?php
+                                $queryValues = array_key_exists('platforms', $_GET) ? $_GET['platforms'] : array_keys($platforms);
                                 foreach($platforms as $key=>$value){
-                                    echo "<div class='checkbox'><label for='platforms_$key' class='selected'><input type='checkbox' name='platforms[]' id='platforms_$key' onchange='searchChanged()' value=\"$key\" checked>$value</label></div>";
+                                    $isChecked = in_array($key, $queryValues);
+                                    echo "<div class='checkbox'><label for='platforms_$key' class='selected'><input type='checkbox' name='platforms[]' id='platforms_$key' onchange='searchChanged()' value=\"$key\" " . ($isChecked ? "checked" : "") . ">$value</label></div>";
                                 }
                                 ?>
                             </td>
@@ -134,25 +161,31 @@
     </tfoot>
 </table>
 <script type="text/javascript">
+    filterstate = false;
 
     $(document).ready(function () {
         filter_accordion = $("#filter_accordion").accordion({
             active: false,
             activate: function (event, ui) {
+                filterstate = ui.newHeader.text() ? true : false;
                 $('#FilterCollapsed').val(ui.newHeader.text() ? false : true);
             },
             heightStyle: "content",
             collapsible: true,
-            create: function (event, ui) { $("#filter_accordion").show(); }
+            create: function (event, ui) {
+                filterstate = false;
+                $("#filter_accordion").show();
+            }
         });
 
 
         table = $('#table').DataTable({
+            rowId: 'id',
             processing: true,
             serverSide: true,
             ordering: false,
             searching: true,
-            rowId: 'id',
+            search: { search: filter_searchText },
             rowReorder: { selector: 'td:nth-child(2)' },
             ajax: {
                 url: ajax_projectlist_url,
@@ -169,8 +202,8 @@
                     data: null, className: 'details-control center-vertical center-horizontal',
                     defaultContent: '<i id="details-twisty" class="details-control-icon glyphicon glyphicon-triangle-right" data-toggle="tooltip" title="Show Project Tasks" placement="bottom" style="cursor: pointer;"></i>'
                 },
-                { data: "sapid", className: "reorder dragable" },
-                { data: "industry", name: "industries.name" },
+                { data: "sapid", className: "reorder dragable", id: "sapid" },
+                { data: "industry", name: "industries.name", id: "industry" },
                 { data: "sa", name: "sa_users_id" },
                 { data: "priority", name: "priority" },
                 { data: "workload", name: "workloads.name" },
@@ -251,22 +284,10 @@
             ],
             initComplete: function () {
 
-                this.api().columns('.search-select').every(function () {
-                    var column = this;
-                    var select = $('<select><option value="">Filter...</option></select>')
-                        .appendTo($(column.footer()).empty())
-                        .on('change', function () {
-                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                            column.search(val ? '^' + val + '$' : '', true, false).draw();
-                        });
-                    column.data().unique().sort().each(function (d, j) {
-                        select.append('<option value="' + d + '">' + d + '</option>')
-                    });
-                });
-
                 this.api().columns('.search-input').every(function () {
                     var column = this;
-                    $('<input type="text" value="" placeholder="Filter...">')
+                    value = filter_values['col_' + this.index()] ? filter_values['col_' + this.index()] : "";
+                    $('<input type="text" value="' + value + '" name="col_' + column.index() + '" placeholder="Filter...">')
                         .appendTo($(column.footer()).empty())
                         .on('keyup change', function () {
                             if (window.event && event.type == "propertychange" && event.propertyName != "value") return;
@@ -284,7 +305,7 @@
 
                 this.api().columns('.search-industry').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Filter...</option></select>')
+                    var select = $('<select name="col_' + column.index() + '"><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -300,7 +321,7 @@ foreach($industries as $key=>$value){
 
                 this.api().columns('.search-sauser').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Filter...</option></select>')
+                    var select = $('<select name="col_' + column.index() + '"><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -316,7 +337,7 @@ foreach($sausers as $key=>$value){
 
                 this.api().columns('.search-efforttype').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Filter...</option></select>')
+                    var select = $('<select name="col_' + column.index() + '"><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -332,7 +353,7 @@ foreach($efforttypes as $key=>$value){
 
                 this.api().columns('.search-status').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Filter...</option></select>')
+                    var select = $('<select name="col_' + column.index() + '"><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -348,7 +369,7 @@ foreach($statusList as $key=>$value){
 
                 this.api().columns('.search-priority').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Filter...</option></select>')
+                    var select = $('<select name="col_' + column.index() + '"><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -364,7 +385,7 @@ foreach($priorityList as $key=>$value){
 
                 this.api().columns('.search-platform').every(function () {
                     var column = this;
-                    var select = $('<select><option value="">Filter...</option></select>')
+                    var select = $('<select name="col_' + column.index() + '"><option value="">Filter...</option></select>')
                         .appendTo($(column.footer()).empty())
                         .on('change', function () {
                             var val = $.fn.dataTable.util.escapeRegex($(this).val());
@@ -455,6 +476,8 @@ foreach($platforms as $key=>$value){
             }
         });
 
+        //If there are filter search values from the querystring, then reload the table (now that the search values have been set)
+        if(filter_values.length > 0) reloadTable();
     });  //<-- END Document Ready Function
 
     function buildLinkedText(linkText, linkURL) {
@@ -463,6 +486,60 @@ foreach($platforms as $key=>$value){
         } else {
             return linkText
         }
+    }
+
+    function showURL() {
+
+        var pageURL = [location.protocol, '//', location.host, location.pathname].join('');
+        var separator = "?"
+
+        var searchText = $('.dataTables_filter input').val();
+        if (searchText) {
+            pageURL += separator + 'search=' + searchText;
+            separator = '&';
+        }
+
+        $('input[name="industries[]"]:checked').each(function () {
+            pageURL += separator + 'industries[]=' + $(this).val()
+            separator = '&';
+        });
+
+        $('input[name="priorities[]"]:checked').each(function () {
+            pageURL += separator + 'priorities[]=' + $(this).val()
+            separator = '&';
+        });
+
+        $('input[name="statuses[]"]:checked').each(function () {
+            pageURL += separator + 'statuses[]=' + $(this).val()
+            separator = '&';
+        });
+
+        $('input[name="platforms[]"]:checked').each(function () {
+            pageURL += separator + 'platforms[]=' + $(this).val()
+            separator = '&';
+        });
+
+
+        table.columns().every(function () {
+            if (this.search()) {
+                searchText = this.search();
+                if (searchText.substr(0, 1) != "^" && searchText.substr(-1) != "&") {
+                    searchText = $.fn.dataTable.util.escapeRegex(searchText);
+                }
+                pageURL += separator + 'col_' + this.index() + '=' + searchText;
+                separator = '&';
+            }
+        });
+
+        var prompt = $('<div></div>');
+        prompt.append('<textarea readonly class="form-control">' + pageURL + '</textarea><br />');
+        prompt.append('Highlight the text in the textbox, then press <kbd>CTRL+C</kbd> (windows), or <kbd>COMMAND+C</kbd> (mac) to copy the URL text to your clipboard.');
+
+        BootstrapDialog.show({
+            title: 'Copy your URL link from the following text box',
+            message: prompt
+        });
+
     }
 
     function reloadTable() {

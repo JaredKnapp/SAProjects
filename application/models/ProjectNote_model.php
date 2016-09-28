@@ -43,9 +43,12 @@ class ProjectNote_model extends MY_Model
             $data['created'] = date("Y-m-d H:i:s");
             if($this->db->insert($this->table, $data)){
                 $id = $this->db->insert_id();
+                $this->_audit(Audit::DBINSERT, $id, $projectId, array($data['notes']));
             }
         } else {
+            $old = $this->get_by_id($id);
             $this->db->update($this->table, $data, array('id'=>$id));
+            $this->_audit(Audit::DBUPDATE, $id, $projectId, $data, $old);
         }
 
         return $id;

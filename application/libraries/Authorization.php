@@ -55,4 +55,12 @@ class Authorization
         }
         return false;
     }
+
+    public function get_id(){
+        if($this->is_logged_in()){
+            return $this->CI->session->userdata['id'];
+        }
+        return null;
+    }
+
 }

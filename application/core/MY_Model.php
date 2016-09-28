@@ -10,6 +10,8 @@ class MY_Model extends CI_Model
         $this->table = $table;
 
         $this->load->database();
+
+        $this->load->library('audit', array('ignore'=>array('created', 'modified')));
     }
 
     public function get_by_id($id)
@@ -29,7 +31,9 @@ class MY_Model extends CI_Model
     public function get_datatables($columnOrder = array(), $searchColumns = array(), $searchText = null, $where = array(), $order = array())
     {
         $this->_get_datatables_query($columnOrder, $searchColumns, $searchText, $where, $order);
+
         if(array_key_exists('length', $_POST) && $_POST['length'] != -1) $this->db->limit($_POST['length'], $_POST['start']);
+
         $query = $this->db->get();
         return $query->result();
     }
@@ -50,4 +54,17 @@ class MY_Model extends CI_Model
     protected function _get_datatables_query($columnOrder, $searchColumns, $searchText, $where, $order){
         die("_get_datatables_query: Method must be overridden by a child class.");
     }
+
+    protected function _audit($action, $id, $parent_id, $data = array(), $oldData = array()){
+        $author_id = $this->authorization->get_id();
+
+        if($action===Audit::DBINSERT){
+            $this->audit->log_insert($author_id, $this->table, $id, $parent_id, implode("\n", $data));
+        } elseif($action===Audit::DBDELETE){
+            $this->audit->log_delete($author_id, $this->table, $id, $parent_id);
+        } elseif($action===Audit::DBUPDATE){
+            $this->audit->log_update($author_id, $this->table, $id, $parent_id, $data, $oldData);
+        }
+    }
+
 }

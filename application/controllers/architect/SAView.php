@@ -22,6 +22,7 @@ class SAView extends MY_Controller {
         $this->load->model('User_model', 'user');
         $this->load->model('ProjectNote_model', 'projectnote');
 
+        $this->load->library('notification');
     }
 
     public function index(){
@@ -41,7 +42,7 @@ class SAView extends MY_Controller {
         $data['platforms']                  = $this->platform->get_list();
         $data['sausers']                    = $this->user->get_salist();
 
-        $data['body_content'] = 'architect/saview/index';
+        $data['body_content']               = 'architect/saview/index';
         $this->load->view('templates/default', $data);
     }
 
@@ -241,6 +242,8 @@ class SAView extends MY_Controller {
 
                 $this->industry->cleanup_priority_index($this->input->post('industries_id'), $this->input->post('platforms_id'));
 
+                //Send notification
+                $this->notification->newproject($this->input->post('author_email'), NULL, $projectId, $project);
             }
 
             echo json_encode(array("status" => TRUE));
@@ -306,6 +309,9 @@ class SAView extends MY_Controller {
                 }
 
                 $this->industry->cleanup_priority_index($this->input->post('industries_id'), $this->input->post('platforms_id'));
+
+                //Send notification
+                $this->notification->projectupdate($this->input->post('author_email'), NULL, $projectId, $project);
             }
 
             echo json_encode(array("status" => TRUE));
@@ -323,6 +329,10 @@ class SAView extends MY_Controller {
         if($projectId){
             $project = $this->project->get_by_id($id);
             $this->industry->cleanup_priority_index($project->industries_id, $project->platforms_id);
+
+            //Send notification
+            $project_array = get_object_vars($project);
+            $this->notification->projectupdate($project_array['author_email'], NULL, $projectId, $project_array);
         }
 
         echo json_encode(array("status" => TRUE));

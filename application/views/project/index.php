@@ -1,4 +1,8 @@
 
+<script type="text/javascript">
+    var filter_searchText = "<?php echo (array_key_exists('search', $_GET) && $_GET['search']) ? $_GET['search'] : ""; ?>";
+</script>
+
 <style>
     .project-notes-dialog .modal-dialog {
         width: 700px;
@@ -58,6 +62,7 @@
             "serverSide": true,
             "ordering": true,
             "searching": true,
+            "search": { search: filter_searchText },
             "order": [],
             "ajax": {
                 url: "<?php echo site_url('Project/ajax_list')?>",

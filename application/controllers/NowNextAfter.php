@@ -34,9 +34,6 @@ class NowNextAfter extends MY_Controller {
     }
 
     public function ajax_list(){
-        //$activeStatusList = unserialize(SAP_ACTIVESTATUSLIST);
-        //$this->where['projects.status IN'] = array_keys($activeStatusList);
-
         $this->where['industries.id IN'] = array_key_exists('searchIndustries', $_POST) ? $_POST['searchIndustries'] : array();
         $this->where['projects.priority IN'] = array_key_exists('searchPriorities', $_POST) ? $_POST['searchPriorities'] : array();
         $this->where['projects.status IN'] = array_key_exists('searchStatuses', $_POST) ? $_POST['searchStatuses'] : array();

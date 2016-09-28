@@ -1,15 +1,15 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Project_model extends CI_Model{
-
-    protected $table = 'projects';
+class Project_model extends MY_Model{
 
     public function __construct(){
-        parent::__construct();
-        $this->load->database();
+        parent::__construct('projects');
+
         $this->load->model('ProjectTask_model', 'projecttask');
         $this->load->model('ProjectNote_model', 'projectnote');
+
+        $this->audit->add_to_ignore('priority_index');
     }
 
     public function get_projects($id = NULL, $where = array(), $order = array()){
@@ -73,21 +73,22 @@ class Project_model extends CI_Model{
 
     public function set_project($data)
     {
-        $this->load->helper('url');
         $id = null;
 
         if(array_key_exists('sapid', $data)){ unset($data['sapid']); }
-
         $data['modified'] = date("Y-m-d H:i:s");
 
         if(!array_key_exists('id', $data) || empty($data['id'])){
             $data['created'] = date("Y-m-d H:i:s");
-            if($this->db->insert($this->table, $data)){
-                $id = $this->db->insert_id();
-            }
+
+            $this->db->insert($this->table, $data);
+            $id = $this->db->insert_id();
+            $this->_audit(Audit::DBINSERT, $id, NULL, array($data['effort_target']));
         } else {
-            $this->db->update($this->table, $data, array('id'=>$data['id']));
             $id = $data['id'];
+            $old = $this->get_by_id($id);
+            $this->db->update($this->table, $data, array('id'=>$id));
+            $this->_audit(Audit::DBUPDATE, $id, NULL, $data, $old);
         }
 
         return $id;
@@ -130,7 +131,7 @@ class Project_model extends CI_Model{
         return $this->db->count_all_results();
     }
 
-    private function _get_datatables_query($columnOrder, $searchColumns, $searchText, $where, $order)
+    protected function _get_datatables_query($columnOrder, $searchColumns, $searchText, $where, $order)
     {
         $this->db->select( $this->table.'.*', FALSE );
         $this->db->select( "lpad(convert($this->table.id, char), 5, '0') AS sapid", FALSE);
