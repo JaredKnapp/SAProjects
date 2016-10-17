@@ -338,7 +338,7 @@
         <div class="container">
             <p>
                 <small>
-                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v1.7.01)
+                    &copy; <?php echo date("Y"); ?> - EMC Corporation. All rights reserved. (Project Engine: v<?php echo SAP_VERSION; ?>)
                 </small>
             </p>
         </div>

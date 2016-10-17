@@ -98,13 +98,13 @@ class BuildNotifications extends MY_Controller
                 $message = $message . 'Project';
                 switch ($row['action']) {
                     case 'insert':
-                        $message = $message . " created: '{$row['new_value']}'.\n";
+                        $message = $message . " created: '{$row['new_value']}'.";
                         break;
                     case 'update':
-                        $message = $message . " updated: Field {$row['field_name']} = '{$row['new_value']}'.\n";
+                        $message = $message . " updated: Field {$row['field_name']} = '{$row['new_value']}'.";
                         break;
                     default:
-                        $message = $message . " {$row['action']}.\n";
+                        $message = $message . " {$row['action']}.";
                         break;
                 }
                 break;
@@ -112,13 +112,13 @@ class BuildNotifications extends MY_Controller
                 $message = $message . 'Task';
                 switch ($row['action']) {
                     case 'insert':
-                        $message = $message . " created: '{$row['projecttask']}'.\n";
+                        $message = $message . " created: '{$row['projecttask']}'.";
                         break;
                     case 'update':
-                        $message = $message . " updated: Field {$row['field_name']} = '{$row['new_value']}'.\n";
+                        $message = $message . " updated: Field {$row['field_name']} = '{$row['new_value']}'.";
                         break;
                     default:
-                        $message = $message . " {$row['action']}.\n";
+                        $message = $message . " {$row['action']}.";
                         break;
                 }
                 break;
@@ -126,27 +126,27 @@ class BuildNotifications extends MY_Controller
                 $message = $message . 'Note';
                 switch ($row['action']) {
                     case 'insert':
-                        $message = $message . " created: '{$row['new_value']}'.\n";
+                        $message = $message . " created: '{$row['new_value']}'.";
                         break;
                     case 'update':
-                        $message = $message . " updated: Field {$row['field_name']} = '{$row['new_value']}'.\n";
+                        $message = $message . " updated: Field {$row['field_name']} = '{$row['new_value']}'.";
                         break;
                     default:
-                        $message = $message . " {$row['action']}.\n";
+                        $message = $message . " {$row['action']}.";
                         break;
                 }
                 break;
             default:
                 $message = $message . $row['table'];
-                switch (row['action']) {
+                switch ($row['action']) {
                     case 'insert':
-                        $message = $message . " created: '{$row['new_value']}'.\n";
+                        $message = $message . " created: '{$row['new_value']}'.";
                         break;
                     case 'update':
-                        $message = $message . " updated: Field {$row['field_name']} = '{$row['new_value']}'.\n";
+                        $message = $message . " updated: Field {$row['field_name']} = '{$row['new_value']}'.";
                         break;
                     default:
-                        $message = $message . " {$row['action']}.\n";
+                        $message = $message . " {$row['action']}.";
                         break;
                 }
                 break;

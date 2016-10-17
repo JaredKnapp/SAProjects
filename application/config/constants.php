@@ -88,6 +88,7 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 /*-------------------------------
 | APPLICATION CONSTANTS
 ---------------------------------*/
+defined('SAP_VERSION')              or define('SAP_VERSION', '1.7.02');
 defined('SAP_PASSWORDSALT')         or define('SAP_PASSWORDSALT', ':LKJ89w9 @#$je$jf@#987pjh @#$as9fa sdfas%$#97 08yasdh');
 defined('SAP_RETURNEMAIL')          or define('SAP_RETURNEMAIL', 'noreply@sap.solarch.lab.emc.com');
 

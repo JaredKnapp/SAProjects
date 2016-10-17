@@ -6,7 +6,8 @@ class ProjectTask_model extends MY_Model{
     public function __construct(){
         parent::__construct('projecttasks');
 
-        $this->load->database();
+        $this->load->model('EffortOutput_model', 'effortoutput');
+
         $this->load->helper('string');
     }
 
@@ -16,6 +17,13 @@ class ProjectTask_model extends MY_Model{
     }
 
     public function set_projecttask($id = NULL, $projectsId = null, $effortOutputsId = NULL, $projectedStartDate = NULL, $estimatedCompletionDate = NULL, $duration = NULL, $completionDate = NULL, $collateralURL = NULL){
+
+        if(null_or_empty($id) && null_or_empty($duration)){
+            $effortOutput = $this->effortoutput->get_by_id($effortOutputsId);
+            if($effortOutput){
+                $duration = $effortOutput->duration;
+            }
+        }
 
         $data = array(
             'id'                        => $id,
