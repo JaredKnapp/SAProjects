@@ -15,25 +15,6 @@ class ProjectTask_model extends MY_Model{
         return $query->row();
     }
 
-    public function get_list($where){
-        $query = $this->db->get_where($this->table, $where);
-        return $query->result_array();
-    }
-
-    public function get($where){
-        $this->db->select( $this->table.'.*', FALSE );
-
-        $this->db->from($this->table);
-        $this->db->where($where);
-
-        $this->db->order_by('name', 'ASC');
-
-        $sql = $this->db->get_compiled_select(null, FALSE);
-
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-
     public function set_projecttask($id = NULL, $projectsId = null, $effortOutputsId = NULL, $projectedStartDate = NULL, $estimatedCompletionDate = NULL, $duration = NULL, $completionDate = NULL, $collateralURL = NULL){
 
         $data = array(

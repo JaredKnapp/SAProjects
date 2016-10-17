@@ -12,8 +12,7 @@
     var ajax_projectlist_url = "<?php echo site_url('architect/SAView/ajax_list'); ?>";
     var ajax_reorder_url = "<?php echo site_url('architect/SAView/ajax_reorder'); ?>";
     var ajax_tasktable_url = "<?php echo site_url('architect/SAView/ajax_gettasktable'); ?>";
-    var ajax_addproject_url = "<?php echo site_url('architect/SAView/ajax_add')?>";
-    var ajax_updateproject_url = "<?php echo site_url('architect/SAView/ajax_update')?>";
+    var ajax_saveproject_url = "<?php echo site_url('architect/SAView/ajax_save')?>";
     var ajax_deleteproject_url = "<?php echo site_url('architect/SAView/ajax_delete')?>";
     var ajax_deferproject_url = "<?php echo site_url('architect/SAView/ajax_defer')?>";
 
@@ -21,7 +20,7 @@
 
     //Populate Search Boxes using QueryString
     var filter_values = new Array();
-    <?php
+<?php
 foreach($_GET as $key=>$value){
     if(substr("$key     ", 0, 4)=="col_"){
         echo "filter_values['$key']='$value'; \r";
@@ -261,11 +260,11 @@ foreach($_GET as $key=>$value){
                         labelStyle = 'label-default';
 
                         if (data === '<?php echo $statusList['draft']; ?>') labelStyle = 'label-default';
-                        if (data === '<?php echo $statusList['approved']; ?>') labelStyle = 'label-info';
                         if (data === '<?php echo $statusList['deferred']; ?>') labelStyle = 'label-danger';
+                        if (data === '<?php echo $statusList['approved']; ?>') labelStyle = 'label-info';
                         if (data === '<?php echo $statusList['inprocess']; ?>') labelStyle = 'label-success';
-                        if (data === '<?php echo $statusList['scheduled']; ?>') labelStyle = 'label-primary';
-                        if (data === '<?php echo $statusList['complete']; ?>') labelStyle = '';
+                        if (data === '<?php echo $statusList['scheduled']; ?>') labelStyle = 'label-success';
+                        if (data === '<?php echo $statusList['complete']; ?>') labelStyle = 'label-primary';
 
                         return '<h5><span class="label ' + labelStyle + '">' + data + '</span></h5>';
                     }
@@ -664,10 +663,8 @@ foreach($platforms as $key=>$value){
     }
 
     function saveProjectData(dialogRef, button, saveMethod, jsonProjectData) {
-        var url = (saveMethod == 'add') ? ajax_addproject_url : ajax_updateproject_url;
-
         $.ajax({
-            url: url,
+            url: ajax_saveproject_url,
             type: "POST",
             data: jsonProjectData,
             dataType: "JSON",

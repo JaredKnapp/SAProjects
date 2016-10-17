@@ -13,7 +13,7 @@ class SendEmails extends MY_Controller
 
     public function release($sendall = false){
 
-		$emails = $this->emailmodel->get('date_sent IS NULL');
+		$emails = $this->emailmodel->get(array('date_sent IS NULL'), array(array('created', 'DESC')));
 
         foreach($emails as $email){
 

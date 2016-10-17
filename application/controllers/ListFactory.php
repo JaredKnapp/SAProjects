@@ -17,7 +17,7 @@ class ListFactory extends MY_Controller {
         $this->load->model('EffortOutput_model', 'effortoutput');
 
         $efforttype_id = $this->input->post('id', TRUE);
-        $data = $this->effortoutput->get(array('efforttypes_id'=>$efforttype_id));
+        $data = $this->effortoutput->get_ordered(array('efforttypes_id'=>$efforttype_id));
 
         $output = '';
         foreach ($data as $value)
@@ -40,10 +40,10 @@ class ListFactory extends MY_Controller {
     }
 
     public function GetEffortOutputsJSON(){
-        $this->load->model('EffortOutput_model');
+        $this->load->model('EffortOutput_model', 'effortoutput');
 
         $efforttype_id = $this->input->post('id', TRUE);
-        $data = $this->effortoutput->get(array('efforttypes_id'=>$efforttype_id));
+        $data = $this->effortoutput->get_ordered(array('efforttypes_id'=>$efforttype_id));
         echo json_encode($data);
     }
 

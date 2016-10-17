@@ -59,12 +59,14 @@ class Project_model extends MY_Model{
     public function get_by_id($id)
     {
         $this->db->select( $this->table.'.*', FALSE );
+        $this->db->select( 'vflatprojectfollowers.notification_list AS notification_list', FALSE);
         $this->db->select( "lpad(convert($this->table.id, char), 5, '0') AS sapid", FALSE);
         $this->db->select( 'vflatprojecttasks.effortoutput_id AS effortoutput_id' );
         $this->db->select( 'workloads.industries_id AS industries_id', FALSE );
         $this->db->select( '(select sum(`projecttasks`.duration) from `projecttasks` where `projecttasks`.projects_id = projects.id) as `task_duration`', FALSE);
         $this->db->select( '(select max(`projecttasks`.estimated_completion_date) from `projecttasks` where `projecttasks`.projects_id = projects.id) as `task_estimated_completion_date`', FALSE);
         $this->db->join( 'workloads', 'workloads.id = ' . $this->table . '.workloads_id', 'left' );
+        $this->db->join( 'vflatprojectfollowers', 'vflatprojectfollowers.projects_id = '.$this->table.'.id', 'left');
         $this->db->join( 'vflatprojecttasks', 'vflatprojecttasks.projects_id = ' . $this->table . '.id', 'left');
         $query = $this->db->get_where($this->table, array($this->table . '.id' => $id));
 
@@ -96,12 +98,12 @@ class Project_model extends MY_Model{
 
     public function delete_by_id($id)
     {
-        $projectnotes = $this->projectnote->get(array('projects_id'=>$id));
+        $projectnotes = $this->projectnote->get_notes(array('projects_id'=>$id));
         foreach($projectnotes as $projectnote){
             $this->projectnote->delete_by_id($projectnote['id']);
         }
 
-        $projecttasks = $this->projecttask->get_list(array('projects_id'=>$id));
+        $projecttasks = $this->projecttask->get(array('projects_id'=>$id));
         foreach($projecttasks as $projecttask){
             $this->projecttask->delete_by_id($projecttask['id']);
         }
@@ -140,6 +142,7 @@ class Project_model extends MY_Model{
         $this->db->select( 'platforms.name AS platform', FALSE );
         $this->db->select( 'CONCAT(users.firstname, " ", users.lastname ) AS sa', FALSE );
         $this->db->select( 'efforttypes.name AS effort_type', FALSE );
+        $this->db->select( 'vflatprojectfollowers.notification_list AS notification_list', FALSE);
         $this->db->select( 'vflatprojecttasks.effortoutput AS effort_output', FALSE );
         $this->db->select( 'vflatprojecttasks.produce AS effort_output_produce', FALSE );
         $this->db->select( 'vflatprojecttasks.duration AS effort_output_duration', FALSE );
@@ -153,6 +156,7 @@ class Project_model extends MY_Model{
         $this->db->join( 'platforms', 'platforms.id = '.$this->table.'.platforms_id' , 'left' );
         $this->db->join( 'users', 'users.id = '.$this->table.'.sa_users_id' , 'left' );
         $this->db->join( 'efforttypes', 'efforttypes.id = '.$this->table.'.efforttypes_id' , 'left' );
+        $this->db->join( 'vflatprojectfollowers', 'vflatprojectfollowers.projects_id = '.$this->table.'.id', 'left');
         $this->db->join( 'vflatprojecttasks', 'vflatprojecttasks.projects_id = '.$this->table.'.id', 'left');
         $this->db->join( 'vflatprojectnotesbyproject', 'vflatprojectnotesbyproject.projects_id = '.$this->table.'.id', 'left');
 

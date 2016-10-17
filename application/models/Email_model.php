@@ -7,21 +7,10 @@ class Email_model extends MY_Model
         parent::__construct('emails');
     }
 
-    public function get($where){
-        $this->db->select( $this->table.'.*', FALSE );
-        $this->db->from($this->table);
-        $this->db->where($where);
-        $this->db->order_by('created', 'DESC');
-
-        $sql = $this->db->get_compiled_select(null, FALSE);
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-
-    public function set($from, $to = array(), $cc = array(), $subject = NULL, $message = NULL){
+    public function set($to = array(), $cc = array(), $subject = NULL, $message = NULL){
         $id = null;
         $data = array(
-            'from'              => $from,
+            'from'              => SAP_RETURNEMAIL,
             'to'                => implode(',', $to),
             'cc'                => implode(',', is_null($cc) ? array() : $cc),
             'subject'           => $subject,

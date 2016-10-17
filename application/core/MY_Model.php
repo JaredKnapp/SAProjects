@@ -16,10 +16,47 @@ class MY_Model extends CI_Model
 
     public function get_by_id($id)
     {
-        $this->db->select( $this->table.'.*', FALSE );
-        $query = $this->db->get_where($this->table, array($this->table . '.id' => $id));
+        $this->db->select( "{$this->table}.*", FALSE );
 
+        $query = $this->db->get_where($this->table, array("{$this->table}.id" => $id));
         return $query->row();
+    }
+
+    public function get(array $whereList = array(), array $orderList = array())
+    {
+        $this->db->select( "{$this->table}.*", FALSE );
+        $this->db->from($this->table);
+
+        foreach($whereList as $fieldname=>$value)
+        {
+            if(is_numeric($fieldname))
+            {
+                $this->db->where($value);
+            }
+            else
+            {
+                $this->db->where(array($fieldname=>$value));
+            }
+        }
+
+        foreach($orderList as $order){
+            if(is_array($order))
+            {
+                $field = $order[0];
+                $direction = sizeof($order) > 1 ? $order[1] : 'ASC';
+                $this->db->order_by($field, $direction);
+            }
+            else
+            {
+                $this->db->order_by($order);
+            }
+        }
+
+        $sql = $this->db->get_compiled_select(null, FALSE);
+        //echo $sql."\n\r";
+
+        $query = $this->db->get();
+        return $query->result_array();
     }
 
     public function delete_by_id($id)

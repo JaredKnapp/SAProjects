@@ -136,7 +136,8 @@ class Project extends MY_Controller {
 
                 //Create Notes
                 $notes = $this->input->post('notes');
-                if(!$this->_empty($notes)){
+                if(!null_or_empty($notes))
+                {
                     $userId = ($this->authorization->is_logged_in() ? $this->session->userdata("id") : NULL);
                     $this->ProjectNote_model->set(NULL, $projectId, NULL, $userId, $notes);
                 }
@@ -248,7 +249,7 @@ class Project extends MY_Controller {
             $where['projecttasks_id'] = $projecttasks_id;
         }
 
-        $data = $this->projectnote->get($where, $searchText);
+        $data = $this->projectnote->get_notes($where, $searchText);
 
         $output = array(
                 "draw" => $this->input->post('draw'),

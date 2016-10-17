@@ -9,7 +9,7 @@ class ProjectNote_model extends MY_Model
         $this->load->helper('string');
     }
 
-    public function get($where = array(), $searchText = NULL){
+    public function get_notes($where = array(), $searchText = NULL){
         $this->db->select( $this->table.'.*', FALSE );
         $this->db->select( 'CONCAT(users.firstname, " ", users.lastname ) AS user', FALSE );
 

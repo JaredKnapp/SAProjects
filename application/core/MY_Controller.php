@@ -16,9 +16,4 @@ class MY_Controller extends CI_Controller {
         }
 	}
 
-    //Use this functio to check whether REFERENCED vars are empty (needed for pre 5.5 PHP)
-    public function _empty($val){
-        return empty($val);
-    }
-
 }

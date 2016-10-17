@@ -2,15 +2,16 @@
 <script src="<?php echo $this->config->base_url('assets/js/sap-getprojecttaskdata.js'); ?>" type="text/javascript"></script>
 
 <script type="text/javascript">
-    var noteshistorytable = null;
+    var notes_table = null;
+    var history_table = null;
+    var task_table = null
     var notechars_max = 10000;
 
     var edit_project_task_page = "<?php echo site_url('/architect/SAView/load_project_task'); ?>";
 
     var ajax_workload_url = "<?php echo site_url('ListFactory/GetWorkloadDropdown');?>";
     var ajax_projectnotes_url = "<?php echo site_url('architect/SAView/ajax_getprojectnotes'); ?>";
-
-
+    var ajax_projecthistory_url = "<?php echo site_url('architect/SAView/ajax_getprojecthistory'); ?>";
 </script>
 
 <style>
@@ -26,6 +27,9 @@
     <li>
         <a data-toggle="tab" href="#project_notes_tab">Notes</a>
     </li>
+    <li>
+        <a data-toggle="tab" href="#project_history_tab">History</a>
+    </li>
 </ul>
 
 
@@ -35,7 +39,9 @@ echo form_open('#', array('id'=>'project_form'), $hidden);
 ?>
 <div class="tab-content">
     <div id="project_info_tab" class="tab-pane fade in active">
-        <h3>Project Information<?php echo ($sapid ? " for SAPID $sapid" : ''); ?></h3>
+        <h3>
+            Project Information<?php echo ($sapid ? " for SAPID $sapid" : ''); ?>
+        </h3>
         <div class="form-body">
             <div class="row">
                 <div class="col-md-6">
@@ -113,6 +119,43 @@ echo form_open('#', array('id'=>'project_form'), $hidden);
                         <script>$(function () { $('#completion_date').datepicker(); });</script>
                         <span class="help-block"></span>
                     </div>
+                    <div class="form-group">
+                        <?php echo form_label('Update Notification List (comma separated)', 'notification_list', array('class'=>'control-label')); ?>
+                        <?php echo form_input(array('name'=>'notification_list', 'class'=>'form-control'), $notification_list, array('id'=>'notification_list')); ?>
+                        <script>
+                            $(function () {
+                                $('#notification_list')
+
+                                  .on('tokenfield:createtoken', function (e) {
+                                      var data = e.attrs.value.split('|')
+                                      e.attrs.value = data[1] || data[0]
+                                      e.attrs.label = data[1] ? data[0] + ' (' + data[1] + ')' : data[0]
+                                  })
+
+                                  .on('tokenfield:createdtoken', function (e) {
+                                      // Über-simplistic e-mail validation
+                                      var re = /\S+@\S+\.\S+/
+                                      var valid = re.test(e.attrs.value)
+                                      if (!valid) {
+                                          $(e.relatedTarget).addClass('invalid')
+                                      }
+                                  })
+
+                                  .on('tokenfield:edittoken', function (e) {
+                                      if (e.attrs.label !== e.attrs.value) {
+                                          var label = e.attrs.label.split(' (')
+                                          e.attrs.value = label[0] + '|' + e.attrs.value
+                                      }
+                                  })
+
+                              .tokenfield({
+                                  createTokensOnBlur: true,
+                                  inputType: 'email'
+                              });
+                            });
+                        </script>
+                        <span class="help-block"></span>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -172,10 +215,22 @@ echo form_open('#', array('id'=>'project_form'), $hidden);
                     <table id="notes_history_table" class="table table-bordered table-condensed table-hover table-striped" cellpadding="0" width="100%">
                         <thead>
                             <tr>
-                                <td>ID</td>
-                                <td>History:</td>
+                                <th>ID</th>
+                                <th>Notes:</th>
                             </tr>
                         </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="project_history_tab" class="tab-pane fade">
+        <h3>Project History</h3>
+        <div class="form-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="project_history_table" class="table table-bordered table-condensed table-hover table-striped" cellpadding="0" width="100%">
                         <tbody></tbody>
                     </table>
                 </div>
@@ -191,7 +246,105 @@ echo form_open('#', array('id'=>'project_form'), $hidden);
 
     $(document).ready(function () {
 
-        noteshistorytable = $('#notes_history_table').DataTable({
+        history_table = $('#project_history_table').DataTable({
+            processing: true,
+            serverSide: true,
+            ordering: false,
+            searching: false,
+            scrollY: "500px",
+            scrollCollapse: true,
+            paging: false,
+            info: false,
+            ajax: {
+                url: ajax_projecthistory_url,
+                data: function (data) {
+                    data.projects_id = $("input[name='id']").val();
+                },
+                type: "POST"
+            },
+            columns: [
+                { data: "id", "visible": false },
+                {
+                    data: null, width: '10%', defaultContent: '', render: function (data, type, row, meta) {
+                        var datePieces = row['created'].split(/[- :]/);
+                        var modDate = new Date(Date.UTC(datePieces[0], datePieces[1] - 1, datePieces[2], datePieces[3], datePieces[4], datePieces[5]));
+                        return modDate.toLocaleDateString() + ' ' + modDate.toLocaleTimeString(); // dd,yyyy hh:mm tt');
+                    }
+                },
+                {
+                    data: null, width: '10%', defaultContent: '', render: function (data, type, row, meta) {
+                        return row['author_id']==null? 'Unknown' : (row['firstname'] + ' ' + row['lastname']);
+                    }
+                },
+                {
+                    data: null, width: '80%', defaultContent: '', render: function (data, type, row, meta) {
+                        returnValue = '';
+                        switch (row['table']) {
+                            case 'projects':
+                                returnValue = 'Project';
+                                switch (row['action']) {
+                                    case 'insert':
+                                        returnValue += ' created: "' + row['new_value'] + '".';
+                                        break;
+                                    case 'update':
+                                        returnValue += (' updated: Field ' + row['field_name'] + ' = "' + row['new_value'] + '".');
+                                        break;
+                                    default:
+                                        returnValue += (' ' + row['action'] + '.');
+                                        break;
+                                }
+                                break;
+                            case 'projecttasks':
+                                returnValue = 'Task';
+                                switch (row['action']) {
+                                    case 'insert':
+                                        returnValue += ' created: "' + row['projecttask'] + '".';
+                                        break;
+                                    case 'update':
+                                        returnValue += (' updated: Field ' + row['field_name'] + ' = "' + row['new_value'] + '".');
+                                        break;
+                                    default:
+                                        returnValue += (' ' + row['action'] + '.');
+                                        break;
+                                }
+                                break;
+                            case 'projectnotes':
+                                returnValue = 'Note';
+                                switch (row['action']) {
+                                    case 'insert':
+                                            returnValue += ' created: "' + row['new_value'] + '".';
+                                        break;
+                                    case 'update':
+                                        returnValue += (' updated: Field ' + row['field_name'] + ' = "' + row['new_value'] + '".');
+                                        break;
+                                    default:
+                                        returnValue += (' ' + row['action'] + '.');
+                                        break;
+                                }
+                                break;
+                            default:
+                                returnValue = row['table'];
+                                switch (row['action']) {
+                                    case 'insert':
+                                        returnValue += ' created: "' + row['new_value'] + '".';
+                                        break;
+                                    case 'update':
+                                        returnValue += (' updated: Field ' + row['field_name'] + ' = "' + row['new_value'] + '".');
+                                        break;
+                                    default:
+                                        returnValue += (' ' + row['action'] + '.');
+                                        break;
+                                }
+                                break;
+                        }
+                        return returnValue;
+                    }
+                }
+
+            ]
+        });
+
+        notes_table = $('#notes_history_table').DataTable({
             processing: true,
             serverSide: true,
             ordering: false,
@@ -214,7 +367,7 @@ echo form_open('#', array('id'=>'project_form'), $hidden);
                         var modDate = new Date(Date.UTC(modDatePieces[0], modDatePieces[1] - 1, modDatePieces[2], modDatePieces[3], modDatePieces[4], modDatePieces[5]));
 
                         var user = row['user'];
-                        return '<strong>' + (user==null ? 'anonymous' : user) + '</strong><br />' + row['notes'] + '<br />' + modDate.toLocaleDateString() + ' ' + modDate.toLocaleTimeString(); // dd,yyyy hh:mm tt');
+                        return '<strong>' + (user == null ? 'anonymous' : user) + '</strong><br />' + row['notes'] + '<br />' + modDate.toLocaleDateString() + ' ' + modDate.toLocaleTimeString(); // dd,yyyy hh:mm tt');
                     }
                 }
             ]
@@ -374,7 +527,7 @@ echo form_open('#', array('id'=>'project_form'), $hidden);
                     '&is_selected=' + isSelected +
                     (("projected_start_date" in task) ? ('&projected_start_date=' + encodeURIComponent(task['projected_start_date'])) : '') +
                     (("estimated_completion_date" in task) ? ('&estimated_completion_date=' + encodeURIComponent(task['estimated_completion_date'])) : '') +
-                    (("duration" in task) ? ('&duration=' + encodeURIComponent(task['duration'])) : '') +
+                    '&duration=' + (("duration" in task) ? encodeURIComponent(task['duration']) : encodeURIComponent(effort['duration'])) +
                     (("completion_date" in task) ? ('&completion_date=' + encodeURIComponent(task['completion_date'])) : '') +
                     (("collateral_url" in task) ? ('&collateral_url=' + encodeURIComponent(task['collateral_url'])) : '');
 

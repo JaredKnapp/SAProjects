@@ -5,7 +5,6 @@ class Group_model extends MY_Model{
 
     public function __construct(){
         parent::__construct('groups');
-        $this->load->database();
     }
 
     public function set_group($data)

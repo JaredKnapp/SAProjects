@@ -8,10 +8,10 @@ class Notification
 
     public function __construct()
     {
-        $this->from = 'noreply@sap.solarch.lab.emc.com';
+        $this->from = SAP_RETURNEMAIL;
 
         $this->CI = &get_instance();
-        $this->CI->load->model('Email_model', 'email');
+        $this->CI->load->model('Email_model', 'emailmodel');
     }
 
     public function newproject($author_email, $cc_list, $project_id, $project)
@@ -44,7 +44,7 @@ class Notification
 
 
     private function _create($to, $cc, $subject, $message){
-        $this->CI->email->set($this->from, $to, $cc, $subject, $message);
+        $this->CI->emailmodel->set($to, $cc, $subject, $message);
     }
 
 }
